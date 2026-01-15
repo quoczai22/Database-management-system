@@ -52,3 +52,44 @@ compile_commands.json
 *creator.user*
 
 *_qmlcache.qrc
+# thêm loại bỏ các file bộ nhớ python 	
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# loại bỏ chạy môi trường trực tiếp
+
+venv/
+env/
+.venv/
+
+# loại bỏ file build
+
+build/
+dist/
+*.egg-info/
+
+# các file khác 
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+
+# =========================
+# OS generated files
+# =========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# =========================
+# IDE / Editor configs
+# =========================
+.vscode/
+.idea/
+
+
+
