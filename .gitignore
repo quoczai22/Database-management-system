@@ -103,9 +103,15 @@ obj/
 *.log
 *.DS_Store
 *.tmp
-*.bak
 #loai bo file .rar
 *.rar
+# =========================
+# SQL Server database files
+# =========================
+*.mdf
+*.ldf
+*.ndf
+*.bak
 
 
 
