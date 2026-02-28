@@ -90,6 +90,22 @@ Desktop.ini
 # =========================
 .vscode/
 .idea/
+# loại bỏ file visual studio
+.vs/
+# loại bỏ file results
+bin/
+obj/
+# loại bỏ các file khác...
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+*.DS_Store
+*.tmp
+*.bak
+#loai bo file .rar
+*.rar
 
 
 
