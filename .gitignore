@@ -103,15 +103,15 @@ obj/
 *.log
 *.DS_Store
 *.tmp
-*.bak
 #loai bo file .rar
 *.rar
------------------------------
-Không up file databse
-*.ldf
+# =========================
+# SQL Server database files
+# =========================
 *.mdf
-*.sql
+*.ldf
 *.ndf
+*.bak
 
 
 
