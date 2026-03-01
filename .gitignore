@@ -106,6 +106,13 @@ obj/
 *.bak
 #loai bo file .rar
 *.rar
+-----------------------------
+Không up file databse
+*.ldf
+*.mdf
+*.sql
+*.ndf
+
 
 
 

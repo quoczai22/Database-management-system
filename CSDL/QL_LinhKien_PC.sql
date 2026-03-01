@@ -2,18 +2,18 @@
 ON PRIMARY
 (
     NAME = QL_LinhKien_Primary,
-    FILENAME = 'D:\BaiTap\HQTCSDL\CSDL\QL_LinhKien_Main.mdf',
+    FILENAME = 'D:\Database-managetment-system\Database-management-system\CSDL\QL_LinhKien_Main.mdf',
     SIZE = 10MB, MAXSIZE = 100MB, FILEGROWTH = 5MB
 ),
 (
     NAME = QL_LinhKien_Secondary,
-    FILENAME = 'D:\BaiTap\HQTCSDL\CSDL\QL_LinhKien_Sub.ndf',
+    FILENAME = 'D:\Database-managetment-system\Database-management-system\CSDL\QL_LinhKien_Sub.ndf',
     SIZE = 5MB, MAXSIZE = 50MB, FILEGROWTH = 1MB
 )
 LOG ON
 (
     NAME = QL_LinhKien_Log,
-    FILENAME = 'D:\BaiTap\HQTCSDL\CSDL\QL_LinhKien_Log.ldf',
+    FILENAME = 'D:\Database-managetment-system\Database-management-system\CSDL\QL_LinhKien_Log.ldf',
     SIZE = 5MB, MAXSIZE = 20MB, FILEGROWTH = 1MB
 )
 GO
@@ -123,18 +123,17 @@ INSERT INTO KhachHang VALUES
 ('KH005', N'Huỳnh Kim Ánh', N'Khánh Hòa', '0932987567'), ('KH006', N'Lê Văn Việt', N'Đà Nẵng', '0905123456'),
 ('KH007', N'Lương Văn Quan', N'Long An', '0913567890'), ('KH008', N'Vũ Thị Mai', N'Hải Phòng', '0988666777'),
 ('KH009', N'Trịnh Hữu Kiến Quốc', N'TP.HCM', '0933444555'), ('KH010', N'Hồ Đại Phong', N'Kon Tum', '0977888999')
-
 INSERT INTO NhanVien (MaNV, TenNV, GioiTinh, NgaySinh, SDT, TenDN, MatKhau, Quyen) VALUES
-('NV001', N'Phạm Văn Mách', N'Nam', '15-05-1995', '0901234567', 'admin', '123456', 'Admin'),    
-('NV002', N'Trần Thị Dung', N'Nữ', '20-10-1998', '0902234567', 'dungtt', '123456', 'User'),      
-('NV003', N'Lê Văn Anh', N'Nam', '05-09-1992', '0903234567', 'anhlv', '123456', 'User'),
-('NV004', N'Nguyễn Thị Điệp', N'Nữ', '12-12-2000', '0904234567', 'diepnt', '123456', 'User'),
-('NV005', N'Hoàng Văn Tuấn', N'Nam', '01-01-1997', '0905234567', 'tuanhv', '123456', 'User'),
-('NV006', N'Đặng Thị Hà Anh', N'Nữ', '14-02-1999', '0906234567', 'anhdth', '123456', 'User'),
-('NV007', N'Bùi Văn Quốc', N'Nam', '30-04-1994', '0907234567', 'quocbv', '123456', 'User'),
-('NV008', N'Đỗ Thị Ngọc Huyền', N'Nữ', '02-09-1996', '0908234567', 'huyendtn', '123456', 'User'),
-('NV009', N'Võ Văn An', N'Nam', '22-12-1993', '0909234567', 'anvv', '123456', 'User'),
-('NV010', N'Lý Thị Nhung', N'Nữ', '08-03-2001', '0910234567', 'nhunglt', '123456', 'User')
+('NV001', N'Phạm Văn Mách', N'Nam', '1995-05-15', '0901234567', 'machpv', '123456', N'Quản lý'),
+('NV002', N'Trần Thị Dung', N'Nữ', '1998-10-20', '0902234567', 'dungtt', '123456', N'Nhân viên thu ngân'),
+('NV003', N'Lý Thị Nhung', N'Nữ', '2001-03-08', '0910234567', 'nhunglt', '123456', N'Nhân viên thu ngân'),
+('NV004', N'Lê Văn Anh', N'Nam', '1992-09-05', '0903234567', 'anhlv', '123456', N'Nhân viên bán hàng'),
+('NV005', N'Nguyễn Thị Điệp', N'Nữ', '2000-12-12', '0904234567', 'diepnt', '123456', N'Nhân viên bán hàng'),
+('NV006', N'Hoàng Văn Tuấn', N'Nam', '1997-01-01', '0905234567', 'tuanhv', '123456', N'Nhân viên kỹ thuật'),
+('NV007', N'Bùi Văn Quốc', N'Nam', '1994-04-30', '0907234567', 'quocbv', '123456', N'Nhân viên kỹ thuật'),
+('NV008', N'Đặng Thị Hà Anh', N'Nữ', '1999-02-14', '0906234567', 'anhdth', '123456', N'Nhân viên kho'),
+('NV009', N'Đỗ Thị Ngọc Huyền', N'Nữ', '1996-09-02', '0908234567', 'huyendtn', '123456', N'Nhân viên kho'),
+('NV010', N'Võ Văn An', N'Nam', '1993-12-22', '0909234567', 'anvv', '123456', N'Nhân viên bán hàng');
 
 INSERT INTO HoaDon (MaHD, NgayHD, MaKH, MaNV) VALUES
 ('HD001', '01-04-2023', 'KH001', 'NV001'), ('HD002', '15-05-2023', 'KH005', 'NV002'),
