@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Ứng dụng đăng nhập"
-        Height="450"
-        Width="800"
+        Height="600"
+        Width="950"
         WindowStartupLocation="CenterScreen"
         Background="#2a5298">
     <Grid>

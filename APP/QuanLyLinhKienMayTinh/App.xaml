@@ -1,12 +1,15 @@
 ﻿<Application x:Class="QuanLyLinhKienMayTinh.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:QuanLyLinhKienMayTinh"
-             StartupUri="LoginApp.xaml">
+             xmlns:Icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    StartupUri="LoginApp.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/Style.xaml"/>
+                <ResourceDictionary Source="Themes/StyleLogin.xaml"/>
+                <ResourceDictionary Source="Themes/StyleMainWindow.xaml"/>
+                <ResourceDictionary Source="Themes/StyleTrangChu.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

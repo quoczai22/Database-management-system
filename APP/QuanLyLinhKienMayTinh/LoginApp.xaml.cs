@@ -1,17 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using Microsoft.Data.SqlClient;
 
 namespace QuanLyLinhKienMayTinh
 {
-    public partial class LoginApp : Window
+    public partial class LoginApp : Window 
     {
         bool suPassVisible = false;
         bool suConfirmVisible = false;
         bool liPassVisible = false;
 
-        string connectionString =
-        @"Server=(localdb)\MSSQLLocalDB;Database=QL_LinhKien_PC;Trusted_Connection=True;";
+        DatabaseHelper db = new DatabaseHelper();
 
         public LoginApp()
         {
@@ -124,42 +134,25 @@ namespace QuanLyLinhKienMayTinh
 
             try
             {
-                using SqlConnection conn = new SqlConnection(connectionString);
-
-                conn.Open();
-
-                string checkQuery =
-                "SELECT COUNT(*) FROM TaiKhoan WHERE tendangnhap=@username";
-
-                using SqlCommand checkCmd = new SqlCommand(checkQuery, conn);
-
-                checkCmd.Parameters.AddWithValue("@username", username);
-
-                int exists = (int)checkCmd.ExecuteScalar();
-
-                if (exists > 0)
+                if (db.UserExists(username))
                 {
                     MessageBox.Show("Tài khoản đã tồn tại");
                     return;
                 }
 
-                string insertQuery =
-                "INSERT INTO Taikhoan(tendangnhap,matkhau) VALUES(@username,@password)";
-
-                using SqlCommand insertCmd = new SqlCommand(insertQuery, conn);
-
-                insertCmd.Parameters.AddWithValue("@username", username);
-                insertCmd.Parameters.AddWithValue("@password", password);
-
-                insertCmd.ExecuteNonQuery();
-
-                MessageBox.Show("Đăng ký thành công");
-
-                ShowLogin_Click(null!, null!);
+                if (db.Register(username, password))
+                {
+                    MessageBox.Show("Đăng ký thành công");
+                    ShowLogin_Click(null!, null!);
+                }
+                else
+                {
+                    MessageBox.Show("Đăng ký thất bại");
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi database: " + ex.Message);
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -170,23 +163,12 @@ namespace QuanLyLinhKienMayTinh
 
             try
             {
-                using SqlConnection conn = new SqlConnection(connectionString);
-
-                conn.Open();
-
-                string query =
-                "SELECT COUNT(*) FROM TaiKhoan WHERE tendangnhap=@username AND matkhau=@password";
-
-                using SqlCommand cmd = new SqlCommand(query, conn);
-
-                cmd.Parameters.AddWithValue("@username", username);
-                cmd.Parameters.AddWithValue("@password", password);
-
-                int result = (int)cmd.ExecuteScalar();
-
-                if (result > 0)
+                if (db.Login(username, password))
                 {
-                    MessageBox.Show("Đăng nhập thành công");
+                    MainWindow main = new MainWindow(username);
+                    main.Show();
+
+                    this.Close();
                 }
                 else
                 {
@@ -195,7 +177,7 @@ namespace QuanLyLinhKienMayTinh
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi database: " + ex.Message);
+                MessageBox.Show(ex.Message);
             }
         }
     }
