@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Data.SqlClient;
+using QuanLyLinhKienMayTinh.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,35 +13,20 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using Microsoft.Data.SqlClient;
+using System;
+using System.Linq;
 
 namespace QuanLyLinhKienMayTinh
 {
-    public partial class LoginApp : Window 
+    public partial class LoginApp : Window
     {
         bool suPassVisible = false;
         bool suConfirmVisible = false;
         bool liPassVisible = false;
 
-        DatabaseHelper db = new DatabaseHelper();
-
         public LoginApp()
         {
             InitializeComponent();
-        }
-
-        void ShowLogin_Click(object sender, RoutedEventArgs e)
-        {
-            SignUpPanel.Visibility = Visibility.Collapsed;
-            LoginPanel.Visibility = Visibility.Visible;
-            txtMessage.Text = "Vui lòng đăng nhập để tiếp tục";
-        }
-
-        void ShowSignUp_Click(object sender, RoutedEventArgs e)
-        {
-            SignUpPanel.Visibility = Visibility.Visible;
-            LoginPanel.Visibility = Visibility.Collapsed;
-            txtMessage.Text = "Vui lòng đăng ký để tiếp tục";
         }
 
         string GetSuPassword()
@@ -56,7 +43,6 @@ namespace QuanLyLinhKienMayTinh
         {
             return liPassVisible ? liPasswordVisible.Text : liPassword.Password;
         }
-
         void ToggleSuPassword_Click(object sender, RoutedEventArgs e)
         {
             if (suPassVisible)
@@ -91,6 +77,7 @@ namespace QuanLyLinhKienMayTinh
             suConfirmVisible = !suConfirmVisible;
         }
 
+
         void ToggleLiPassword_Click(object sender, RoutedEventArgs e)
         {
             if (liPassVisible)
@@ -114,13 +101,13 @@ namespace QuanLyLinhKienMayTinh
             string password = GetSuPassword();
             string confirm = GetSuConfirmPassword();
 
-            if (username == "")
+            if (string.IsNullOrEmpty(username))
             {
                 MessageBox.Show("Chưa nhập tên đăng nhập");
                 return;
             }
 
-            if (password == "")
+            if (string.IsNullOrEmpty(password))
             {
                 MessageBox.Show("Chưa nhập mật khẩu");
                 return;
@@ -134,27 +121,32 @@ namespace QuanLyLinhKienMayTinh
 
             try
             {
-                if (db.UserExists(username))
+                var db = DataProvider.Ins.DB;
+
+                if (db.TaiKhoans.Any(t => t.Tendangnhap == username))
                 {
                     MessageBox.Show("Tài khoản đã tồn tại");
                     return;
                 }
 
-                if (db.Register(username, password))
-                {
-                    MessageBox.Show("Đăng ký thành công");
-                    ShowLogin_Click(null!, null!);
-                }
-                else
-                {
-                    MessageBox.Show("Đăng ký thất bại");
-                }
+                db.TaiKhoans.Add(new TaiKhoan { Tendangnhap = username, Matkhau = password });
+                db.SaveChanges();
+
+                MessageBox.Show("Đăng ký thành công");
+                ShowLogin_Click(null!, null!);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
         }
+        void ShowSignUp_Click(object sender, RoutedEventArgs e)
+        {
+            LoginPanel.Visibility = Visibility.Collapsed;
+            SignUpPanel.Visibility = Visibility.Visible;
+            txtMessage.Text = "Vui lòng điền thông tin để đăng ký tài khoản mới";
+        }
+
 
         void Login_Click(object sender, RoutedEventArgs e)
         {
@@ -163,11 +155,14 @@ namespace QuanLyLinhKienMayTinh
 
             try
             {
-                if (db.Login(username, password))
+                var db = DataProvider.Ins.DB;
+
+                bool hopLe = db.TaiKhoans.Any(t => t.Tendangnhap == username && t.Matkhau == password);
+
+                if (hopLe)
                 {
                     MainWindow main = new MainWindow(username);
                     main.Show();
-
                     this.Close();
                 }
                 else
@@ -179,6 +174,12 @@ namespace QuanLyLinhKienMayTinh
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+        void ShowLogin_Click(object sender, RoutedEventArgs e)
+        {
+            SignUpPanel.Visibility = Visibility.Collapsed;
+            LoginPanel.Visibility = Visibility.Visible;
+            txtMessage.Text = "Vui lòng đăng nhập để tiếp tục";
         }
     }
 }

@@ -1,15 +1,16 @@
 ﻿using LiveCharts;
 using LiveCharts.Wpf;
+using Microsoft.EntityFrameworkCore;
+using QuanLyLinhKienMayTinh.Models;
 using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace QuanLyLinhKienMayTinh
 {
-    // THÊM CLASS NÀY ĐỂ CHỨA DỮ LIỆU CHO BẢNG
     public class ThongKeHang
     {
         public int SoLuong { get; set; }
@@ -18,14 +19,9 @@ namespace QuanLyLinhKienMayTinh
 
     public partial class TrangChu : Page
     {
-        DatabaseHelper db = new DatabaseHelper();
-
         public SeriesCollection RevenueSeries { get; set; }
         public List<string> Labels { get; set; }
-
         public SeriesCollection RoleSeries { get; set; }
-
-        // ĐỔI 2 BIẾN BIỂU ĐỒ CŨ THÀNH DANH SÁCH CHO BẢNG
         public List<ThongKeHang> DanhSachThongKeHang { get; set; }
 
         public TrangChu()
@@ -35,12 +31,9 @@ namespace QuanLyLinhKienMayTinh
             RevenueSeries = new SeriesCollection();
             Labels = new List<string>();
             RoleSeries = new SeriesCollection();
-
-            // KHỞI TẠO DANH SÁCH MỚI
             DanhSachThongKeHang = new List<ThongKeHang>();
 
             TaiDuLieu();
-
             DataContext = this;
         }
 
@@ -48,29 +41,32 @@ namespace QuanLyLinhKienMayTinh
         {
             try
             {
-                txtTongNV.Text = db.ExecuteScalarInt("SELECT COUNT(*) FROM NhanVien").ToString();
-                txtTongKH.Text = db.ExecuteScalarInt("SELECT COUNT(*) FROM KhachHang").ToString();
-                txtTongLK.Text = db.ExecuteScalarInt("SELECT COUNT(*) FROM LinhKien").ToString();
-                txtTongLoaiLK.Text = db.ExecuteScalarInt("SELECT COUNT(*) FROM LoaiLK").ToString();
-                txtTongHD.Text = db.ExecuteScalarInt("SELECT COUNT(*) FROM HoaDon").ToString();
+                var db = DataProvider.Ins.DB;
 
-                string truyVanTopSanPham = @"
-                    SELECT TOP 5 lk.TenLK, SUM(ct.SoLuong) AS TongBan
-                    FROM ChiTietHD ct
-                    JOIN LinhKien lk ON ct.MaLK = lk.MaLK
-                    GROUP BY lk.TenLK
-                    ORDER BY TongBan DESC";
+                txtTongNV.Text = db.NhanViens.Count().ToString();
+                txtTongKH.Text = db.KhachHangs.Count().ToString();
+                txtTongLK.Text = db.LinhKiens.Count().ToString();
+                txtTongLoaiLK.Text = db.LoaiLks.Count().ToString();
+                txtTongHD.Text = db.HoaDons.Count().ToString();
 
-                DataTable bangTopSanPham = db.GetDataTable(truyVanTopSanPham);
+                var topSanPham = DataProvider.Ins.DB.ChiTietHds
+                    .GroupBy(ct => ct.MaLkNavigation.TenLk)
+                    .Select(g => new {
+                        TenLK = g.Key,
+                        TongBan = g.Sum(ct => ct.SoLuong)
+                    })
+                    .OrderByDescending(x => x.TongBan)
+                    .Take(5)
+                    .ToList();
+
                 ChartValues<double> giaTriSanPham = new ChartValues<double>();
-
                 List<string> danhSachTenLK = new List<string>();
                 List<double> danhSachTongBan = new List<double>();
 
-                foreach (DataRow dong in bangTopSanPham.Rows)
+                foreach (var sp in topSanPham)
                 {
-                    danhSachTenLK.Add(dong["TenLK"]?.ToString() ?? "");
-                    danhSachTongBan.Add(Convert.ToDouble(dong["TongBan"]));
+                    danhSachTenLK.Add(sp.TenLK);
+                    danhSachTongBan.Add(Convert.ToDouble(sp.TongBan ?? 0));
                 }
 
                 Labels.AddRange(danhSachTenLK);
@@ -85,21 +81,16 @@ namespace QuanLyLinhKienMayTinh
                     Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#337b61ff"))
                 });
 
-                string truyVanHangSX = "SELECT NSX, COUNT(MaLK) AS SoLuong FROM LinhKien GROUP BY NSX";
-                DataTable bangHangSX = db.GetDataTable(truyVanHangSX);
-
-                List<ThongKeHang> danhSachTam = new List<ThongKeHang>();
-
-                foreach (DataRow dong in bangHangSX.Rows)
-                {
-                    danhSachTam.Add(new ThongKeHang
+                var hangSX = db.LinhKiens
+                    .GroupBy(lk => lk.Nsx)
+                    .Select(g => new ThongKeHang
                     {
-                        HangSX = dong["NSX"]?.ToString() ?? "",
-                        SoLuong = Convert.ToInt32(dong["SoLuong"])
-                    });
-                }
+                        HangSX = g.Key,
+                        SoLuong = g.Count()
+                    })
+                    .ToList();
 
-                DanhSachThongKeHang = danhSachTam;
+                DanhSachThongKeHang = hangSX;
             }
             catch (Exception ex)
             {
@@ -112,26 +103,21 @@ namespace QuanLyLinhKienMayTinh
             try
             {
                 RoleSeries.Clear();
+                var db = DataProvider.Ins.DB;
 
-                string truyVanQuyen = "SELECT Quyen, COUNT(MaNV) AS SoLuong FROM NhanVien GROUP BY Quyen";
-                DataTable bangQuyen = db.GetDataTable(truyVanQuyen);
+                var chucVuNV = db.NhanViens
+                    .GroupBy(nv => nv.ChucVu)
+                    .Select(g => new { ChucVu = g.Key, SoLuong = g.Count() })
+                    .ToList();
 
-                List<string> danhSachQuyen = new List<string>();
-                List<double> danhSachSoLuong = new List<double>();
                 List<string> danhSachMau = new List<string> { "#ff9800", "#e91e63", "#2196f3", "#4caf50", "#9c27b0" };
 
-                foreach (DataRow dong in bangQuyen.Rows)
-                {
-                    danhSachQuyen.Add(dong["Quyen"]?.ToString() ?? "");
-                    danhSachSoLuong.Add(Convert.ToDouble(dong["SoLuong"]));
-                }
-
-                for (int i = 0; i < danhSachQuyen.Count; i++)
+                for (int i = 0; i < chucVuNV.Count; i++)
                 {
                     RoleSeries.Add(new PieSeries
                     {
-                        Title = danhSachQuyen[i],
-                        Values = new ChartValues<double> { danhSachSoLuong[i] },
+                        Title = chucVuNV[i].ChucVu,
+                        Values = new ChartValues<double> { chucVuNV[i].SoLuong },
                         DataLabels = true,
                         Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString(danhSachMau[i % danhSachMau.Count]))
                     });
