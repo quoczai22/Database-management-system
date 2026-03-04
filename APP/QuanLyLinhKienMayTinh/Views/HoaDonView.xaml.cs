@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace QuanLyLinhKienMayTinh
+namespace QuanLyLinhKienMayTinh.Views
 {
     /// <summary>
-    /// Interaction logic for LinhKien.xaml
+    /// Interaction logic for HoaDonView.xaml
     /// </summary>
-    public partial class LinhKien : Page
+    public partial class HoaDonView : Page
     {
-        public LinhKien()
+        public HoaDonView()
         {
             InitializeComponent();
         }
