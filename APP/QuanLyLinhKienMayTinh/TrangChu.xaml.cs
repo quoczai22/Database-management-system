@@ -9,7 +9,6 @@ using System.Windows.Media;
 
 namespace QuanLyLinhKienMayTinh
 {
-    // THÊM CLASS NÀY ĐỂ CHỨA DỮ LIỆU CHO BẢNG
     public class ThongKeHang
     {
         public int SoLuong { get; set; }
@@ -25,7 +24,6 @@ namespace QuanLyLinhKienMayTinh
 
         public SeriesCollection RoleSeries { get; set; }
 
-        // ĐỔI 2 BIẾN BIỂU ĐỒ CŨ THÀNH DANH SÁCH CHO BẢNG
         public List<ThongKeHang> DanhSachThongKeHang { get; set; }
 
         public TrangChu()
@@ -36,7 +34,6 @@ namespace QuanLyLinhKienMayTinh
             Labels = new List<string>();
             RoleSeries = new SeriesCollection();
 
-            // KHỞI TẠO DANH SÁCH MỚI
             DanhSachThongKeHang = new List<ThongKeHang>();
 
             TaiDuLieu();
@@ -113,7 +110,7 @@ namespace QuanLyLinhKienMayTinh
             {
                 RoleSeries.Clear();
 
-                string truyVanQuyen = "SELECT Quyen, COUNT(MaNV) AS SoLuong FROM NhanVien GROUP BY Quyen";
+                string truyVanQuyen = "SELECT ChucVu, COUNT(MaNV) AS SoLuong FROM NhanVien GROUP BY ChucVu";
                 DataTable bangQuyen = db.GetDataTable(truyVanQuyen);
 
                 List<string> danhSachQuyen = new List<string>();
@@ -122,7 +119,7 @@ namespace QuanLyLinhKienMayTinh
 
                 foreach (DataRow dong in bangQuyen.Rows)
                 {
-                    danhSachQuyen.Add(dong["Quyen"]?.ToString() ?? "");
+                    danhSachQuyen.Add(dong["ChucVu"]?.ToString() ?? "");
                     danhSachSoLuong.Add(Convert.ToDouble(dong["SoLuong"]));
                 }
 

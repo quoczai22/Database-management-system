@@ -106,7 +106,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Nhân viên theo Quyền" Style="{StaticResource CardTitleStyle}" Margin="0,0,0,10"/>
+                    <TextBlock Text="Nhân viên theo chức vụ" Style="{StaticResource CardTitleStyle}" Margin="0,0,0,10"/>
                     <lvc:PieChart Grid.Row="1" Series="{Binding RoleSeries}" InnerRadius="40" LegendLocation="Bottom" Loaded="PieChart_Loaded" />
                 </Grid>
             </Border>
