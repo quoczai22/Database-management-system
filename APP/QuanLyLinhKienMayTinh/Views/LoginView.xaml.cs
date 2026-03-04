@@ -1,5 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
-using QuanLyLinhKienMayTinh.Models;
+﻿using QuanLyLinhKienMayTinh.Models;
+using QuanLyLinhKienMayTinh.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,20 +13,22 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System;
-using System.Linq;
 
-namespace QuanLyLinhKienMayTinh
+namespace QuanLyLinhKienMayTinh.Views
 {
-    public partial class LoginApp : Window
+    /// <summary>
+    /// Interaction logic for LoginView.xaml
+    /// </summary>
+    public partial class LoginView : Window
     {
         bool suPassVisible = false;
         bool suConfirmVisible = false;
         bool liPassVisible = false;
 
-        public LoginApp()
+        public LoginView()
         {
             InitializeComponent();
+            this.DataContext = new LoginViewModel();
         }
 
         string GetSuPassword()
@@ -97,89 +99,14 @@ namespace QuanLyLinhKienMayTinh
 
         void SignUp_Click(object sender, RoutedEventArgs e)
         {
-            string username = suUsername.Text.Trim();
-            string password = GetSuPassword();
-            string confirm = GetSuConfirmPassword();
-
-            if (string.IsNullOrEmpty(username))
-            {
-                MessageBox.Show("Chưa nhập tên đăng nhập");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(password))
-            {
-                MessageBox.Show("Chưa nhập mật khẩu");
-                return;
-            }
-
-            if (password != confirm)
-            {
-                MessageBox.Show("Mật khẩu xác nhận không đúng");
-                return;
-            }
-
-            try
-            {
-                var db = DataProvider.Ins.DB;
-
-                if (db.TaiKhoans.Any(t => t.Tendangnhap == username))
-                {
-                    MessageBox.Show("Tài khoản đã tồn tại");
-                    return;
-                }
-
-                db.TaiKhoans.Add(new TaiKhoan { Tendangnhap = username, Matkhau = password });
-                db.SaveChanges();
-
-                MessageBox.Show("Đăng ký thành công");
-                ShowLogin_Click(null!, null!);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            var vm = DataContext as LoginViewModel;
+            vm?.ThucHienDangKy(GetSuPassword(), GetSuConfirmPassword());
         }
-        void ShowSignUp_Click(object sender, RoutedEventArgs e)
-        {
-            LoginPanel.Visibility = Visibility.Collapsed;
-            SignUpPanel.Visibility = Visibility.Visible;
-            txtMessage.Text = "Vui lòng điền thông tin để đăng ký tài khoản mới";
-        }
-
 
         void Login_Click(object sender, RoutedEventArgs e)
         {
-            string username = liUsername.Text.Trim();
-            string password = GetLiPassword();
-
-            try
-            {
-                var db = DataProvider.Ins.DB;
-
-                bool hopLe = db.TaiKhoans.Any(t => t.Tendangnhap == username && t.Matkhau == password);
-
-                if (hopLe)
-                {
-                    MainWindow main = new MainWindow(username);
-                    main.Show();
-                    this.Close();
-                }
-                else
-                {
-                    MessageBox.Show("Sai tài khoản hoặc mật khẩu");
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-        void ShowLogin_Click(object sender, RoutedEventArgs e)
-        {
-            SignUpPanel.Visibility = Visibility.Collapsed;
-            LoginPanel.Visibility = Visibility.Visible;
-            txtMessage.Text = "Vui lòng đăng nhập để tiếp tục";
+            var vm = DataContext as LoginViewModel;
+            vm?.ThucHienDangNhap(GetLiPassword(), this);
         }
     }
 }

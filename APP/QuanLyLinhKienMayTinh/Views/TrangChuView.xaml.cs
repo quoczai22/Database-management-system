@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuanLyLinhKienMayTinh.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,16 +14,18 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace QuanLyLinhKienMayTinh
+namespace QuanLyLinhKienMayTinh.Views
 {
     /// <summary>
-    /// Interaction logic for LoaiLinhKien.xaml
+    /// Interaction logic for TrangChuView.xaml
     /// </summary>
-    public partial class LoaiLinhKien : Page
+    public partial class TrangChuView : Page
     {
-        public LoaiLinhKien()
+
+        public TrangChuView()
         {
             InitializeComponent();
+            this.DataContext= new TrangChuViewModel();
         }
     }
 }

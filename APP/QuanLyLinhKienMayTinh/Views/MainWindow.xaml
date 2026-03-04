@@ -44,11 +44,14 @@
                             <ImageBrush ImageSource="/Images/avatar.png"/>
                         </Ellipse.Fill>
                     </Ellipse>
-                    <TextBlock x:Name="txtUsername" Text="Silvers Club" Foreground="White" 
+                    <TextBlock Text="{Binding CurrentUsername}" Foreground="White" 
                                FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
                 </StackPanel>
 
-                <Button DockPanel.Dock="Bottom" Style="{StaticResource menuButton}" Click="btnLogOut_Click" Margin="10,0,10,20">
+                <Button DockPanel.Dock="Bottom" Style="{StaticResource menuButton}" 
+                        Command="{Binding DangXuatCommand}" 
+                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" 
+                        Margin="10,0,10,20">
                     <StackPanel Orientation="Horizontal">
                         <Icon:PackIconMaterial Kind="Logout" Style="{StaticResource menuButtonIcon}"/>
                         <TextBlock Text="Đăng xuất" VerticalAlignment="Center"/>
@@ -74,21 +77,18 @@
                             <TextBlock Text="Loại Linh Kiện" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-
                     <Button Style="{StaticResource menuButton}" Click="btnKhachHang_Click">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="AccountGroup" Style="{StaticResource menuButtonIcon}"/>
                             <TextBlock Text="Khách Hàng" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-
                     <Button Style="{StaticResource menuButton}" Click="btnNhanVien_Click">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="FileDocumentOutline" Style="{StaticResource menuButtonIcon}"/>
                             <TextBlock Text="Nhân viên" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-
                     <Button Style="{StaticResource menuButton}" Click="btnHoaDon_Click">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="FileDocumentOutline" Style="{StaticResource menuButtonIcon}"/>
@@ -122,7 +122,7 @@
                 </Grid>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="1070,0,0,0">
-                    <Button Style="{StaticResource topButton}" Margin="0,0,10,0" Click="btnThongBao_Click">
+                    <Button Style="{StaticResource topButton}" Margin="0,0,10,0" Command="{Binding ThongBaoCommand}">
                         <Icon:PackIconMaterial Kind="BellOutline" Width="18" Height="18" Foreground="#6e7783"/>
                     </Button>
                 </StackPanel>

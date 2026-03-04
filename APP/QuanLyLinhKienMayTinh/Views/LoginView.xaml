@@ -1,4 +1,4 @@
-﻿<Window x:Class="QuanLyLinhKienMayTinh.LoginApp"
+﻿<Window x:Class="QuanLyLinhKienMayTinh.Views.LoginView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Ứng dụng đăng nhập"
@@ -21,16 +21,18 @@
 
             <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <TextBlock Text="Nhóm 6" FontSize="28" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center"/>
-                <TextBlock x:Name="txtMessage" Text="Vui lòng đăng ký để tiếp tục" FontSize="16" Foreground="GhostWhite" Margin="0,10,0,20" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding Message}" FontSize="16" Foreground="GhostWhite" Margin="0,10,0,20" HorizontalAlignment="Center"/>
             </StackPanel>
 
             <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="30" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Grid Width="300">
 
-                    <StackPanel x:Name="SignUpPanel">
+                    <StackPanel x:Name="SignUpPanel" Visibility="{Binding SignUpVisibility}">
                         <TextBlock Text="Đăng ký" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
                         <TextBlock Text="Tên đăng nhập"/>
-                        <TextBox x:Name="suUsername"/>
+                        <TextBox Text="{Binding SignUpUsername, UpdateSourceTrigger=PropertyChanged}"/>
+
                         <TextBlock Text="Mật khẩu"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -41,6 +43,7 @@
                             <TextBox x:Name="suPasswordVisible" Visibility="Collapsed"/>
                             <Button Grid.Column="1" Content="🎱" Style="{StaticResource EyeButtonStyle}" Click="ToggleSuPassword_Click"/>
                         </Grid>
+
                         <TextBlock Text="Xác nhận mật khẩu"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -51,17 +54,20 @@
                             <TextBox x:Name="suConfirmPasswordVisible" Visibility="Collapsed"/>
                             <Button Grid.Column="1" Content="🎱" Style="{StaticResource EyeButtonStyle}" Click="ToggleSuConfirmPassword_Click"/>
                         </Grid>
+
                         <Button Content="Đăng ký" Background="#4CAF50" Foreground="White" Click="SignUp_Click"/>
                         <TextBlock HorizontalAlignment="Center" Margin="0,10,0,0">
                             <Run Text="Đã có tài khoản? "/>
-                            <Hyperlink Click="ShowLogin_Click">Đăng nhập</Hyperlink>
+                            <Hyperlink Command="{Binding ShowLoginCommand}">Đăng nhập</Hyperlink>
                         </TextBlock>
                     </StackPanel>
 
-                    <StackPanel x:Name="LoginPanel" Visibility="Collapsed">
+                    <StackPanel x:Name="LoginPanel" Visibility="{Binding LoginVisibility}">
                         <TextBlock Text="Đăng nhập" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
                         <TextBlock Text="Tên đăng nhập"/>
-                        <TextBox x:Name="liUsername"/>
+                        <TextBox Text="{Binding LoginUsername, UpdateSourceTrigger=PropertyChanged}"/>
+
                         <TextBlock Text="Mật khẩu"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -72,10 +78,11 @@
                             <TextBox x:Name="liPasswordVisible" Visibility="Collapsed"/>
                             <Button Grid.Column="1" Content="🎱" Style="{StaticResource EyeButtonStyle}" Click="ToggleLiPassword_Click"/>
                         </Grid>
+
                         <Button Content="Đăng nhập" Background="#2196F3" Foreground="White" Click="Login_Click"/>
                         <TextBlock HorizontalAlignment="Center" Margin="0,10,0,0">
                             <Run Text="Chưa có tài khoản? "/>
-                            <Hyperlink Click="ShowSignUp_Click">Đăng ký</Hyperlink>
+                            <Hyperlink Command="{Binding ShowSignUpCommand}">Đăng ký</Hyperlink>
                         </TextBlock>
                     </StackPanel>
 
