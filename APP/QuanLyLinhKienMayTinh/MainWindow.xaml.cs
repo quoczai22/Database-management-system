@@ -1,5 +1,7 @@
-﻿using System;
+﻿using QuanLyLinhKienMayTinh.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -8,7 +10,6 @@ namespace QuanLyLinhKienMayTinh
     public partial class MainWindow : Window
     {
         string currentUsername;
-        DatabaseHelper db = new DatabaseHelper();
 
         int soNhanVienGoc = 0;
         int soLinhKienGoc = 0;
@@ -29,9 +30,11 @@ namespace QuanLyLinhKienMayTinh
         {
             try
             {
-                soNhanVienGoc = db.ExecuteScalarInt("SELECT COUNT(*) FROM NhanVien");
-                soLinhKienGoc = db.ExecuteScalarInt("SELECT COUNT(*) FROM LinhKien");
-                soHoaDonGoc = db.ExecuteScalarInt("SELECT COUNT(*) FROM HoaDon");
+                var db = DataProvider.Ins.DB;
+
+                soNhanVienGoc = db.NhanViens.Count();
+                soLinhKienGoc = db.LinhKiens.Count();
+                soHoaDonGoc = db.HoaDons.Count();
             }
             catch
             {
@@ -42,9 +45,11 @@ namespace QuanLyLinhKienMayTinh
         {
             try
             {
-                int soNhanVienMoi = db.ExecuteScalarInt("SELECT COUNT(*) FROM NhanVien");
-                int soLinhKienMoi = db.ExecuteScalarInt("SELECT COUNT(*) FROM LinhKien");
-                int soHoaDonMoi = db.ExecuteScalarInt("SELECT COUNT(*) FROM HoaDon");
+                var db = DataProvider.Ins.DB;
+
+                int soNhanVienMoi = db.NhanViens.Count();
+                int soLinhKienMoi = db.LinhKiens.Count();
+                int soHoaDonMoi = db.HoaDons.Count();
 
                 List<string> danhSachThongBao = new List<string>();
 
