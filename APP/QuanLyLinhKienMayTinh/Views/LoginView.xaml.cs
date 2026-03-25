@@ -96,17 +96,5 @@ namespace QuanLyLinhKienMayTinh.Views
             }
             liPassVisible = !liPassVisible;
         }
-
-        void SignUp_Click(object sender, RoutedEventArgs e)
-        {
-            var vm = DataContext as LoginViewModel;
-            vm?.ThucHienDangKy(GetSuPassword(), GetSuConfirmPassword());
-        }
-
-        void Login_Click(object sender, RoutedEventArgs e)
-        {
-            var vm = DataContext as LoginViewModel;
-            vm?.ThucHienDangNhap(GetLiPassword(), this);
-        }
     }
 }
