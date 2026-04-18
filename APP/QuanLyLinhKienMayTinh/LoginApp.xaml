@@ -1,81 +1,267 @@
-﻿<Window x:Class="QuanLyLinhKienMayTinh.LoginApp"
+﻿<Window x:Class="QuanLyLinhKienMayTinh.Views.LoginView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Ứng dụng đăng nhập"
-        Height="600"
-        Width="950"
+        Title="Quản Lý Linh Kiện Máy Tính"
+        Height="620" Width="980"
         WindowStartupLocation="CenterScreen"
-        Background="#2a5298">
+        ResizeMode="NoResize"
+        Background="#3f51b5">
+
+    <Window.Resources>
+        <!-- Eye Button -->
+        <Style x:Key="EyeButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent" Padding="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Input Style -->
+        <Style x:Key="InputStyle" TargetType="TextBox">
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,4,0,14"/>
+            <Setter Property="BorderBrush" Value="#dde3ed"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#f8f9fc"/>
+            <Setter Property="Foreground" Value="#2d3748"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="2"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#3f51b5"/>
+                                <Setter Property="Background" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- PasswordBox Style -->
+        <Style x:Key="PwdStyle" TargetType="PasswordBox">
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,4,0,14"/>
+            <Setter Property="BorderBrush" Value="#dde3ed"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#f8f9fc"/>
+            <Setter Property="Foreground" Value="#2d3748"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="2"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Label Style -->
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#4a5568"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- Primary Button -->
+        <Style x:Key="PrimaryBtn" TargetType="Button">
+            <Setter Property="Background" Value="#3f51b5"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="0,13"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,10,0,16"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#303f9f"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#1a237e"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GreenBtn" TargetType="Button" BasedOn="{StaticResource PrimaryBtn}">
+            <Setter Property="Background" Value="#43a047"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2e7d32"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
     <Grid>
-        <Ellipse Width="500" Height="500" VerticalAlignment="Bottom" Fill="#80CCFF" Margin="50,0,-200,0" Opacity="0.6"/>
-        <Ellipse Width="300" Height="300" VerticalAlignment="Bottom" Fill="#83C2FF" Margin="-450,0,0,30" Opacity="0.3"/>
-        <Ellipse Width="400" Height="400" VerticalAlignment="Bottom" Fill="#84C3FF" Margin="-320,0,-120,0" Opacity="0.6"/>
-        <Ellipse Width="250" Height="250" VerticalAlignment="Bottom" Fill="#81C2FF" Margin="-380,0,-120,0"/>
-        <Ellipse Width="400" Height="400" VerticalAlignment="Bottom" Fill="#87C5FF" Margin="280,0,-70,0" Opacity="0.8"/>
+        <!-- Decorative Ellipses -->
+        <Ellipse Width="560" Height="560" VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                 Fill="#5c6bc0" Margin="-160,-100,0,0" Opacity="0.5"/>
+        <Ellipse Width="320" Height="320" VerticalAlignment="Top" HorizontalAlignment="Right"
+                 Fill="#7986cb" Margin="0,-80,-80,0" Opacity="0.4"/>
+        <Ellipse Width="200" Height="200" VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                 Fill="#9fa8da" Margin="0,0,-60,-60" Opacity="0.3"/>
 
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="4*"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="Nhóm 6" FontSize="28" FontWeight="Bold" Foreground="#333" HorizontalAlignment="Center"/>
-                <TextBlock x:Name="txtMessage" Text="Vui lòng đăng ký để tiếp tục" FontSize="16" Foreground="GhostWhite" Margin="0,10,0,20" HorizontalAlignment="Center"/>
+            <!-- Left Panel: Branding -->
+            <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="40">
+                <!-- Icon -->
+                <Border Width="90" Height="90" CornerRadius="20" Background="#ffffff22"
+                        HorizontalAlignment="Center" Margin="0,0,0,20">
+                    <TextBlock Text="🖥️" FontSize="46" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+
+                <TextBlock Text="Quản Lý Linh Kiện" FontSize="32" FontWeight="Bold"
+                           Foreground="White" HorizontalAlignment="Center"/>
+                <TextBlock Text="Máy Tính" FontSize="32" FontWeight="Bold"
+                           Foreground="#c5cae9" HorizontalAlignment="Center"/>
+
+                <Rectangle Height="2" Width="60" Fill="#7986cb" Margin="0,20,0,20" HorizontalAlignment="Center"/>
+
+                <TextBlock Text="{Binding Message}" FontSize="14" Foreground="#c5cae9"
+                           HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"
+                           MaxWidth="300"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
+                    <Border Width="8" Height="8" CornerRadius="4" Background="White" Margin="4"/>
+                    <Border Width="8" Height="8" CornerRadius="4" Background="#7986cb" Margin="4"/>
+                    <Border Width="8" Height="8" CornerRadius="4" Background="#7986cb" Margin="4"/>
+                </StackPanel>
             </StackPanel>
 
-            <Border Grid.Column="1" Background="White" CornerRadius="10" Padding="30" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Grid Width="300">
+            <!-- Right Panel: Form Card -->
+            <Border Grid.Column="1" Background="White" CornerRadius="20,0,0,20"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="30" ShadowDepth="0" Opacity="0.15" Color="#000000"/>
+                </Border.Effect>
 
-                    <StackPanel x:Name="SignUpPanel">
-                        <TextBlock Text="Đăng ký" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-                        <TextBlock Text="Tên đăng nhập"/>
-                        <TextBox x:Name="suUsername"/>
-                        <TextBlock Text="Mật khẩu"/>
-                        <Grid>
+                <Grid VerticalAlignment="Center" Margin="50,40">
+
+                    <!-- LOGIN PANEL -->
+                    <StackPanel x:Name="LoginPanel" Visibility="{Binding LoginVisibility}">
+                        <TextBlock Text="Chào mừng trở lại!" FontSize="11" FontWeight="SemiBold"
+                                   Foreground="#3f51b5" Margin="0,0,0,6"/>
+                        <TextBlock Text="Đăng nhập" FontSize="26" FontWeight="Bold"
+                                   Foreground="#1a202c" Margin="0,0,0,4"/>
+                        <TextBlock Text="Vui lòng nhập thông tin tài khoản của bạn"
+                                   FontSize="13" Foreground="#718096" Margin="0,0,0,28"/>
+
+                        <TextBlock Text="Tên đăng nhập" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding LoginUsername, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource InputStyle}"/>
+
+                        <TextBlock Text="Mật khẩu" Style="{StaticResource LabelStyle}"/>
+                        <Grid Margin="0,4,0,14">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
-                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="44"/>
                             </Grid.ColumnDefinitions>
-                            <PasswordBox x:Name="suPassword"/>
-                            <TextBox x:Name="suPasswordVisible" Visibility="Collapsed"/>
-                            <Button Grid.Column="1" Content="🎱" Style="{StaticResource EyeButtonStyle}" Click="ToggleSuPassword_Click"/>
+                            <PasswordBox x:Name="liPassword" Style="{StaticResource PwdStyle}"
+                                         Margin="0" PasswordChanged="LiPassword_PasswordChanged"/>
+                            <TextBox x:Name="liPasswordVisible" Style="{StaticResource InputStyle}"
+                                     Margin="0" Visibility="Collapsed"/>
+                            <Button Grid.Column="1" Content="👁" Style="{StaticResource EyeButtonStyle}"
+                                    Click="ToggleLiPassword_Click" Margin="0,4,0,14"/>
                         </Grid>
-                        <TextBlock Text="Xác nhận mật khẩu"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="40"/>
-                            </Grid.ColumnDefinitions>
-                            <PasswordBox x:Name="suConfirmPassword"/>
-                            <TextBox x:Name="suConfirmPasswordVisible" Visibility="Collapsed"/>
-                            <Button Grid.Column="1" Content="🎱" Style="{StaticResource EyeButtonStyle}" Click="ToggleSuConfirmPassword_Click"/>
-                        </Grid>
-                        <Button Content="Đăng ký" Background="#4CAF50" Foreground="White" Click="SignUp_Click"/>
-                        <TextBlock HorizontalAlignment="Center" Margin="0,10,0,0">
-                            <Run Text="Đã có tài khoản? "/>
-                            <Hyperlink Click="ShowLogin_Click">Đăng nhập</Hyperlink>
+
+                        <Button Content="Đăng nhập" Style="{StaticResource PrimaryBtn}"
+                                Command="{Binding LoginCommand}"/>
+
+                        <TextBlock HorizontalAlignment="Center" FontSize="13">
+                            <Run Text="Chưa có tài khoản? " Foreground="#718096"/>
+                            <Hyperlink Command="{Binding ShowSignUpCommand}" Foreground="#3f51b5">
+                                <Run Text="Đăng ký ngay"/>
+                            </Hyperlink>
                         </TextBlock>
                     </StackPanel>
 
-                    <StackPanel x:Name="LoginPanel" Visibility="Collapsed">
-                        <TextBlock Text="Đăng nhập" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-                        <TextBlock Text="Tên đăng nhập"/>
-                        <TextBox x:Name="liUsername"/>
-                        <TextBlock Text="Mật khẩu"/>
-                        <Grid>
+                    <!-- SIGN UP PANEL -->
+                    <StackPanel x:Name="SignUpPanel" Visibility="{Binding SignUpVisibility}">
+                        <TextBlock Text="Tạo tài khoản mới" FontSize="11" FontWeight="SemiBold"
+                                   Foreground="#43a047" Margin="0,0,0,6"/>
+                        <TextBlock Text="Đăng ký" FontSize="26" FontWeight="Bold"
+                                   Foreground="#1a202c" Margin="0,0,0,4"/>
+                        <TextBlock Text="Điền thông tin bên dưới để tạo tài khoản"
+                                   FontSize="13" Foreground="#718096" Margin="0,0,0,28"/>
+
+                        <TextBlock Text="Tên đăng nhập" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding SignUpUsername, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource InputStyle}"/>
+
+                        <TextBlock Text="Mật khẩu" Style="{StaticResource LabelStyle}"/>
+                        <Grid Margin="0,4,0,14">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
-                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="44"/>
                             </Grid.ColumnDefinitions>
-                            <PasswordBox x:Name="liPassword"/>
-                            <TextBox x:Name="liPasswordVisible" Visibility="Collapsed"/>
-                            <Button Grid.Column="1" Content="🎱" Style="{StaticResource EyeButtonStyle}" Click="ToggleLiPassword_Click"/>
+                            <PasswordBox x:Name="suPassword" Style="{StaticResource PwdStyle}"
+                                         Margin="0" PasswordChanged="SuPassword_PasswordChanged"/>
+                            <TextBox x:Name="suPasswordVisible" Style="{StaticResource InputStyle}"
+                                     Margin="0" Visibility="Collapsed"/>
+                            <Button Grid.Column="1" Content="👁" Style="{StaticResource EyeButtonStyle}"
+                                    Click="ToggleSuPassword_Click" Margin="0,4,0,14"/>
                         </Grid>
-                        <Button Content="Đăng nhập" Background="#2196F3" Foreground="White" Click="Login_Click"/>
-                        <TextBlock HorizontalAlignment="Center" Margin="0,10,0,0">
-                            <Run Text="Chưa có tài khoản? "/>
-                            <Hyperlink Click="ShowSignUp_Click">Đăng ký</Hyperlink>
+
+                        <TextBlock Text="Xác nhận mật khẩu" Style="{StaticResource LabelStyle}"/>
+                        <Grid Margin="0,4,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="44"/>
+                            </Grid.ColumnDefinitions>
+                            <PasswordBox x:Name="suConfirmPassword" Style="{StaticResource PwdStyle}"
+                                         Margin="0" PasswordChanged="SuConfirmPassword_PasswordChanged"/>
+                            <TextBox x:Name="suConfirmPasswordVisible" Style="{StaticResource InputStyle}"
+                                     Margin="0" Visibility="Collapsed"/>
+                            <Button Grid.Column="1" Content="👁" Style="{StaticResource EyeButtonStyle}"
+                                    Click="ToggleSuConfirmPassword_Click" Margin="0,4,0,14"/>
+                        </Grid>
+
+                        <Button Content="Tạo tài khoản" Style="{StaticResource GreenBtn}"
+                                Command="{Binding SignUpCommand}"/>
+
+                        <TextBlock HorizontalAlignment="Center" FontSize="13">
+                            <Run Text="Đã có tài khoản? " Foreground="#718096"/>
+                            <Hyperlink Command="{Binding ShowLoginCommand}" Foreground="#3f51b5">
+                                <Run Text="Đăng nhập"/>
+                            </Hyperlink>
                         </TextBlock>
                     </StackPanel>
 

@@ -1,143 +1,275 @@
-﻿<Page x:Class="QuanLyLinhKienMayTinh.TrangChu"
+﻿<Page x:Class="QuanLyLinhKienMayTinh.Views.TrangChuView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:QuanLyLinhKienMayTinh"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
       xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
-      mc:Ignorable="d" 
-      d:DesignHeight="720" d:DesignWidth="1000"
-      Title="TrangChu">
+      mc:Ignorable="d"
+      d:DesignHeight="680" d:DesignWidth="1000"
+      Title="Trang Chủ">
 
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Page.Resources>
+        <!-- Stat Card Style -->
+        <Style x:Key="StatCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="18,16"/>
+            <Setter Property="Margin" Value="6"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="14" ShadowDepth="0" Opacity="0.07" Color="#000000"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-        <UniformGrid Grid.Row="0" Columns="5">
-            <Border Style="{StaticResource DashboardCardStyle}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <Border Background="#e8eaf6" CornerRadius="10" Padding="8" Margin="0,0,10,0">
-                            <Icon:PackIconMaterial Kind="AccountTie" Foreground="#3f51b5"/>
+        <!-- Chart Card Style -->
+        <Style x:Key="ChartCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="6"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="14" ShadowDepth="0" Opacity="0.07" Color="#000000"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#2d3748"/>
+            <Setter Property="Margin" Value="0,0,0,14"/>
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="10,10,10,16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="220"/>
+            </Grid.RowDefinitions>
+
+            <!-- Page Title -->
+            <StackPanel Grid.Row="0" Margin="6,0,0,16">
+                <TextBlock Text="Tổng quan hệ thống" FontSize="20" FontWeight="Bold" Foreground="#1a202c"/>
+                <TextBlock Text="Xem nhanh thống kê và dữ liệu hệ thống" FontSize="13" Foreground="#718096" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- ===== STAT CARDS ===== -->
+            <UniformGrid Grid.Row="1" Columns="5" Margin="0,0,0,4">
+
+                <!-- Nhân viên -->
+                <Border Style="{StaticResource StatCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Width="40" Height="40" CornerRadius="10"
+                                Background="#e8eaf6" HorizontalAlignment="Left" Margin="0,0,0,12">
+                            <Icon:PackIconMaterial Kind="AccountTie" Foreground="#3f51b5"
+                                                   Width="18" Height="18"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="Tổng Nhân Viên" Style="{StaticResource CardTitleStyle}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <TextBlock x:Name="txtTongNV" Text="0" Style="{StaticResource CardValueStyle}"/>
-                </StackPanel>
-            </Border>
+                        <TextBlock Grid.Row="1" Text="{Binding TongNV}" FontSize="26"
+                                   FontWeight="Bold" Foreground="#1a202c"/>
+                        <TextBlock Grid.Row="2" Text="Nhân Viên" FontSize="12"
+                                   Foreground="#718096" Margin="0,4,0,0"/>
+                    </Grid>
+                </Border>
 
-            <Border Style="{StaticResource DashboardCardStyle}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <Border Background="#e3f2fd" CornerRadius="10" Padding="8" Margin="0,0,10,0">
-                            <Icon:PackIconMaterial Kind="AccountGroup" Foreground="#2196f3"/>
+                <!-- Khách hàng -->
+                <Border Style="{StaticResource StatCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Width="40" Height="40" CornerRadius="10"
+                                Background="#e3f2fd" HorizontalAlignment="Left" Margin="0,0,0,12">
+                            <Icon:PackIconMaterial Kind="AccountGroupOutline" Foreground="#2196f3"
+                                                   Width="18" Height="18"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="Khách Hàng" Style="{StaticResource CardTitleStyle}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <TextBlock x:Name="txtTongKH" Text="0" Style="{StaticResource CardValueStyle}"/>
-                </StackPanel>
-            </Border>
+                        <TextBlock Grid.Row="1" Text="{Binding TongKH}" FontSize="26"
+                                   FontWeight="Bold" Foreground="#1a202c"/>
+                        <TextBlock Grid.Row="2" Text="Khách Hàng" FontSize="12"
+                                   Foreground="#718096" Margin="0,4,0,0"/>
+                    </Grid>
+                </Border>
 
-            <Border Style="{StaticResource DashboardCardStyle}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <Border Background="#f3e5f5" CornerRadius="10" Padding="8" Margin="0,0,10,0">
-                            <Icon:PackIconMaterial Kind="Memory" Foreground="#9c27b0"/>
+                <!-- Linh kiện -->
+                <Border Style="{StaticResource StatCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Width="40" Height="40" CornerRadius="10"
+                                Background="#f3e5f5" HorizontalAlignment="Left" Margin="0,0,0,12">
+                            <Icon:PackIconMaterial Kind="Memory" Foreground="#9c27b0"
+                                                   Width="18" Height="18"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="Linh Kiện" Style="{StaticResource CardTitleStyle}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <TextBlock x:Name="txtTongLK" Text="0" Style="{StaticResource CardValueStyle}"/>
-                </StackPanel>
-            </Border>
+                        <TextBlock Grid.Row="1" Text="{Binding TongLK}" FontSize="26"
+                                   FontWeight="Bold" Foreground="#1a202c"/>
+                        <TextBlock Grid.Row="2" Text="Linh Kiện" FontSize="12"
+                                   Foreground="#718096" Margin="0,4,0,0"/>
+                    </Grid>
+                </Border>
 
-            <Border Style="{StaticResource DashboardCardStyle}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <Border Background="#fff3e0" CornerRadius="10" Padding="8" Margin="0,0,10,0">
-                            <Icon:PackIconMaterial Kind="TagMultiple" Foreground="#ff9800"/>
+                <!-- Loại linh kiện -->
+                <Border Style="{StaticResource StatCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Width="40" Height="40" CornerRadius="10"
+                                Background="#fff3e0" HorizontalAlignment="Left" Margin="0,0,0,12">
+                            <Icon:PackIconMaterial Kind="TagMultiple" Foreground="#ff9800"
+                                                   Width="18" Height="18"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="Loại Linh Kiện" Style="{StaticResource CardTitleStyle}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <TextBlock x:Name="txtTongLoaiLK" Text="0" Style="{StaticResource CardValueStyle}"/>
-                </StackPanel>
-            </Border>
+                        <TextBlock Grid.Row="1" Text="{Binding TongLoaiLK}" FontSize="26"
+                                   FontWeight="Bold" Foreground="#1a202c"/>
+                        <TextBlock Grid.Row="2" Text="Loại Linh Kiện" FontSize="12"
+                                   Foreground="#718096" Margin="0,4,0,0"/>
+                    </Grid>
+                </Border>
 
-            <Border Style="{StaticResource DashboardCardStyle}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <Border Background="#e8f5e9" CornerRadius="10" Padding="8" Margin="0,0,10,0">
-                            <Icon:PackIconMaterial Kind="Receipt" Foreground="#4caf50"/>
+                <!-- Hóa đơn -->
+                <Border Style="{StaticResource StatCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Width="40" Height="40" CornerRadius="10"
+                                Background="#e8f5e9" HorizontalAlignment="Left" Margin="0,0,0,12">
+                            <Icon:PackIconMaterial Kind="ReceiptOutline" Foreground="#4caf50"
+                                                   Width="18" Height="18"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="Tổng Hóa Đơn" Style="{StaticResource CardTitleStyle}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <TextBlock x:Name="txtTongHD" Text="0" Style="{StaticResource CardValueStyle}"/>
-                </StackPanel>
-            </Border>
-        </UniformGrid>
+                        <TextBlock Grid.Row="1" Text="{Binding TongHD}" FontSize="26"
+                                   FontWeight="Bold" Foreground="#1a202c"/>
+                        <TextBlock Grid.Row="2" Text="Hóa Đơn" FontSize="12"
+                                   Foreground="#718096" Margin="0,4,0,0"/>
+                    </Grid>
+                </Border>
+            </UniformGrid>
 
-        <Grid Grid.Row="1" Margin="10,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="1*"/>
-            </Grid.ColumnDefinitions>
+            <!-- ===== CHARTS ROW ===== -->
+            <Grid Grid.Row="2" Height="240" Margin="0,4,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Style="{StaticResource DashboardCardStyle}" Margin="0,10,10,10">
+                <!-- Bar Chart: Doanh thu -->
+                <Border Grid.Column="0" Style="{StaticResource ChartCardStyle}" Margin="6,6,4,6">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                            <Border Width="4" CornerRadius="2" Background="#3f51b5" Margin="0,2,10,2"/>
+                            <StackPanel>
+                                <TextBlock Text="Thống kê Doanh thu" FontSize="14"
+                                           FontWeight="SemiBold" Foreground="#2d3748"/>
+                                <TextBlock Text="Theo linh kiện bán chạy nhất" FontSize="11" Foreground="#a0aec0"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <lvc:CartesianChart Grid.Row="1" Series="{Binding DoanhThu}">
+                            <lvc:CartesianChart.AxisX>
+                                <lvc:Axis Labels="{Binding Labels}"/>
+                            </lvc:CartesianChart.AxisX>
+                        </lvc:CartesianChart>
+                    </Grid>
+                </Border>
+
+                <!-- Pie Chart: Chức vụ -->
+                <Border Grid.Column="1" Style="{StaticResource ChartCardStyle}" Margin="4,6,6,6">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                            <Border Width="4" CornerRadius="2" Background="#9c27b0" Margin="0,2,10,2"/>
+                            <StackPanel>
+                                <TextBlock Text="Nhân viên theo chức vụ" FontSize="14"
+                                           FontWeight="SemiBold" Foreground="#2d3748"/>
+                                <TextBlock Text="Phân bổ nhân sự" FontSize="11" Foreground="#a0aec0"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <lvc:PieChart Grid.Row="1" Series="{Binding ChucVu}"
+                                      InnerRadius="30" LegendLocation="Bottom"/>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ===== BOTTOM TABLE ===== -->
+            <Border Grid.Row="3" Style="{StaticResource ChartCardStyle}" Margin="6">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Thống kê Doanh thu / Bán chạy nhất" Style="{StaticResource CardTitleStyle}" Margin="0,0,0,10"/>
-                    <lvc:CartesianChart Grid.Row="1" Series="{Binding RevenueSeries}">
-                        <lvc:CartesianChart.AxisX>
-                            <lvc:Axis Labels="{Binding Labels}" />
-                        </lvc:CartesianChart.AxisX>
-                    </lvc:CartesianChart>
-                </Grid>
-            </Border>
 
-            <Border Grid.Column="1" Style="{StaticResource DashboardCardStyle}" Margin="10,10,0,10">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Nhân viên theo chức vụ" Style="{StaticResource CardTitleStyle}" Margin="0,0,0,10"/>
-                    <lvc:PieChart Grid.Row="1" Series="{Binding RoleSeries}" InnerRadius="40" LegendLocation="Bottom" Loaded="PieChart_Loaded" />
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                        <Border Width="4" CornerRadius="2" Background="#ff9800" Margin="0,2,10,2"/>
+                        <StackPanel>
+                            <TextBlock Text="Số lượng Linh Kiện theo Hãng" FontSize="14"
+                                       FontWeight="SemiBold" Foreground="#2d3748"/>
+                            <TextBlock Text="Thống kê tồn kho theo nhà sản xuất" FontSize="11" Foreground="#a0aec0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding DanhSachThongKeBanHang}"
+                              AutoGenerateColumns="False" IsReadOnly="True"
+                              CanUserAddRows="False"
+                              Background="White" BorderThickness="1" BorderBrush="#edf2f7"
+                              HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#edf2f7"
+                              RowBackground="White" AlternatingRowBackground="#f9fafb"
+                              FontSize="13">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#3f51b5"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Padding" Value="12,8"/>
+                                <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                                <Setter Property="BorderBrush" Value="#5c6bc0"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Hãng sản xuất" Binding="{Binding HangSX}" Width="*"/>
+                            <DataGridTextColumn Header="Số lượng" Binding="{Binding SoLuong}" Width="120">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="Foreground" Value="#3f51b5"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
             </Border>
         </Grid>
-
-        <Border Grid.Row="2" Style="{StaticResource DashboardCardStyle}" Margin="10,0,10,10">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <TextBlock Text="Số lượng Linh kiện theo Hãng" Style="{StaticResource CardTitleStyle}" Margin="0,0,0,10"/>
-
-                <DataGrid Grid.Row="1" ItemsSource="{Binding DanhSachThongKeHang}" 
-                          AutoGenerateColumns="False" IsReadOnly="True" 
-                          Background="White" BorderThickness="1" BorderBrush="#e0e0e0"
-                          HeadersVisibility="Column" GridLinesVisibility="Horizontal">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Số lượng" Binding="{Binding SoLuong}" Width="150">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-
-                        <DataGridTextColumn Header="Hãng" Binding="{Binding HangSX}" Width="*"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-
-            </Grid>
-        </Border>
-    </Grid>
+    </ScrollViewer>
 </Page>
