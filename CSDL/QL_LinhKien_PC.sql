@@ -9,14 +9,14 @@ CREATE DATABASE QL_LinhKien_PC
 ON PRIMARY
 (
     NAME = QL_LinhKien_Primary,
-    FILENAME = 'C:\SQLData\QL_LinhKien_Main.mdf',
+    FILENAME = 'D:\Database-managetment-system\Database-management-system\CSDL\QL_LinhKien_Main.mdf',
     SIZE = 15MB,
     MAXSIZE = 100MB,
     FILEGROWTH = 5MB
 ),
 (
     NAME = QL_LinhKien_Secondary_NET,
-    FILENAME = 'C:\SQLData\QL_LinhKien_Sub.ndf', 
+    FILENAME = 'D:\Database-managetment-system\Database-management-system\CSDL\QL_LinhKien_Sub.ndf', 
     SIZE = 5MB,
     MAXSIZE = 50MB,
     FILEGROWTH = 1MB
@@ -24,13 +24,13 @@ ON PRIMARY
 LOG ON
 (
     NAME = QL_LinhKien_Log_NET,
-    FILENAME = 'C:\SQLData\QL_LinhKien_Log.ldf',
+    FILENAME = 'D:\Database-managetment-system\Database-management-system\CSDL\QL_LinhKien_Log.ldf',
     SIZE = 5MB,
     MAXSIZE = 20MB,
     FILEGROWTH = 1MB
 );
 GO
-
+exec sp_helpdb 'QL_LinhKien_PC'
 USE QL_LinhKien_PC;
 GO
 SET DATEFORMAT DMY; 
@@ -313,6 +313,7 @@ BEGIN
 END;
 GO
 
+
 --tạo hàm và thủ tục
 
 CREATE FUNCTION fn_DoanhThuTheoThang (@Thang INT, @Nam INT)
@@ -451,6 +452,78 @@ ALTER TABLE NhanVien ADD DaNghiViec bit DEFAULT 0 NOT NULL;
 ALTER TABLE LinhKien ADD NgungKinhDoanh bit DEFAULT 0 NOT NULL;
 GO
 
+----Kịch bản 1: Mức READ UNCOMMITTED (Gây ra lỗi Dirty Read)
+----user 1 cập nhật nhầm 
+--BEGIN TRAN 
+--SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+--UPDATE LinhKien SET SoLuongTon=1000 WHERE MaLK='MOU001'
+--WAITFOR DELAY '00:00:10';
+--ROLLBACK TRAN;
+
+----user 2 đọc báo cáo
+--BEGIN TRAN
+--SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+---- Đọc không cần khóa SLock
+--SELECT SoLuongTon FROM LinhKien WHERE MaLK = 'MOU001'
+--COMMIT TRAN
+
+----2. Kịch bản 2: Mức READ COMMITTED (Sửa lỗi Dirty Read)
+---- user 2 đọc báo cáo
+---- Thiết lập mức cô lập mặc định
+--SET TRANSACTION ISOLATION LEVEL READ COMMITTED; 
+--BEGIN TRAN
+--    -- Lệnh này sẽ bị TREO (chờ) cho đến khi Tab 1 chạy xong
+--    SELECT MaLK, TenLK, DonGiaBan FROM LinhKien WHERE MaLK = 'MOU001';
+--    -- Kết quả in ra số thật: 150000 (do Tab 1 đã Rollback)
+--COMMIT TRAN;
+
+----3. Kịch bản 3: Khóa UPDLOCK (Sửa lỗi Lost Update)
+--BEGIN TRAN
+--DECLARE @TonKho INT;
+
+---- Đặt khóa UPDLOCK để báo hiệu: "Tôi đang lấy số liệu để cập nhật, người khác cấm lấy"
+--SELECT @TonKho = SoLuongTon FROM LinhKien WITH (UPDLOCK) WHERE MaLK = 'MOU002';
+
+--WAITFOR DELAY '00:00:10';
+
+--UPDATE LinhKien SET SoLuongTon = @TonKho - 1 WHERE MaLK = 'MOU002';
+--COMMIT TRAN;
+ 
+-- --4. Kịch bản 4: Mức SERIALIZABLE (Sửa lỗi Phantom)
+---- Thiết lập khóa phạm vi (Range Lock)
+--SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+--BEGIN TRAN
+--    SELECT COUNT(*) AS SoLuongLoaiChuot FROM LinhKien WHERE MaLoai = 'MOU';
+    
+--    WAITFOR DELAY '00:00:10';
+    
+--    SELECT COUNT(*) AS SoLuongLoaiChuot FROM LinhKien WHERE MaLoai = 'MOU';
+--COMMIT TRAN;
+
+--BEGIN TRAN
+--    -- Lệnh Insert này sẽ bị CHẶN đứng lại, phải chờ Tab 1 đếm xong
+--    INSERT INTO LinhKien (MaLK, TenLK, MaLoai, MaNSX, DonGiaBan) 
+--    VALUES ('MOU999', N'Chuột Test Phantom', 'MOU', 'NSX01', 100000);
+--COMMIT TRAN;
+
+----5. Kịch bản 5: Dùng khóa XLOCK gây Tắc nghẽn (Deadlock)
+--BEGIN TRAN
+--    UPDATE LinhKien WITH (XLOCK) SET DonGiaBan = 160000 WHERE MaLK = 'MOU001';
+    
+--    WAITFOR DELAY '00:00:05';
+    
+--    UPDATE LinhKien WITH (XLOCK) SET DonGiaBan = 460000 WHERE MaLK = 'MOU002';
+--COMMIT TRAN;
+
+--USE QL_LinhKien_PC;
+--GO
+--BEGIN TRAN
+--    UPDATE LinhKien WITH (XLOCK) SET DonGiaBan = 470000 WHERE MaLK = 'MOU002';
+    
+--    WAITFOR DELAY '00:00:05';
+    
+--    UPDATE LinhKien WITH (XLOCK) SET DonGiaBan = 170000 WHERE MaLK = 'MOU001';
+--COMMIT TRAN;
 --sao lưu và backup khi cần và khi chạy phải comment backup với restore
 
 --BACKUP DATABASE QL_LinhKien_PC
