@@ -452,7 +452,7 @@ ALTER TABLE NhanVien ADD DaNghiViec bit DEFAULT 0 NOT NULL;
 ALTER TABLE LinhKien ADD NgungKinhDoanh bit DEFAULT 0 NOT NULL;
 GO
 
-----Kịch bản 1: Mức READ UNCOMMITTED (Gây ra lỗi Dirty Read)
+----Kịch bản 1: Mức READ UNCOMMITTED mô phổng thao tác có khóa read uncommited 
 ----user 1 cập nhật nhầm 
 --BEGIN TRAN 
 --SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
@@ -467,7 +467,7 @@ GO
 --SELECT SoLuongTon FROM LinhKien WHERE MaLK = 'MOU001'
 --COMMIT TRAN
 
-----2. Kịch bản 2: Mức READ COMMITTED (Sửa lỗi Dirty Read)
+----2. Kịch bản 2: Mức READ COMMITTED 
 ---- user 2 đọc báo cáo
 ---- Thiết lập mức cô lập mặc định
 --SET TRANSACTION ISOLATION LEVEL READ COMMITTED; 
@@ -477,11 +477,29 @@ GO
 --    -- Kết quả in ra số thật: 150000 (do Tab 1 đã Rollback)
 --COMMIT TRAN;
 
-----3. Kịch bản 3: Khóa UPDLOCK (Sửa lỗi Lost Update)
+----3. Kịch bản 3: Khóa UPDLOCK 
+
+--BEGIN TRAN
+--    DECLARE @TonKho INT;
+    
+--    SELECT @TonKho = SoLuongTon FROM LinhKien WHERE MaLK = 'MOU002';
+    
+--    WAITFOR DELAY '00:00:10';
+    
+--    UPDATE LinhKien SET SoLuongTon = @TonKho - 1 WHERE MaLK = 'MOU002';
+--COMMIT TRAN;
+
+--BEGIN TRAN
+--    DECLARE @TonKho INT;
+    
+--    SELECT @TonKho = SoLuongTon FROM LinhKien WHERE MaLK = 'MOU002';
+    
+--    UPDATE LinhKien SET SoLuongTon = @TonKho - 1 WHERE MaLK = 'MOU002';
+--COMMIT TRAN;
+
 --BEGIN TRAN
 --DECLARE @TonKho INT;
 
----- Đặt khóa UPDLOCK để báo hiệu: "Tôi đang lấy số liệu để cập nhật, người khác cấm lấy"
 --SELECT @TonKho = SoLuongTon FROM LinhKien WITH (UPDLOCK) WHERE MaLK = 'MOU002';
 
 --WAITFOR DELAY '00:00:10';
@@ -489,9 +507,27 @@ GO
 --UPDATE LinhKien SET SoLuongTon = @TonKho - 1 WHERE MaLK = 'MOU002';
 --COMMIT TRAN;
  
--- --4. Kịch bản 4: Mức SERIALIZABLE (Sửa lỗi Phantom)
+-- -- Kịch bản: Mức REPEATABLE READ
+---- Mức cô lập mặc định (Sẽ bị lỗi)
+--SET TRANSACTION ISOLATION LEVEL READ COMMITTED; fix đổi REPEATABLE READ
+--BEGIN TRAN
+--    -- Đọc lần 1
+--    SELECT MaLK, TenLK, DonGiaBan FROM LinhKien WHERE MaLK = 'MOU001';
+    
+--    WAITFOR DELAY '00:00:10';
+    
+--    -- Đọc lần 2 (Kết quả bị thay đổi)
+--    SELECT MaLK, TenLK, DonGiaBan FROM LinhKien WHERE MaLK = 'MOU001';
+--COMMIT TRAN;
+
+
+--BEGIN TRAN
+--    UPDATE LinhKien SET DonGiaBan = 200000 WHERE MaLK = 'MOU001';
+--COMMIT TRAN;
+
+----4. Kịch bản 4: Mức SERIALIZABLE (Sửa lỗi Phantom)
 ---- Thiết lập khóa phạm vi (Range Lock)
---SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+----SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 --BEGIN TRAN
 --    SELECT COUNT(*) AS SoLuongLoaiChuot FROM LinhKien WHERE MaLoai = 'MOU';
     
