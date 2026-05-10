@@ -85,7 +85,7 @@ create table NhanVien (
     GioiTinh nvarchar(5),
     NgaySinh date,
     SDT char(10),
-    ChucVu nvarchar(20),
+    ChucVu nvarchar(30),
     Quyen nvarchar(20),
     Email varchar(50) null,      
     NgayVaoLam date null,      
