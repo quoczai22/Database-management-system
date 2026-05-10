@@ -1,154 +1,167 @@
-﻿--trước khi chạy phải tạo folder SQLData trong ổ C nếu ko có sẽ lỗi
-USE master;
-GO
+﻿-- trước khi chạy phải tạo folder SQLData trong ổ C nếu ko có sẽ lỗi
+use master;
+go
 
-DROP DATABASE IF EXISTS QL_LinhKien_PC;
-GO
+drop database if exists QL_LinhKien_PC;
+go
 
-CREATE DATABASE QL_LinhKien_PC
-ON PRIMARY
+create database QL_LinhKien_PC
+on primary
 (
-    NAME = QL_LinhKien_Primary,
-    FILENAME = 'C:\SQLData\QL_LinhKien_Main.mdf',
-    SIZE = 15MB,
-    MAXSIZE = 100MB,
-    FILEGROWTH = 5MB
+    name = QL_LinhKien_Primary,
+    filename = 'C:\SQLData\QL_LinhKien_Main.mdf',
+    size = 15MB,
+    maxsize = 100MB,
+    filegrowth = 5MB
 ),
 (
-    NAME = QL_LinhKien_Secondary_NET,
-    FILENAME = 'C:\SQLData\QL_LinhKien_Sub.ndf', 
-    SIZE = 5MB,
-    MAXSIZE = 50MB,
-    FILEGROWTH = 1MB
+    name = QL_LinhKien_Secondary_NET,
+    filename = 'C:\SQLData\QL_LinhKien_Sub.ndf', 
+    size = 5MB,
+    maxsize = 50MB,
+    filegrowth = 1MB
 )
-LOG ON
+log on
 (
-    NAME = QL_LinhKien_Log_NET,
-    FILENAME = 'C:\SQLData\QL_LinhKien_Log.ldf',
-    SIZE = 5MB,
-    MAXSIZE = 20MB,
-    FILEGROWTH = 1MB
+    name = QL_LinhKien_Log_NET,
+    filename = 'C:\SQLData\QL_LinhKien_Log.ldf',
+    size = 5MB,
+    maxsize = 20MB,
+    filegrowth = 1MB
 );
-GO
+go
 
-USE QL_LinhKien_PC;
-GO
-SET DATEFORMAT DMY; 
-GO
+use QL_LinhKien_PC;
+go
+set dateformat dmy; 
+go
 
---tạo bảng
-
-CREATE TABLE NhaSanXuat (
-    MaNSX char(5) NOT NULL,
+-- tạo bảng
+create table NhaSanXuat (
+    MaNSX char(5) not null,
     TenNSX nvarchar(50),
     QuocGia nvarchar(50),
-    CONSTRAINT PK_NhaSanXuat PRIMARY KEY (MaNSX)
+    constraint PK_NhaSanXuat primary key (MaNSX)
 );
+go
 
-CREATE TABLE LoaiLK (
-    MaLoai char(3) NOT NULL,
+create table LoaiLK (
+    MaLoai char(3) not null,
     TenLoai nvarchar(40),
     MoTa nvarchar(100), 
-    CONSTRAINT PK_LoaiLK PRIMARY KEY (MaLoai)
+    constraint PK_LoaiLK primary key (MaLoai)
 );
+go
 
-CREATE TABLE LinhKien (
-    MaLK char(6) NOT NULL,
+create table LinhKien (
+    MaLK char(6) not null,
     TenLK nvarchar(50),
     NgayNhap date, 
     TGBH tinyint,
-    MaLoai char(3) NOT NULL,
-    MaNSX char(5) NOT NULL,
+    MaLoai char(3) not null,
+    MaNSX char(5) not null,
     DVT nvarchar(10),
-    SoLuongTon int DEFAULT 0,
+    SoLuongTon int default 0,
     DonGiaBan int,
-    CONSTRAINT PK_LinhKien PRIMARY KEY (MaLK),
-    CONSTRAINT FK_LK_LoaiLK FOREIGN KEY (MaLoai) REFERENCES LoaiLK(MaLoai),
-    CONSTRAINT FK_LK_NhaSanXuat FOREIGN KEY (MaNSX) REFERENCES NhaSanXuat(MaNSX)
+    constraint PK_LinhKien primary key (MaLK),
+    constraint FK_LK_LoaiLK foreign key (MaLoai) references LoaiLK(MaLoai),
+    constraint FK_LK_NhaSanXuat foreign key (MaNSX) references NhaSanXuat(MaNSX)
 );
+go
 
-CREATE TABLE KhachHang (
-    MaKH char(6) NOT NULL,
+create table KhachHang (
+    MaKH char(6) not null,
     TenKH nvarchar(30),
     DChi nvarchar(50),
     SDT char(10),
-    Email varchar(50) NULL,
-    CONSTRAINT PK_KhachHang PRIMARY KEY (MaKH)
+    Email varchar(50) null,
+    constraint PK_KhachHang primary key (MaKH)
 );
+go
 
-CREATE TABLE NhanVien (
-    MaNV char(6) NOT NULL,
+create table NhanVien (
+    MaNV char(6) not null,
     TenNV nvarchar(40),
     GioiTinh nvarchar(5),
     NgaySinh date,
     SDT char(10),
     ChucVu nvarchar(20),
     Quyen nvarchar(20),
-    Email varchar(50) NULL,      
-    NgayVaoLam date NULL,      
-    CONSTRAINT PK_NhanVien PRIMARY KEY (MaNV)
+    Email varchar(50) null,      
+    NgayVaoLam date null,      
+    constraint PK_NhanVien primary key (MaNV)
 );
+go
 
-CREATE TABLE HoaDon (   
-    MaHD char(5) NOT NULL,
+create table HoaDon (   
+    MaHD char(5) not null,
     NgayHD date,
-    MaKH char(6) NOT NULL,
-    MaNV char(6) NOT NULL,
-    TongTien int NULL DEFAULT 0,
-    TrangThai nvarchar(30) DEFAULT N'Chưa thanh toán',
-    CONSTRAINT PK_HoaDon PRIMARY KEY (MaHD),
-    CONSTRAINT FK_HoaDon_KhachHang FOREIGN KEY (MaKH) REFERENCES KhachHang(MaKH),
-    CONSTRAINT FK_HoaDon_NhanVien FOREIGN KEY (MaNV) REFERENCES NhanVien(MaNV)
+    MaKH char(6) not null,
+    MaNV char(6) not null,
+    TongTien int null default 0,
+    TrangThai nvarchar(30) default N'Chưa thanh toán',
+    constraint PK_HoaDon primary key (MaHD),
+    constraint FK_HoaDon_KhachHang foreign key (MaKH) references KhachHang(MaKH),
+    constraint FK_HoaDon_NhanVien foreign key (MaNV) references NhanVien(MaNV)
 );
+go
 
-CREATE TABLE ChiTietHD (
-    MaHD char(5) NOT NULL,
-    MaLK char(6) NOT NULL,
+create table ChiTietHD (
+    MaHD char(5) not null,
+    MaLK char(6) not null,
     SoLuong tinyint, 
     DonGia int,
-    CONSTRAINT PK_CTHD PRIMARY KEY (MaHD, MaLK),
-    CONSTRAINT FK_CTHD_HoaDon FOREIGN KEY (MaHD) REFERENCES HoaDon(MaHD),
-    CONSTRAINT FK_CTHD_LinhKien FOREIGN KEY (MaLK) REFERENCES LinhKien(MaLK) 
+    constraint PK_CTHD primary key (MaHD, MaLK),
+    constraint FK_CTHD_HoaDon foreign key (MaHD) references HoaDon(MaHD),
+    constraint FK_CTHD_LinhKien foreign key (MaLK) references LinhKien(MaLK) 
 );
+go
 
-CREATE TABLE PhieuNhap (
-    MaPN char(5) NOT NULL,
+create table PhieuNhap (
+    MaPN char(5) not null,
     NgayNhap date,
-    MaNV char(6) NOT NULL,
-    CONSTRAINT PK_PhieuNhap PRIMARY KEY (MaPN),
-    CONSTRAINT FK_PhieuNhap_NhanVien FOREIGN KEY (MaNV) REFERENCES NhanVien(MaNV)
+    MaNV char(6) not null,
+    constraint PK_PhieuNhap primary key (MaPN),
+    constraint FK_PhieuNhap_NhanVien foreign key (MaNV) references NhanVien(MaNV)
 );
+go
 
-CREATE TABLE ChiTietPN (
-    MaPN char(5) NOT NULL,
-    MaLK char(6) NOT NULL,
+create table ChiTietPN (
+    MaPN char(5) not null,
+    MaLK char(6) not null,
     SoLuongNhap int,
     DonGiaNhap int,
-    CONSTRAINT PK_CTPN PRIMARY KEY (MaPN, MaLK),
-    CONSTRAINT FK_CTPN_PhieuNhap FOREIGN KEY (MaPN) REFERENCES PhieuNhap(MaPN),
-    CONSTRAINT FK_CTPN_LinhKien FOREIGN KEY (MaLK) REFERENCES LinhKien(MaLK)
+    constraint PK_CTPN primary key (MaPN, MaLK),
+    constraint FK_CTPN_PhieuNhap foreign key (MaPN) references PhieuNhap(MaPN),
+    constraint FK_CTPN_LinhKien foreign key (MaLK) references LinhKien(MaLK)
 );
+go
 
-CREATE TABLE TaiKhoan (
-    TenDN varchar(30) NOT NULL,
-    MatKhau varchar(50) NOT NULL,
-    MaNV char(6) NOT NULL,
-    CONSTRAINT PK_TaiKhoan PRIMARY KEY (TenDN),
-    CONSTRAINT FK_TaiKhoan_NhanVien FOREIGN KEY (MaNV) REFERENCES NhanVien(MaNV),
-    CONSTRAINT UQ_TaiKhoan_MaNV UNIQUE (MaNV) 
+create table TaiKhoan (
+    TenDN varchar(30) not null,
+    MatKhau varchar(50) not null,
+    MaNV char(6) not null,
+    constraint PK_TaiKhoan primary key (TenDN),
+    constraint FK_TaiKhoan_NhanVien foreign key (MaNV) references NhanVien(MaNV),
+    constraint UQ_TaiKhoan_MaNV unique (MaNV) 
 );
-GO
+go
 
---thêm dữ liệu
+-- thêm dữ liệu
+insert into NhaSanXuat values
+('NSX01', 'Genius', 'Taiwan'), 
+('NSX02', 'Logitech', 'Switzerland'),
+('NSX03', 'Kingston', 'USA'), 
+('NSX04', 'Intel', 'USA'),
+('NSX05', 'AMD', 'USA'), 
+('NSX06', 'ASUS', 'Taiwan'),
+('NSX07', 'Samsung', 'South Korea'), 
+('NSX08', 'Gigabyte', 'Taiwan'),
+('NSX09', 'Keychron', 'China'), 
+('NSX10', 'H hành', 'Vietnam');
+go
 
-INSERT INTO NhaSanXuat VALUES
-('NSX01', 'Genius', 'Taiwan'), ('NSX02', 'Logitech', 'Switzerland'),
-('NSX03', 'Kingston', 'USA'), ('NSX04', 'Intel', 'USA'),
-('NSX05', 'AMD', 'USA'), ('NSX06', 'ASUS', 'Taiwan'),
-('NSX07', 'Samsung', 'South Korea'), ('NSX08', 'Gigabyte', 'Taiwan'),
-('NSX09', 'Keychron', 'China'), ('NSX10', 'H hành', 'Vietnam');
-
-INSERT INTO LoaiLK VALUES
+insert into LoaiLK values
 ('MOU', N'Chuột máy tính', N'Chuột gaming, chuột văn phòng các loại'), 
 ('LAP', N'Máy tính xách tay', N'Laptop học tập, làm việc, chơi game'),
 ('CPU', N'Bộ vi xử lý', N'Chip máy tính (Intel, AMD...)'), 
@@ -159,8 +172,9 @@ INSERT INTO LoaiLK VALUES
 ('SSD', N'Ổ cứng SSD', N'Ổ cứng tốc độ cao chạy Win'),
 ('VGA', N'Card màn hình', N'Card đồ họa rời chơi game, làm mượt ảnh'), 
 ('KEY', N'Bàn phím cơ', N'Bàn phím gõ văn bản, phím cơ gaming');
+go
 
-INSERT INTO LinhKien VALUES
+insert into LinhKien values
 ('MOU001', N'Chuột quang có dây', '01-01-2023', 12, 'MOU', 'NSX01', N'Cái', 50, 150000),
 ('MOU002', N'Chuột Logitech G102', '04-02-2023', 24, 'MOU', 'NSX02', N'Cái', 30, 450000),
 ('MOU003', N'Chuột không dây Genius NX', '05-12-2023', 12, 'MOU', 'NSX01', N'Cái', 40, 250000),
@@ -193,8 +207,9 @@ INSERT INTO LinhKien VALUES
 ('PCX001', N'PC Gaming H510', '20-11-2023', 24, 'PCX', 'NSX10', N'Bộ', 5, 10500000),
 ('PCX002', N'PC Office Intel Core i3', '25-11-2023', 24, 'PCX', 'NSX10', N'Bộ', 10, 6500000),
 ('PCX003', N'PC Workstation AMD Ryzen 7', '28-11-2023', 36, 'PCX', 'NSX10', N'Bộ', 5, 18500000);
+go
 
-INSERT INTO KhachHang (MaKH, TenKH, DChi, SDT, Email) VALUES
+insert into KhachHang (MaKH, TenKH, DChi, SDT, Email) values
 ('KH001', N'Ngụy Hạo Nhiên', N'Thanh Hóa', '0989751723', 'nhien1999@gmail.com'),
 ('KH002', N'Đinh Bảo Lộc', N'Lâm Đồng', '0918234654', 'loc1998@gmail.com'),
 ('KH003', N'Trần Thanh Diệu', N'TP.HCM', '0978123765', 'dieu1995@gmail.com'),
@@ -205,221 +220,56 @@ INSERT INTO KhachHang (MaKH, TenKH, DChi, SDT, Email) VALUES
 ('KH008', N'Vũ Thị Mai', N'Hải Phòng', '0988666777', 'mai1991@gmail.com'),
 ('KH009', N'Trịnh Hữu Kiến Quốc', N'TP.HCM', '0933444555', 'quoc1996@gmail.com'),
 ('KH010', N'Hồ Đại Phong', N'Kon Tum', '0977888999', 'phong1994@gmail.com');
+go
 
-INSERT INTO NhanVien (MaNV, TenNV, GioiTinh, NgaySinh, SDT, ChucVu, Quyen, Email, NgayVaoLam) VALUES
+insert into NhanVien (MaNV, TenNV, GioiTinh, NgaySinh, SDT, ChucVu, Quyen, Email, NgayVaoLam) values
 ('NV001', N'Phạm Văn Mách', N'Nam', '15-05-1995', '0901234567', N'Quản lý', N'Quản lý toàn bộ', 'mach1995@gmail.com', '10-06-2020'),
 ('NV002', N'Trần Thị Dung', N'Nữ', '20-10-1998', '0902234567', N'Nhân viên thu ngân', N'Thu ngân', 'dung1998@gmail.com', '15-08-2021'),
 ('NV003', N'Lý Thị Nhung', N'Nữ', '08-03-2001', '0910234567', N'Nhân viên thu ngân', N'Thu ngân', 'nhung2001@gmail.com', '20-02-2023'),
-('NV004', N'Lê Văn Anh', N'Nam', '05-09-1992', '0903234567', N'Nhân viên bán hàng', N'Bán hàng', 'anh1992@gmail.com', '05-01-2018'),
-('NV005', N'Nguyễn Thị Điệp', N'Nữ', '12-12-2000', '0904234567', N'Nhân viên bán hàng', N'Bán hàng', 'diep2000@gmail.com', '12-11-2022'),
+('NV004', N'Lê Văn Anh', N'Nam', '05-09-1992', '0903234567', N'Nhân viên thu ngân', N'Thu ngân', 'anh1992@gmail.com', '05-01-2018'),
+('NV005', N'Nguyễn Thị Điệp', N'Nữ', '12-12-2000', '0904234567', N'Nhân viên Kỹ thuật', N'Kỹ Thuật', 'diep2000@gmail.com', '12-11-2022'),
 ('NV006', N'Hoàng Văn Tuấn', N'Nam', '01-01-1997', '0905234567', N'Nhân viên kỹ thuật', N'Kỹ thuật', 'tuan1997@gmail.com', '01-04-2021'),
 ('NV007', N'Bùi Văn Quốc', N'Nam', '30-04-1994', '0907234567', N'Nhân viên kỹ thuật', N'Kỹ thuật', 'quoc1994@gmail.com', '18-09-2019'),
 ('NV008', N'Đặng Thị Hà Anh', N'Nữ', '14-02-1999', '0906234567', N'Nhân viên kho', N'Kho', 'anh1999@gmail.com', '25-05-2022'),
 ('NV009', N'Đỗ Thị Ngọc Huyền', N'Nữ', '02-09-1996', '0908234567', N'Nhân viên kho', N'Kho', 'huyen1996@gmail.com', '03-07-2020'),
-('NV010', N'Võ Văn An', N'Nam', '22-12-1993', '0909234567', N'Nhân viên bán hàng', N'Bán hàng', 'an1993@gmail.com', '11-10-2018');
+('NV010', N'Võ Văn An', N'Nam', '22-12-1993', '0909234567', N'Nhân viên kho', N'Kho', 'an1993@gmail.com', '11-10-2018');
+go
 
-INSERT INTO HoaDon (MaHD, NgayHD, MaKH, MaNV) VALUES
-('HD001', '01-04-2023', 'KH001', 'NV001'), ('HD002', '15-05-2023', 'KH005', 'NV002'),
-('HD003', '14-06-2023', 'KH004', 'NV001'), ('HD004', '03-06-2023', 'KH005', 'NV003'),
-('HD005', '05-06-2023', 'KH001', 'NV002'), ('HD006', '07-07-2023', 'KH003', 'NV004'),
-('HD007', '12-08-2023', 'KH002', 'NV005'), ('HD008', '25-09-2023', 'KH003', 'NV001'),
-('HD009', '10-10-2023', 'KH008', 'NV006'), ('HD010', '11-11-2023', 'KH010', 'NV007');
+insert into HoaDon (MaHD, NgayHD, MaKH, MaNV, TrangThai) values
+('HD001', '01-04-2023', 'KH001', 'NV001', N'Đã thanh toán'), 
+('HD002', '15-05-2023', 'KH005', 'NV002', N'Đã thanh toán'),
+('HD003', '14-06-2023', 'KH004', 'NV001', N'Chưa thanh toán'), 
+('HD004', '03-06-2023', 'KH005', 'NV003', N'Chưa thanh toán'),
+('HD005', '05-06-2023', 'KH001', 'NV002', N'Đã thanh toán'), 
+('HD006', '07-07-2023', 'KH003', 'NV004', N'Chưa thanh toán'),
+('HD007', '12-08-2023', 'KH002', 'NV005', N'Chưa thanh toán'), 
+('HD008', '25-09-2023', 'KH003', 'NV001', N'Chưa thanh toán'),
+('HD009', '10-10-2023', 'KH008', 'NV006', N'Chưa thanh toán'), 
+('HD010', '11-11-2023', 'KH010', 'NV007', N'Chưa thanh toán'),
+('HD011', '14-03-2024', 'KH001', 'NV002', N'Chưa thanh toán'),
+('HD012', '30-10-2024', 'KH002', 'NV003', N'Đã thanh toán'),
+('HD013', '20-05-2025', 'KH003', 'NV004', N'Chưa thanh toán'),
+('HD014', '11-08-2025', 'KH004', 'NV005', N'Đã thanh toán'),
+('HD015', '25-12-2025', 'KH005', 'NV002', N'Chưa thanh toán'),
+('HD016', '10-01-2026', 'KH006', 'NV003', N'Đã thanh toán'),
+('HD017', '15-02-2026', 'KH007', 'NV004', N'Chưa thanh toán'),
+('HD018', '20-03-2026', 'KH008', 'NV005', N'Đã thanh toán'),
+('HD019', '05-04-2026', 'KH009', 'NV006', N'Chưa thanh toán'),
+('HD020', '12-04-2026', 'KH010', 'NV007', N'Đã thanh toán');
+go
 
-UPDATE HoaDon SET TrangThai = N'Đã thanh toán' WHERE MaHD IN ('HD001', 'HD002', 'HD005');
-
-INSERT INTO ChiTietHD VALUES
-('HD001', 'MOU001', 2, 150000), ('HD002', 'MOU002', 1, 450000),
-('HD003', 'RAM001', 2, 850000), ('HD004', 'CPU001', 1, 4500000),
-('HD005', 'CPU002', 1, 3200000), ('HD006', 'MAI001', 1, 1800000),
-('HD007', 'SSD001', 2, 1200000), ('HD007', 'VGA001', 1, 8900000),
-('HD008', 'KEY001', 1, 1650000), ('HD009', 'PCX001', 1, 10500000),
-('HD010', 'MOU001', 5, 140000);
-
-INSERT INTO PhieuNhap (MaPN, NgayNhap, MaNV) VALUES 
-('PN001', '10-01-2023', 'NV008'), ('PN002', '15-02-2023', 'NV009'),
-('PN003', '20-03-2023', 'NV008'), ('PN004', '05-04-2023', 'NV009'),
-('PN005', '12-05-2023', 'NV008'), ('PN006', '18-06-2023', 'NV009'),
-('PN007', '22-07-2023', 'NV008'), ('PN008', '08-08-2023', 'NV009'),
-('PN009', '30-09-2023', 'NV008'), ('PN010', '14-10-2023', 'NV009');
-
-INSERT INTO ChiTietPN (MaPN, MaLK, SoLuongNhap, DonGiaNhap) VALUES 
-('PN001', 'MOU001', 50, 100000), ('PN002', 'MOU002', 30, 300000),
-('PN003', 'RAM001', 40, 600000), ('PN004', 'CPU001', 15, 4000000),
-('PN005', 'CPU002', 20, 2800000), ('PN006', 'MAI001', 10, 1500000),
-('PN007', 'SSD001', 25, 900000), ('PN008', 'VGA001', 5, 8000000),
-('PN009', 'KEY001', 15, 1200000), ('PN010', 'PCX001', 5, 9500000);
-
-INSERT INTO TaiKhoan (TenDN, MatKhau, MaNV) VALUES 
-('machpv', '123456', 'NV001'), ('dungtt', '123456', 'NV002'),
-('nhunglt', '123456', 'NV003'), ('anhlv', '123456', 'NV004'),
-('diepnt', '123456', 'NV005'), ('tuanhv', '123456', 'NV006'),
-('quocbv', '123456', 'NV007'), ('anhdth', '123456', 'NV008'),
-('huyendtn', '123456', 'NV009'), ('anvv', '123456', 'NV010');
-GO
-
---tạo trigger
-
-CREATE TRIGGER trg_CapNhatTonKho_Full
-ON ChiTietHD
-AFTER INSERT, UPDATE, DELETE
-AS
-BEGIN
-    SET NOCOUNT ON;
-    UPDATE LinhKien
-    SET SoLuongTon = SoLuongTon - T.SoLuong
-    FROM LinhKien
-    JOIN (
-        SELECT MaLK, SUM(SoLuong) AS SoLuong
-        FROM inserted
-        GROUP BY MaLK
-    ) T ON LinhKien.MaLK = T.MaLK;
-    UPDATE LinhKien
-    SET SoLuongTon = SoLuongTon + T.SoLuong
-    FROM LinhKien
-    JOIN (
-        SELECT MaLK, SUM(SoLuong) AS SoLuong
-        FROM deleted
-        GROUP BY MaLK
-    ) T ON LinhKien.MaLK = T.MaLK;
-END;
-
-CREATE TRIGGER trg_CongTonKhoKhiNhap
-ON ChiTietPN
-AFTER INSERT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    UPDATE LinhKien
-    SET SoLuongTon = LinhKien.SoLuongTon + HangVuaNhap.SoLuongNhap
-    FROM LinhKien
-    JOIN inserted HangVuaNhap ON LinhKien.MaLK = HangVuaNhap.MaLK;
-END;
-GO
-
-CREATE TRIGGER trg_CapNhatTongTien
-ON ChiTietHD
-AFTER INSERT, UPDATE, DELETE
-AS
-BEGIN
-    SET NOCOUNT ON;
-    UPDATE HoaDon
-    SET TongTien = (
-        SELECT ISNULL(SUM(SoLuong * DonGia), 0) 
-        FROM ChiTietHD 
-        WHERE ChiTietHD.MaHD = HoaDon.MaHD
-    )
-    WHERE MaHD IN (SELECT MaHD FROM inserted)  
-       OR MaHD IN (SELECT MaHD FROM deleted); 
-END;
-GO
-
---tạo hàm và thủ tục
-
-CREATE FUNCTION fn_DoanhThuTheoThang (@Thang INT, @Nam INT)
-RETURNS INT AS
-BEGIN
-    DECLARE @DoanhThu INT;
-    SELECT @DoanhThu = SUM(TongTien) FROM HoaDon WHERE MONTH(NgayHD) = @Thang AND YEAR(NgayHD) = @Nam;
-    RETURN ISNULL(@DoanhThu, 0);
-END;
-GO
-
-CREATE PROCEDURE sp_BaoCaoTonKho AS
-BEGIN
-    DECLARE cur_KiemTraKho CURSOR FOR SELECT MaLK, TenLK, SoLuongTon FROM LinhKien WHERE SoLuongTon < 10;
-    DECLARE @MaLK char(6), @TenLK nvarchar(50), @TonKho int;
-
-    OPEN cur_KiemTraKho;
-    FETCH NEXT FROM cur_KiemTraKho INTO @MaLK, @TenLK, @TonKho;
-
-    PRINT N'--- BÁO CÁO NHỮNG LINH KIỆN SẮP HẾT HÀNG ---'
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT N'CẢNH BÁO: Linh kiện ' + @TenLK + ' (Mã: ' + @MaLK + N') chỉ còn: ' + CAST(@TonKho AS varchar) + N' cái. Cần nhập gấp!';
-        FETCH NEXT FROM cur_KiemTraKho INTO @MaLK, @TenLK, @TonKho;
-    END;
-
-    CLOSE cur_KiemTraKho;
-    DEALLOCATE cur_KiemTraKho;
-END;
-GO
-
-CREATE PROCEDURE sp_BanLinhKien 
-    @MaHD char(5), 
-    @NgayHD date, 
-    @MaKH char(6), 
-    @MaNV char(6), 
-    @MaLK char(6), 
-    @SoLuongBan tinyint
-AS
-BEGIN
-    BEGIN TRAN;
-    BEGIN TRY
-        DECLARE @TonKhoHienTai INT;
-        SELECT @TonKhoHienTai = SoLuongTon FROM LinhKien WHERE MaLK = @MaLK;
-
-        IF (@TonKhoHienTai < @SoLuongBan)
-        BEGIN
-            PRINT N'LỖI: Không đủ hàng trong kho!';
-            ROLLBACK TRAN; 
-            RETURN;
-        END
-        DECLARE @GiaBanHienHanh INT;
-        SELECT @GiaBanHienHanh = DonGiaBan FROM LinhKien WHERE MaLK = @MaLK;
-        IF NOT EXISTS (SELECT 1 FROM HoaDon WHERE MaHD = @MaHD)
-        BEGIN
-            INSERT INTO HoaDon (MaHD, NgayHD, MaKH, MaNV) 
-            VALUES (@MaHD, @NgayHD, @MaKH, @MaNV);
-        END
-
-        INSERT INTO ChiTietHD (MaHD, MaLK, SoLuong, DonGia) 
-        VALUES (@MaHD, @MaLK, @SoLuongBan, @GiaBanHienHanh);
-
-        COMMIT TRAN;
-        PRINT N'THÀNH CÔNG: Đã bán hàng với giá ' + CAST(@GiaBanHienHanh AS VARCHAR) + N' VND/cái.';
-    END TRY
-    BEGIN CATCH
-        ROLLBACK TRAN;
-        PRINT N'LỖI: ' + ERROR_MESSAGE();
-    END CATCH
-END;
-GO
-
---quản trị người dùng
-
-IF EXISTS (SELECT * FROM sys.server_principals WHERE name = 'QuanLyLogin') DROP LOGIN QuanLyLogin;
-IF EXISTS (SELECT * FROM sys.server_principals WHERE name = 'NhanVienBanHangLogin') DROP LOGIN NhanVienBanHangLogin;
-GO
-
-CREATE LOGIN QuanLyLogin WITH PASSWORD = '123';
-CREATE LOGIN NhanVienBanHangLogin WITH PASSWORD = '123';
-GO
-
-CREATE USER QuanLyUser FOR LOGIN QuanLyLogin;
-CREATE USER NhanVienBanHangUser FOR LOGIN NhanVienBanHangLogin;
-GO
-
-ALTER ROLE db_owner ADD MEMBER QuanLyUser;
-GRANT SELECT ON SCHEMA::dbo TO NhanVienBanHangUser;
-GRANT INSERT ON HoaDon TO NhanVienBanHangUser;
-GRANT INSERT ON ChiTietHD TO NhanVienBanHangUser;
-DENY UPDATE, DELETE ON NhanVien TO NhanVienBanHangUser;
-GO
-
-INSERT INTO HoaDon (MaHD, NgayHD, MaKH, MaNV, TrangThai) VALUES
-('HD011', '10-01-2026', 'KH001', 'NV002', N'Chưa thanh toán'),
-('HD012', '15-02-2026', 'KH002', 'NV003', N'Đã thanh toán'),
-('HD013', '20-03-2026', 'KH003', 'NV004', N'Chưa thanh toán'),
-('HD014', '05-04-2026', 'KH004', 'NV005', N'Đã thanh toán'),
-('HD015', '12-04-2026', 'KH005', 'NV002', N'Chưa thanh toán'),
-('HD016', '20-05-2025', 'KH006', 'NV003', N'Đã thanh toán'),
-('HD017', '11-08-2025', 'KH007', 'NV004', N'Chưa thanh toán'),
-('HD018', '25-12-2025', 'KH008', 'NV005', N'Đã thanh toán'),
-('HD019', '14-03-2024', 'KH009', 'NV006', N'Chưa thanh toán'),
-('HD020', '30-10-2024', 'KH010', 'NV007', N'Đã thanh toán');
-GO
-
-INSERT INTO ChiTietHD (MaHD, MaLK, SoLuong, DonGia) VALUES
+insert into ChiTietHD values
+('HD001', 'MOU001', 2, 150000), 
+('HD002', 'MOU002', 1, 450000),
+('HD003', 'RAM001', 2, 850000), 
+('HD004', 'CPU001', 1, 4500000),
+('HD005', 'CPU002', 1, 3200000), 
+('HD006', 'MAI001', 1, 1800000),
+('HD007', 'SSD001', 2, 1200000), 
+('HD007', 'VGA001', 1, 8900000),
+('HD008', 'KEY001', 1, 1650000), 
+('HD009', 'PCX001', 1, 10500000),
+('HD010', 'MOU001', 5, 140000),
 ('HD011', 'MOU001', 2, 150000),
 ('HD012', 'RAM002', 1, 1200000),
 ('HD013', 'CPU003', 1, 9500000),
@@ -430,38 +280,239 @@ INSERT INTO ChiTietHD (MaHD, MaLK, SoLuong, DonGia) VALUES
 ('HD018', 'PCX002', 1, 6500000),
 ('HD019', 'MOU003', 3, 250000),
 ('HD020', 'RAM004', 1, 4800000);
-GO
+go
 
-ALTER TABLE HoaDon ADD PhuongThucThanhToan nvarchar(50) DEFAULT N'Tiền mặt';
-ALTER TABLE HoaDon ADD NgayThanhToan date NULL;
-GO
+insert into PhieuNhap (MaPN, NgayNhap, MaNV) values 
+('PN001', '10-01-2023', 'NV008'), 
+('PN002', '15-02-2023', 'NV009'),
+('PN003', '20-03-2023', 'NV008'), 
+('PN004', '05-04-2023', 'NV009'),
+('PN005', '12-05-2023', 'NV008'), 
+('PN006', '18-06-2023', 'NV009'),
+('PN007', '22-07-2023', 'NV008'), 
+('PN008', '08-08-2023', 'NV009'),
+('PN009', '30-09-2023', 'NV008'), 
+('PN010', '14-10-2023', 'NV009');
+go
 
-UPDATE HoaDon
-SET PhuongThucThanhToan = N'Tiền mặt'
-WHERE PhuongThucThanhToan IS NULL;
-GO
+insert into ChiTietPN (MaPN, MaLK, SoLuongNhap, DonGiaNhap) values 
+('PN001', 'MOU001', 50, 100000), 
+('PN002', 'MOU002', 30, 300000),
+('PN003', 'RAM001', 40, 600000), 
+('PN004', 'CPU001', 15, 4000000),
+('PN005', 'CPU002', 20, 2800000), 
+('PN006', 'MAI001', 10, 1500000),
+('PN007', 'SSD001', 25, 900000), 
+('PN008', 'VGA001', 5, 8000000),
+('PN009', 'KEY001', 15, 1200000), 
+('PN010', 'PCX001', 5, 9500000);
+go
 
-UPDATE HoaDon
-SET NgayThanhToan = NgayHD
-WHERE TrangThai = N'Đã thanh toán' AND NgayThanhToan IS NULL;
-GO
+insert into TaiKhoan (TenDN, MatKhau, MaNV) values 
+('machpv', '123456', 'NV001'), 
+('dungtt', '123456', 'NV002'),
+('nhunglt', '123456', 'NV003'), 
+('anhlv', '123456', 'NV004'),
+('diepnt', '123456', 'NV005'), 
+('tuanhv', '123456', 'NV006'),
+('quocbv', '123456', 'NV007'), 
+('anhdth', '123456', 'NV008'),
+('huyendtn', '123456', 'NV009'), 
+('anvv', '123456', 'NV010');
+go
+--tổng tiền hóa đơn
+update HoaDon
+set TongTien = isnull((
+    select sum(SoLuong * DonGia)
+    from ChiTietHD cthd
+    where cthd.MaHD = HoaDon.MaHD
+), 0);
+go
 
-ALTER TABLE NhanVien ADD DaNghiViec bit DEFAULT 0 NOT NULL;
+-- tạo trigger
+create trigger trg_CapNhatTonKho_Full
+on ChiTietHD
+after insert, update, delete
+as
+begin
+    set nocount on;
+    update LinhKien
+    set SoLuongTon = SoLuongTon - T.SoLuong
+    from LinhKien
+    join (
+        select MaLK, sum(SoLuong) as SoLuong
+        from inserted
+        group by MaLK
+    ) T on LinhKien.MaLK = T.MaLK;
+    
+    update LinhKien
+    set SoLuongTon = SoLuongTon + T.SoLuong
+    from LinhKien
+    join (
+        select MaLK, sum(SoLuong) as SoLuong
+        from deleted
+        group by MaLK
+    ) T on LinhKien.MaLK = T.MaLK;
+end;
+go
 
-ALTER TABLE LinhKien ADD NgungKinhDoanh bit DEFAULT 0 NOT NULL;
-GO
+create trigger trg_CongTonKhoKhiNhap
+on ChiTietPN
+after insert
+as
+begin
+    set nocount on;
+    update LinhKien
+    set SoLuongTon = LinhKien.SoLuongTon + HangVuaNhap.SoLuongNhap
+    from LinhKien
+    join inserted HangVuaNhap on LinhKien.MaLK = HangVuaNhap.MaLK;
+end;
+go
 
---sao lưu và backup khi cần và khi chạy phải comment backup với restore
+create trigger trg_CapNhatTongTien
+on ChiTietHD
+after insert, update, delete
+as
+begin
+    set nocount on;
+    update HoaDon
+    set TongTien = (
+        select isnull(sum(SoLuong * DonGia), 0) 
+        from ChiTietHD 
+        where ChiTietHD.MaHD = HoaDon.MaHD
+    )
+    where MaHD in (select MaHD from inserted)  
+       or MaHD in (select MaHD from deleted); 
+end;
+go
 
---BACKUP DATABASE QL_LinhKien_PC
---TO DISK = 'C:\SQLData\QL_LinhKien_PC_Full.bak'
---WITH FORMAT, NAME = 'Full Backup';
---GO
+-- tạo hàm và thủ tục
+create function fn_DoanhThuTheoThang (@Thang int, @Nam int)
+returns int 
+as
+begin
+    declare @DoanhThu int;
+    select @DoanhThu = sum(TongTien) from HoaDon 
+    where month(NgayHD) = @Thang and year(NgayHD) = @Nam and TrangThai = N'Đã thanh toán';
+    return isnull(@DoanhThu, 0);
+end;
+go
 
---USE master;
---GO
+create procedure sp_BaoCaoTonKho as
+begin
+    declare cur_KiemTraKho cursor for select MaLK, TenLK, SoLuongTon from LinhKien where SoLuongTon < 10;
+    declare @MaLK char(6), @TenLK nvarchar(50), @TonKho int;
 
---RESTORE DATABASE QL_LinhKien_PC
---FROM DISK = 'C:\SQLData\QL_LinhKien_PC_Full.bak'
---WITH REPLACE;
---GO
+    open cur_KiemTraKho;
+    fetch next from cur_KiemTraKho into @MaLK, @TenLK, @TonKho;
+
+    print N'--- BÁO CÁO NHỮNG LINH KIỆN SẮP HẾT HÀNG ---'
+    while @@fetch_status = 0
+    begin
+        print N'CẢNH BÁO: Linh kiện ' + @TenLK + ' (Mã: ' + @MaLK + N') chỉ còn: ' + cast(@TonKho as varchar) + N' cái. Cần nhập gấp!';
+        fetch next from cur_KiemTraKho into @MaLK, @TenLK, @TonKho;
+    end;
+
+    close cur_KiemTraKho;
+    deallocate cur_KiemTraKho;
+end;
+go
+
+create procedure sp_BanLinhKien 
+    @MaHD char(5), 
+    @NgayHD date, 
+    @MaKH char(6), 
+    @MaNV char(6), 
+    @MaLK char(6), 
+    @SoLuongBan tinyint
+as
+begin
+    begin tran;
+    begin try
+        declare @TonKhoHienTai int;
+        select @TonKhoHienTai = SoLuongTon from LinhKien where MaLK = @MaLK;
+
+        if (@TonKhoHienTai < @SoLuongBan)
+        begin
+            print N'LỖI: Không đủ hàng trong kho!';
+            rollback tran; 
+            return;
+        end
+        
+        declare @GiaBanHienHanh int;
+        select @GiaBanHienHanh = DonGiaBan from LinhKien where MaLK = @MaLK;
+        
+        if not exists (select 1 from HoaDon where MaHD = @MaHD)
+        begin
+            insert into HoaDon (MaHD, NgayHD, MaKH, MaNV) 
+            values (@MaHD, @NgayHD, @MaKH, @MaNV);
+        end
+
+        insert into ChiTietHD (MaHD, MaLK, SoLuong, DonGia) 
+        values (@MaHD, @MaLK, @SoLuongBan, @GiaBanHienHanh);
+
+        commit tran;
+        print N'THÀNH CÔNG: Đã bán hàng với giá ' + cast(@GiaBanHienHanh as varchar) + N' VND/cái.';
+    end try
+    begin catch
+        rollback tran;
+        print N'LỖI: ' + error_message();
+    end catch
+end;
+go
+
+-- quản trị người dùng
+if exists (select * from sys.server_principals where name = 'QuanLyLogin') drop login QuanLyLogin;
+if exists (select * from sys.server_principals where name = 'NhanVienBanHangLogin') drop login NhanVienBanHangLogin;
+go
+
+create login QuanLyLogin with password = '123';
+create login NhanVienBanHangLogin with password = '123';
+go
+
+create user QuanLyUser for login QuanLyLogin;
+create user NhanVienBanHangUser for login NhanVienBanHangLogin;
+go
+
+alter role db_owner add member QuanLyUser;
+grant select on schema::dbo to NhanVienBanHangUser;
+grant insert on HoaDon to NhanVienBanHangUser;
+grant insert on ChiTietHD to NhanVienBanHangUser;
+deny update, delete on NhanVien to NhanVienBanHangUser;
+go
+
+alter table HoaDon add PhuongThucThanhToan nvarchar(50) default N'Tiền mặt';
+alter table HoaDon add NgayThanhToan date null;
+go
+
+update HoaDon
+set PhuongThucThanhToan = N'Tiền mặt'
+where PhuongThucThanhToan is null;
+go
+
+update HoaDon
+set NgayThanhToan = NgayHD
+where TrangThai = N'Đã thanh toán' and NgayThanhToan is null;
+go
+
+alter table NhanVien add DaNghiViec bit default 0 not null;
+
+alter table LinhKien add NgungKinhDoanh bit default 0 not null;
+go
+
+-- sao lưu và backup khi cần và khi chạy phải comment backup với restore
+
+-- backup database QL_LinhKien_PC
+-- to disk = 'C:\SQLData\QL_LinhKien_PC_Full.bak'
+-- with format, name = 'Full Backup';
+-- go
+
+-- use master;
+-- go
+
+-- restore database QL_LinhKien_PC
+-- from disk = 'C:\SQLData\QL_LinhKien_PC_Full.bak'
+-- with replace;
+-- go
+
+select * from HoaDon
