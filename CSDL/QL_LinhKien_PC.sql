@@ -481,6 +481,11 @@ alter table HoaDon add NgayThanhToan date null;
 go
 
 update HoaDon
+set PhuongThucThanhToan = N'Tiền mặt'
+where PhuongThucThanhToan is null;
+go
+
+update HoaDon
 set NgayThanhToan = NgayHD
 where TrangThai = N'Đã thanh toán' and NgayThanhToan is null;
 go
