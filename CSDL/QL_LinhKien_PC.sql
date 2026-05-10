@@ -8,6 +8,7 @@ go
 create database QL_LinhKien_PC
 on primary
 (
+<<<<<<< HEAD
     name = QL_LinhKien_Primary,
     filename = 'C:\SQLData\QL_LinhKien_Main.mdf',
     size = 15MB,
@@ -20,9 +21,24 @@ on primary
     size = 5MB,
     maxsize = 50MB,
     filegrowth = 1MB
+=======
+    NAME = QL_LinhKien_Primary,
+    FILENAME = 'D:\Database-managetment-system\Database-management-system\CSDL\QL_LinhKien_Main.mdf',
+    SIZE = 15MB,
+    MAXSIZE = 100MB,
+    FILEGROWTH = 5MB
+),
+(
+    NAME = QL_LinhKien_Secondary_NET,
+    FILENAME = 'D:\Database-managetment-system\Database-management-system\CSDL\QL_LinhKien_Sub.ndf', 
+    SIZE = 5MB,
+    MAXSIZE = 50MB,
+    FILEGROWTH = 1MB
+>>>>>>> 94e6e26dbbc30dc2485a859874d86515a4fae633
 )
 log on
 (
+<<<<<<< HEAD
     name = QL_LinhKien_Log_NET,
     filename = 'C:\SQLData\QL_LinhKien_Log.ldf',
     size = 5MB,
@@ -35,6 +51,20 @@ use QL_LinhKien_PC;
 go
 set dateformat dmy; 
 go
+=======
+    NAME = QL_LinhKien_Log_NET,
+    FILENAME = 'D:\Database-managetment-system\Database-management-system\CSDL\QL_LinhKien_Log.ldf',
+    SIZE = 5MB,
+    MAXSIZE = 20MB,
+    FILEGROWTH = 1MB
+);
+GO
+exec sp_helpdb 'QL_LinhKien_PC'
+USE QL_LinhKien_PC;
+GO
+SET DATEFORMAT DMY; 
+GO
+>>>>>>> 94e6e26dbbc30dc2485a859874d86515a4fae633
 
 -- tạo bảng
 create table NhaSanXuat (
@@ -258,6 +288,7 @@ insert into HoaDon (MaHD, NgayHD, MaKH, MaNV, TrangThai) values
 ('HD020', '12-04-2026', 'KH010', 'NV007', N'Đã thanh toán');
 go
 
+<<<<<<< HEAD
 insert into ChiTietHD values
 ('HD001', 'MOU001', 2, 150000), 
 ('HD002', 'MOU002', 1, 450000),
@@ -270,6 +301,204 @@ insert into ChiTietHD values
 ('HD008', 'KEY001', 1, 1650000), 
 ('HD009', 'PCX001', 1, 10500000),
 ('HD010', 'MOU001', 5, 140000),
+=======
+UPDATE HoaDon SET TrangThai = N'Đã thanh toán' WHERE MaHD IN ('HD001', 'HD002', 'HD005');
+
+INSERT INTO ChiTietHD VALUES
+('HD001', 'MOU001', 2, 150000), ('HD002', 'MOU002', 1, 450000),
+('HD003', 'RAM001', 2, 850000), ('HD004', 'CPU001', 1, 4500000),
+('HD005', 'CPU002', 1, 3200000), ('HD006', 'MAI001', 1, 1800000),
+('HD007', 'SSD001', 2, 1200000), ('HD007', 'VGA001', 1, 8900000),
+('HD008', 'KEY001', 1, 1650000), ('HD009', 'PCX001', 1, 10500000),
+('HD010', 'MOU001', 5, 140000);
+
+INSERT INTO PhieuNhap (MaPN, NgayNhap, MaNV) VALUES 
+('PN001', '10-01-2023', 'NV008'), ('PN002', '15-02-2023', 'NV009'),
+('PN003', '20-03-2023', 'NV008'), ('PN004', '05-04-2023', 'NV009'),
+('PN005', '12-05-2023', 'NV008'), ('PN006', '18-06-2023', 'NV009'),
+('PN007', '22-07-2023', 'NV008'), ('PN008', '08-08-2023', 'NV009'),
+('PN009', '30-09-2023', 'NV008'), ('PN010', '14-10-2023', 'NV009');
+
+INSERT INTO ChiTietPN (MaPN, MaLK, SoLuongNhap, DonGiaNhap) VALUES 
+('PN001', 'MOU001', 50, 100000), ('PN002', 'MOU002', 30, 300000),
+('PN003', 'RAM001', 40, 600000), ('PN004', 'CPU001', 15, 4000000),
+('PN005', 'CPU002', 20, 2800000), ('PN006', 'MAI001', 10, 1500000),
+('PN007', 'SSD001', 25, 900000), ('PN008', 'VGA001', 5, 8000000),
+('PN009', 'KEY001', 15, 1200000), ('PN010', 'PCX001', 5, 9500000);
+
+INSERT INTO TaiKhoan (TenDN, MatKhau, MaNV) VALUES 
+('machpv', '123456', 'NV001'), ('dungtt', '123456', 'NV002'),
+('nhunglt', '123456', 'NV003'), ('anhlv', '123456', 'NV004'),
+('diepnt', '123456', 'NV005'), ('tuanhv', '123456', 'NV006'),
+('quocbv', '123456', 'NV007'), ('anhdth', '123456', 'NV008'),
+('huyendtn', '123456', 'NV009'), ('anvv', '123456', 'NV010');
+GO
+
+--tạo trigger
+
+CREATE TRIGGER trg_CapNhatTonKho_Full
+ON ChiTietHD
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE LinhKien
+    SET SoLuongTon = SoLuongTon - T.SoLuong
+    FROM LinhKien
+    JOIN (
+        SELECT MaLK, SUM(SoLuong) AS SoLuong
+        FROM inserted
+        GROUP BY MaLK
+    ) T ON LinhKien.MaLK = T.MaLK;
+    UPDATE LinhKien
+    SET SoLuongTon = SoLuongTon + T.SoLuong
+    FROM LinhKien
+    JOIN (
+        SELECT MaLK, SUM(SoLuong) AS SoLuong
+        FROM deleted
+        GROUP BY MaLK
+    ) T ON LinhKien.MaLK = T.MaLK;
+END;
+
+CREATE TRIGGER trg_CongTonKhoKhiNhap
+ON ChiTietPN
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE LinhKien
+    SET SoLuongTon = LinhKien.SoLuongTon + HangVuaNhap.SoLuongNhap
+    FROM LinhKien
+    JOIN inserted HangVuaNhap ON LinhKien.MaLK = HangVuaNhap.MaLK;
+END;
+GO
+
+CREATE TRIGGER trg_CapNhatTongTien
+ON ChiTietHD
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE HoaDon
+    SET TongTien = (
+        SELECT ISNULL(SUM(SoLuong * DonGia), 0) 
+        FROM ChiTietHD 
+        WHERE ChiTietHD.MaHD = HoaDon.MaHD
+    )
+    WHERE MaHD IN (SELECT MaHD FROM inserted)  
+       OR MaHD IN (SELECT MaHD FROM deleted); 
+END;
+GO
+
+
+--tạo hàm và thủ tục
+
+CREATE FUNCTION fn_DoanhThuTheoThang (@Thang INT, @Nam INT)
+RETURNS INT AS
+BEGIN
+    DECLARE @DoanhThu INT;
+    SELECT @DoanhThu = SUM(TongTien) FROM HoaDon WHERE MONTH(NgayHD) = @Thang AND YEAR(NgayHD) = @Nam;
+    RETURN ISNULL(@DoanhThu, 0);
+END;
+GO
+
+CREATE PROCEDURE sp_BaoCaoTonKho AS
+BEGIN
+    DECLARE cur_KiemTraKho CURSOR FOR SELECT MaLK, TenLK, SoLuongTon FROM LinhKien WHERE SoLuongTon < 10;
+    DECLARE @MaLK char(6), @TenLK nvarchar(50), @TonKho int;
+
+    OPEN cur_KiemTraKho;
+    FETCH NEXT FROM cur_KiemTraKho INTO @MaLK, @TenLK, @TonKho;
+
+    PRINT N'--- BÁO CÁO NHỮNG LINH KIỆN SẮP HẾT HÀNG ---'
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        PRINT N'CẢNH BÁO: Linh kiện ' + @TenLK + ' (Mã: ' + @MaLK + N') chỉ còn: ' + CAST(@TonKho AS varchar) + N' cái. Cần nhập gấp!';
+        FETCH NEXT FROM cur_KiemTraKho INTO @MaLK, @TenLK, @TonKho;
+    END;
+
+    CLOSE cur_KiemTraKho;
+    DEALLOCATE cur_KiemTraKho;
+END;
+GO
+
+CREATE PROCEDURE sp_BanLinhKien 
+    @MaHD char(5), 
+    @NgayHD date, 
+    @MaKH char(6), 
+    @MaNV char(6), 
+    @MaLK char(6), 
+    @SoLuongBan tinyint
+AS
+BEGIN
+    BEGIN TRAN;
+    BEGIN TRY
+        DECLARE @TonKhoHienTai INT;
+        SELECT @TonKhoHienTai = SoLuongTon FROM LinhKien WHERE MaLK = @MaLK;
+
+        IF (@TonKhoHienTai < @SoLuongBan)
+        BEGIN
+            PRINT N'LỖI: Không đủ hàng trong kho!';
+            ROLLBACK TRAN; 
+            RETURN;
+        END
+        DECLARE @GiaBanHienHanh INT;
+        SELECT @GiaBanHienHanh = DonGiaBan FROM LinhKien WHERE MaLK = @MaLK;
+        IF NOT EXISTS (SELECT 1 FROM HoaDon WHERE MaHD = @MaHD)
+        BEGIN
+            INSERT INTO HoaDon (MaHD, NgayHD, MaKH, MaNV) 
+            VALUES (@MaHD, @NgayHD, @MaKH, @MaNV);
+        END
+
+        INSERT INTO ChiTietHD (MaHD, MaLK, SoLuong, DonGia) 
+        VALUES (@MaHD, @MaLK, @SoLuongBan, @GiaBanHienHanh);
+
+        COMMIT TRAN;
+        PRINT N'THÀNH CÔNG: Đã bán hàng với giá ' + CAST(@GiaBanHienHanh AS VARCHAR) + N' VND/cái.';
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRAN;
+        PRINT N'LỖI: ' + ERROR_MESSAGE();
+    END CATCH
+END;
+GO
+
+--quản trị người dùng
+
+IF EXISTS (SELECT * FROM sys.server_principals WHERE name = 'QuanLyLogin') DROP LOGIN QuanLyLogin;
+IF EXISTS (SELECT * FROM sys.server_principals WHERE name = 'NhanVienBanHangLogin') DROP LOGIN NhanVienBanHangLogin;
+GO
+
+CREATE LOGIN QuanLyLogin WITH PASSWORD = '123';
+CREATE LOGIN NhanVienBanHangLogin WITH PASSWORD = '123';
+GO
+
+CREATE USER QuanLyUser FOR LOGIN QuanLyLogin;
+CREATE USER NhanVienBanHangUser FOR LOGIN NhanVienBanHangLogin;
+GO
+
+ALTER ROLE db_owner ADD MEMBER QuanLyUser;
+GRANT SELECT ON SCHEMA::dbo TO NhanVienBanHangUser;
+GRANT INSERT ON HoaDon TO NhanVienBanHangUser;
+GRANT INSERT ON ChiTietHD TO NhanVienBanHangUser;
+DENY UPDATE, DELETE ON NhanVien TO NhanVienBanHangUser;
+GO
+
+INSERT INTO HoaDon (MaHD, NgayHD, MaKH, MaNV, TrangThai) VALUES
+('HD011', '10-01-2026', 'KH001', 'NV002', N'Chưa thanh toán'),
+('HD012', '15-02-2026', 'KH002', 'NV003', N'Đã thanh toán'),
+('HD013', '20-03-2026', 'KH003', 'NV004', N'Chưa thanh toán'),
+('HD014', '05-04-2026', 'KH004', 'NV005', N'Đã thanh toán'),
+('HD015', '12-04-2026', 'KH005', 'NV002', N'Chưa thanh toán'),
+('HD016', '20-05-2025', 'KH006', 'NV003', N'Đã thanh toán'),
+('HD017', '11-08-2025', 'KH007', 'NV004', N'Chưa thanh toán'),
+('HD018', '25-12-2025', 'KH008', 'NV005', N'Đã thanh toán'),
+('HD019', '14-03-2024', 'KH009', 'NV006', N'Chưa thanh toán'),
+('HD020', '30-10-2024', 'KH010', 'NV007', N'Đã thanh toán');
+GO
+
+INSERT INTO ChiTietHD (MaHD, MaLK, SoLuong, DonGia) VALUES
+>>>>>>> 94e6e26dbbc30dc2485a859874d86515a4fae633
 ('HD011', 'MOU001', 2, 150000),
 ('HD012', 'RAM002', 1, 1200000),
 ('HD013', 'CPU003', 1, 9500000),
@@ -369,6 +598,7 @@ begin
 end;
 go
 
+<<<<<<< HEAD
 create trigger trg_CapNhatTongTien
 on ChiTietHD
 after insert, update, delete
@@ -385,6 +615,117 @@ begin
        or MaHD in (select MaHD from deleted); 
 end;
 go
+=======
+----Kịch bản 1: Mức READ UNCOMMITTED mô phổng thao tác có khóa read uncommited 
+----user 1 cập nhật nhầm 
+--BEGIN TRAN 
+--SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+--UPDATE LinhKien SET SoLuongTon=1000 WHERE MaLK='MOU001'
+--WAITFOR DELAY '00:00:10';
+--ROLLBACK TRAN;
+
+----user 2 đọc báo cáo
+--BEGIN TRAN
+--SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+---- Đọc không cần khóa SLock
+--SELECT SoLuongTon FROM LinhKien WHERE MaLK = 'MOU001'
+--COMMIT TRAN
+
+----2. Kịch bản 2: Mức READ COMMITTED 
+---- user 2 đọc báo cáo
+---- Thiết lập mức cô lập mặc định
+--SET TRANSACTION ISOLATION LEVEL READ COMMITTED; 
+--BEGIN TRAN
+--    -- Lệnh này sẽ bị TREO (chờ) cho đến khi Tab 1 chạy xong
+--    SELECT MaLK, TenLK, DonGiaBan FROM LinhKien WHERE MaLK = 'MOU001';
+--    -- Kết quả in ra số thật: 150000 (do Tab 1 đã Rollback)
+--COMMIT TRAN;
+
+----3. Kịch bản 3: Khóa UPDLOCK 
+
+--BEGIN TRAN
+--    DECLARE @TonKho INT;
+    
+--    SELECT @TonKho = SoLuongTon FROM LinhKien WHERE MaLK = 'MOU002';
+    
+--    WAITFOR DELAY '00:00:10';
+    
+--    UPDATE LinhKien SET SoLuongTon = @TonKho - 1 WHERE MaLK = 'MOU002';
+--COMMIT TRAN;
+
+--BEGIN TRAN
+--    DECLARE @TonKho INT;
+    
+--    SELECT @TonKho = SoLuongTon FROM LinhKien WHERE MaLK = 'MOU002';
+    
+--    UPDATE LinhKien SET SoLuongTon = @TonKho - 1 WHERE MaLK = 'MOU002';
+--COMMIT TRAN;
+
+--BEGIN TRAN
+--DECLARE @TonKho INT;
+
+--SELECT @TonKho = SoLuongTon FROM LinhKien WITH (UPDLOCK) WHERE MaLK = 'MOU002';
+
+--WAITFOR DELAY '00:00:10';
+
+--UPDATE LinhKien SET SoLuongTon = @TonKho - 1 WHERE MaLK = 'MOU002';
+--COMMIT TRAN;
+ 
+-- -- Kịch bản: Mức REPEATABLE READ
+---- Mức cô lập mặc định (Sẽ bị lỗi)
+--SET TRANSACTION ISOLATION LEVEL READ COMMITTED; fix đổi REPEATABLE READ
+--BEGIN TRAN
+--    -- Đọc lần 1
+--    SELECT MaLK, TenLK, DonGiaBan FROM LinhKien WHERE MaLK = 'MOU001';
+    
+--    WAITFOR DELAY '00:00:10';
+    
+--    -- Đọc lần 2 (Kết quả bị thay đổi)
+--    SELECT MaLK, TenLK, DonGiaBan FROM LinhKien WHERE MaLK = 'MOU001';
+--COMMIT TRAN;
+
+
+--BEGIN TRAN
+--    UPDATE LinhKien SET DonGiaBan = 200000 WHERE MaLK = 'MOU001';
+--COMMIT TRAN;
+
+----4. Kịch bản 4: Mức SERIALIZABLE (Sửa lỗi Phantom)
+---- Thiết lập khóa phạm vi (Range Lock)
+----SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+--BEGIN TRAN
+--    SELECT COUNT(*) AS SoLuongLoaiChuot FROM LinhKien WHERE MaLoai = 'MOU';
+    
+--    WAITFOR DELAY '00:00:10';
+    
+--    SELECT COUNT(*) AS SoLuongLoaiChuot FROM LinhKien WHERE MaLoai = 'MOU';
+--COMMIT TRAN;
+
+--BEGIN TRAN
+--    -- Lệnh Insert này sẽ bị CHẶN đứng lại, phải chờ Tab 1 đếm xong
+--    INSERT INTO LinhKien (MaLK, TenLK, MaLoai, MaNSX, DonGiaBan) 
+--    VALUES ('MOU999', N'Chuột Test Phantom', 'MOU', 'NSX01', 100000);
+--COMMIT TRAN;
+
+----5. Kịch bản 5: Dùng khóa XLOCK gây Tắc nghẽn (Deadlock)
+--BEGIN TRAN
+--    UPDATE LinhKien WITH (XLOCK) SET DonGiaBan = 160000 WHERE MaLK = 'MOU001';
+    
+--    WAITFOR DELAY '00:00:05';
+    
+--    UPDATE LinhKien WITH (XLOCK) SET DonGiaBan = 460000 WHERE MaLK = 'MOU002';
+--COMMIT TRAN;
+
+--USE QL_LinhKien_PC;
+--GO
+--BEGIN TRAN
+--    UPDATE LinhKien WITH (XLOCK) SET DonGiaBan = 470000 WHERE MaLK = 'MOU002';
+    
+--    WAITFOR DELAY '00:00:05';
+    
+--    UPDATE LinhKien WITH (XLOCK) SET DonGiaBan = 170000 WHERE MaLK = 'MOU001';
+--COMMIT TRAN;
+--sao lưu và backup khi cần và khi chạy phải comment backup với restore
+>>>>>>> 94e6e26dbbc30dc2485a859874d86515a4fae633
 
 -- tạo hàm và thủ tục
 create function fn_DoanhThuTheoThang (@Thang int, @Nam int)
