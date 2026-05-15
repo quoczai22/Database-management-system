@@ -22,10 +22,6 @@ namespace QuanLyLinhKienMayTinh
         public SeriesCollection RevenueSeries { get; set; }
         public List<string> Labels { get; set; }
         public SeriesCollection RoleSeries { get; set; }
-<<<<<<< HEAD
-
-=======
->>>>>>> 07a2abe58a0dd543c1e224d12130d35fff83a450
         public List<ThongKeHang> DanhSachThongKeHang { get; set; }
 
         public TrangChu()
@@ -35,10 +31,7 @@ namespace QuanLyLinhKienMayTinh
             RevenueSeries = new SeriesCollection();
             Labels = new List<string>();
             RoleSeries = new SeriesCollection();
-<<<<<<< HEAD
 
-=======
->>>>>>> 07a2abe58a0dd543c1e224d12130d35fff83a450
             DanhSachThongKeHang = new List<ThongKeHang>();
 
             TaiDuLieu();

@@ -62,7 +62,7 @@ create table LinhKien (
     MaNSX char(5) not null,
     DVT nvarchar(10),
     SoLuongTon int default 0,
-    DonGiaBan int,
+    DonGiaBan money,
     constraint PK_LinhKien primary key (MaLK),
     constraint FK_LK_LoaiLK foreign key (MaLoai) references LoaiLK(MaLoai),
     constraint FK_LK_NhaSanXuat foreign key (MaNSX) references NhaSanXuat(MaNSX)
@@ -98,7 +98,7 @@ create table HoaDon (
     NgayHD date,
     MaKH char(6) not null,
     MaNV char(6) not null,
-    TongTien int null default 0,
+    TongTien money null default 0,
     TrangThai nvarchar(30) default N'Chưa thanh toán',
     constraint PK_HoaDon primary key (MaHD),
     constraint FK_HoaDon_KhachHang foreign key (MaKH) references KhachHang(MaKH),
@@ -110,7 +110,7 @@ create table ChiTietHD (
     MaHD char(5) not null,
     MaLK char(6) not null,
     SoLuong tinyint, 
-    DonGia int,
+    DonGia money,
     constraint PK_CTHD primary key (MaHD, MaLK),
     constraint FK_CTHD_HoaDon foreign key (MaHD) references HoaDon(MaHD),
     constraint FK_CTHD_LinhKien foreign key (MaLK) references LinhKien(MaLK) 
@@ -130,7 +130,7 @@ create table ChiTietPN (
     MaPN char(5) not null,
     MaLK char(6) not null,
     SoLuongNhap int,
-    DonGiaNhap int,
+    DonGiaNhap money,
     constraint PK_CTPN primary key (MaPN, MaLK),
     constraint FK_CTPN_PhieuNhap foreign key (MaPN) references PhieuNhap(MaPN),
     constraint FK_CTPN_LinhKien foreign key (MaLK) references LinhKien(MaLK)
@@ -392,7 +392,7 @@ create function fn_DoanhThuTheoThang (@Thang int, @Nam int)
 returns int 
 as
 begin
-    declare @DoanhThu int;
+    declare @DoanhThu money;
     select @DoanhThu = sum(TongTien) from HoaDon 
     where month(NgayHD) = @Thang and year(NgayHD) = @Nam and TrangThai = N'Đã thanh toán';
     return isnull(@DoanhThu, 0);
@@ -434,7 +434,7 @@ begin
             return;
         end
         
-        declare @GiaBanHienHanh int;
+        declare @GiaBanHienHanh money;
         select @GiaBanHienHanh = DonGiaBan from LinhKien where MaLK = @MaLK;
         
         if not exists (select 1 from HoaDon where MaHD = @MaHD)
@@ -496,55 +496,53 @@ go
 
 /*
 ----1. Kịch bản 1: Mức READ UNCOMMITTED 
---user 1 cập nhật nhầm 
-BEGIN TRAN 
-SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
-UPDATE LinhKien SET SoLuongTon=1000 WHERE MaLK='MOU001'
-WAITFOR DELAY '00:00:10';
-ROLLBACK TRAN;
+begin tran 
+set transaction isolation level read uncommitted
+update linhkien set soluongton=1000 where malk='MOU001'
+waitfor delay '00:00:10';
+rollback tran;
 
---user 2 đọc báo cáo
-BEGIN TRAN
-SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
-SELECT SoLuongTon FROM LinhKien WHERE MaLK = 'MOU001'
-COMMIT TRAN
+begin tran
+set transaction isolation level read uncommitted
+select soluongton from linhkien where malk = 'MOU001'
+commit tran
 
 ----2. Kịch bản 2: Mức READ COMMITTED 
-SET TRANSACTION ISOLATION LEVEL READ COMMITTED; 
-BEGIN TRAN
-    SELECT MaLK, TenLK, DonGiaBan FROM LinhKien WHERE MaLK = 'MOU001';
-COMMIT TRAN;
+set transaction isolation level read committed; 
+begin tran
+    select malk, tenlk, dongiaban from linhkien where malk = 'MOU001';
+commit tran;
 
 ----3. Kịch bản 3: Khóa UPDLOCK 
-BEGIN TRAN
-    DECLARE @TonKho INT;
-    SELECT @TonKho = SoLuongTon FROM LinhKien WITH (UPDLOCK) WHERE MaLK = 'MOU002';
-    WAITFOR DELAY '00:00:10';
-    UPDATE LinhKien SET SoLuongTon = @TonKho - 1 WHERE MaLK = 'MOU002';
-COMMIT TRAN;
+begin tran
+    declare @tonkho int;
+    select @tonkho = soluongton from linhkien with (updlock) where malk = 'MOU002';
+    waitfor delay '00:00:10';
+    update linhkien set soluongton = @tonkho - 1 where malk = 'MOU002';
+commit tran;
 
 ---- Kịch bản: Mức REPEATABLE READ
-SET TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
-BEGIN TRAN
-    SELECT MaLK, TenLK, DonGiaBan FROM LinhKien WHERE MaLK = 'MOU001';
-    WAITFOR DELAY '00:00:10';
-    SELECT MaLK, TenLK, DonGiaBan FROM LinhKien WHERE MaLK = 'MOU001';
-COMMIT TRAN;
+set transaction isolation level repeatable read; 
+begin tran
+    select malk, tenlk, dongiaban from linhkien where malk = 'MOU001';
+    waitfor delay '00:00:10';
+    select malk, tenlk, dongiaban from linhkien where malk = 'MOU001';
+commit tran;
 
 ----4. Kịch bản 4: Mức SERIALIZABLE (Sửa lỗi Phantom)
-SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-BEGIN TRAN
-    SELECT COUNT(*) AS SoLuongLoaiChuot FROM LinhKien WHERE MaLoai = 'MOU';
-    WAITFOR DELAY '00:00:10';
-    SELECT COUNT(*) AS SoLuongLoaiChuot FROM LinhKien WHERE MaLoai = 'MOU';
-COMMIT TRAN;
+set transaction isolation level serializable;
+begin tran
+    select count(*) as soluongloaichuot from linhkien where maloai = 'MOU';
+    waitfor delay '00:00:10';
+    select count(*) as soluongloaichuot from linhkien where maloai = 'MOU';
+commit tran;
 
 ----5. Kịch bản 5: Dùng khóa XLOCK gây Tắc nghẽn (Deadlock)
-BEGIN TRAN
-    UPDATE LinhKien WITH (XLOCK) SET DonGiaBan = 160000 WHERE MaLK = 'MOU001';
-    WAITFOR DELAY '00:00:05';
-    UPDATE LinhKien WITH (XLOCK) SET DonGiaBan = 460000 WHERE MaLK = 'MOU002';
-COMMIT TRAN;
+begin tran
+    update linhkien with (xlock) set dongiaban = 160000 where malk = 'MOU001';
+    waitfor delay '00:00:05';
+    update linhkien with (xlock) set dongiaban = 460000 where malk = 'MOU002';
+commit tran;
 */
 
 -- sao lưu và backup khi cần và khi chạy phải comment backup với restore
