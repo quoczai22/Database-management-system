@@ -1,0 +1,187 @@
+<Window x:Class="QuanLyLinhKienMayTinh.Views.ChonPhuongThucDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Chọn phương thức thanh toán"
+        Width="420" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="{DynamicResource BackgroundColor}">
+
+    <Window.Resources>
+        <Style x:Key="PrimaryBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource ButtonColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ButtonTextColor}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CancelBtnStyle" TargetType="Button" BasedOn="{StaticResource PrimaryBtnStyle}">
+            <Setter Property="Background" Value="{DynamicResource SecondaryBgColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource MainTextColor}"/>
+        </Style>
+
+        <!-- Style cho card phương thức thanh toán -->
+        <Style x:Key="PaymentCardStyle" TargetType="RadioButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="CardBorder"
+                                Background="{DynamicResource BackgroundColor2}"
+                                BorderBrush="{DynamicResource BorderColor}"
+                                BorderThickness="2" CornerRadius="10"
+                                Padding="16,14" Cursor="Hand">
+                            <ContentPresenter/>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal"/>
+                                    <VisualState x:Name="MouseOver">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{DynamicResource ButtonColor}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="CheckStates">
+                                    <VisualState x:Name="Checked">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{DynamicResource ButtonColor}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Unchecked"/>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <StackPanel Margin="24">
+
+        <!-- Tiêu đề -->
+        <TextBlock Text="Chọn phương thức thanh toán"
+                   FontSize="18" FontWeight="Bold"
+                   Foreground="{DynamicResource MainTextColor}"
+                   Margin="0,0,0,6"/>
+
+        <!-- Thông tin hóa đơn -->
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+            <TextBlock Text="Hóa đơn: " FontSize="13"
+                       Foreground="{DynamicResource MainTextColor}" Opacity="0.6"/>
+            <TextBlock x:Name="txtMaHD" Text="" FontSize="13"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource MainTextColor}"/>
+            <TextBlock Text="  —  Tổng tiền: " FontSize="13"
+                       Foreground="{DynamicResource MainTextColor}" Opacity="0.6"/>
+            <TextBlock x:Name="txtSoTien" Text="0 ₫" FontSize="13"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource ButtonColor}"/>
+        </StackPanel>
+
+        <!-- Danh sách phương thức -->
+        <TextBlock Text="Phương thức" FontSize="13" FontWeight="SemiBold"
+                   Foreground="{DynamicResource MainTextColor}"
+                   Opacity="0.6" Margin="0,0,0,10"/>
+
+        <!-- MoMo -->
+        <RadioButton x:Name="rdMomo" GroupName="PaymentMethod"
+                     Style="{StaticResource PaymentCardStyle}"
+                     IsChecked="True" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Icon MoMo -->
+                <Border Grid.Column="0" Width="44" Height="44" CornerRadius="10"
+                        VerticalAlignment="Center" Margin="0,0,14,0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#AE2070" Offset="0"/>
+                            <GradientStop Color="#D82D8B" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <TextBlock Text="M" FontSize="22" FontWeight="Bold"
+                               Foreground="White"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="Ví MoMo" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MainTextColor}"/>
+                    <TextBlock Text="Quét mã QR bằng app MoMo" FontSize="12"
+                               Foreground="{DynamicResource MainTextColor}" Opacity="0.5"/>
+                </StackPanel>
+
+                <!-- Checkmark -->
+                <Ellipse Grid.Column="2" Width="20" Height="20"
+                         VerticalAlignment="Center">
+                    <Ellipse.Fill>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#AE2070" Offset="0"/>
+                            <GradientStop Color="#D82D8B" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Ellipse.Fill>
+                </Ellipse>
+            </Grid>
+        </RadioButton>
+
+        <!-- Tiền mặt -->
+        <RadioButton x:Name="rdTienMat" GroupName="PaymentMethod"
+                     Style="{StaticResource PaymentCardStyle}"
+                     Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Width="44" Height="44" CornerRadius="10"
+                        Background="#4CAF50" VerticalAlignment="Center"
+                        Margin="0,0,14,0">
+                    <TextBlock Text="💵" FontSize="20"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="Tiền mặt" FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MainTextColor}"/>
+                    <TextBlock Text="Thanh toán trực tiếp tại quầy" FontSize="12"
+                               Foreground="{DynamicResource MainTextColor}" Opacity="0.5"/>
+                </StackPanel>
+            </Grid>
+        </RadioButton>
+
+        <!-- Nút -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Content="Hủy" Style="{StaticResource CancelBtnStyle}"
+                    Margin="0,0,10,0" Click="BtnHuy_Click"/>
+            <Button Content="Tiếp tục" Style="{StaticResource PrimaryBtnStyle}"
+                    Click="BtnTiepTuc_Click"/>
+        </StackPanel>
+
+    </StackPanel>
+</Window>

@@ -1,0 +1,32 @@
+﻿<Window x:Class="QuanLyLinhKienMayTinh.Views.ThongBaoTonKhoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Cảnh Báo Tồn Kho" Height="350" Width="550" 
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Danh sách linh kiện sắp hết hàng (số lượng &lt; 10)" 
+                   FontSize="16" FontWeight="Bold" Foreground="#e65100" Margin="0,0,0,10"/>
+
+        <DataGrid x:Name="dgTonKho" Grid.Row="1" AutoGenerateColumns="False" 
+                  IsReadOnly="True" HeadersVisibility="Column" Background="White">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Mã LK" Binding="{Binding MaLK}" Width="80"/>
+                <DataGridTextColumn Header="Tên Linh Kiện" Binding="{Binding TenLK}" Width="*"/>
+                <DataGridTextColumn Header="Số Lượng Còn" Binding="{Binding SoLuongTon}" Width="100">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="Red"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
