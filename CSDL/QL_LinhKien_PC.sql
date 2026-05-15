@@ -1,4 +1,4 @@
-﻿-- trước khi chạy phải tạo folder SQLData trong ổ C nếu ko có sẽ lỗi
+-- trước khi chạy phải tạo folder SQLData trong ổ C nếu ko có sẽ lỗi
 use master;
 go
 
@@ -456,6 +456,39 @@ begin
 end;
 go
 
+-- tạo cursor báo cáo danh sách khách hàng chưa thanh toán
+create procedure sp_DanhSachNoKhachHang
+as
+begin
+    declare @MaKH char(6);
+    declare @TenKH nvarchar(30);
+    declare @TongNo money;
+    
+    -- Khai báo cursor
+    declare cur_NoKH cursor for
+    select kh.MaKH, kh.TenKH, sum(hd.TongTien) as TongNo
+    from KhachHang kh
+    join HoaDon hd on kh.MaKH = hd.MaKH
+    where hd.TrangThai = N'Chưa thanh toán'
+    group by kh.MaKH, kh.TenKH;
+    
+    open cur_NoKH;
+    fetch next from cur_NoKH into @MaKH, @TenKH, @TongNo;
+    
+    print N'--- DANH SÁCH KHÁCH HÀNG CÒN NỢ ---';
+    
+    -- Duyệt qua từng dòng dữ liệu
+    while @@fetch_status = 0
+    begin
+        print N'Khách hàng: ' + @TenKH + N' (Mã: ' + @MaKH + N') - Tổng nợ: ' + format(@TongNo, 'c', 'vi-VN');
+        fetch next from cur_NoKH into @MaKH, @TenKH, @TongNo;
+    end;
+    
+    close cur_NoKH;
+    deallocate cur_NoKH;
+end;
+go
+
 -- quản trị người dùng
 if exists (select * from sys.server_principals where name = 'QuanLyLogin') drop login QuanLyLogin;
 if exists (select * from sys.server_principals where name = 'NhanVienBanHangLogin') drop login NhanVienBanHangLogin;
@@ -493,6 +526,223 @@ go
 alter table NhanVien add DaNghiViec bit default 0 not null;
 alter table LinhKien add NgungKinhDoanh bit default 0 not null;
 go
+
+-- I. TẠO INDEX
+-- Mục đích: tăng tốc độ tìm kiếm trên các cột hay được truy vấn
+ 
+-- 1. Index trên HoaDon.TrangThai → hay filter "Đã thanh toán / Chưa thanh toán"
+create nonclustered index IDX_HoaDon_TrangThai
+on HoaDon (TrangThai);
+go
+ 
+-- 2. Index trên HoaDon.NgayHD → hay truy vấn theo tháng/năm doanh thu
+create nonclustered index IDX_HoaDon_NgayHD
+on HoaDon (NgayHD);
+go
+ 
+-- 3. Index trên HoaDon.MaKH → hay JOIN với KhachHang
+create nonclustered index IDX_HoaDon_MaKH
+on HoaDon (MaKH);
+go
+ 
+-- 4. Index trên LinhKien.MaLoai → hay filter theo loại linh kiện
+create nonclustered index IDX_LinhKien_MaLoai
+on LinhKien (MaLoai);
+go
+ 
+-- 5. Index trên LinhKien.SoLuongTon → hay dùng trong báo cáo tồn kho
+create nonclustered index IDX_LinhKien_SoLuongTon
+on LinhKien (SoLuongTon);
+go
+ 
+
+-- II. STORED PROCEDURE BỔ SUNG
+ 
+-- ── SP 1: Thống kê doanh thu theo từng loại linh kiện ───────
+-- Mục đích: báo cáo loại hàng nào bán được nhiều tiền nhất
+create procedure sp_DoanhThuTheoLoai
+    @Nam int = null   -- nếu null thì lấy tất cả các năm
+as
+begin
+    set nocount on;
+ 
+    select
+        ll.MaLoai,
+        ll.TenLoai,
+        count(distinct ct.MaHD)         as SoHoaDon,
+        sum(ct.SoLuong)                 as TongSoLuongBan,
+        sum(ct.SoLuong * ct.DonGia)     as TongDoanhThu
+    from ChiTietHD ct
+    join LinhKien lk on ct.MaLK = lk.MaLK
+    join LoaiLK ll   on lk.MaLoai = ll.MaLoai
+    join HoaDon hd   on ct.MaHD = hd.MaHD
+    where
+        hd.TrangThai = N'Đã thanh toán'
+        and (@Nam is null or year(hd.NgayHD) = @Nam)
+    group by ll.MaLoai, ll.TenLoai
+    order by TongDoanhThu desc;
+end;
+go
+ 
+-- Kiểm tra:
+-- exec sp_DoanhThuTheoLoai;          -- tất cả các năm
+-- exec sp_DoanhThuTheoLoai @Nam = 2024;
+ 
+ 
+-- ── SP 2: Top 5 khách hàng mua nhiều nhất ───────────────────
+-- Mục đích: xác định khách VIP để có chính sách ưu đãi
+create procedure sp_Top5KhachHangVIP
+as
+begin
+    set nocount on;
+ 
+    select top 5
+        kh.MaKH,
+        kh.TenKH,
+        kh.SDT,
+        count(hd.MaHD)          as SoLanMua,
+        sum(hd.TongTien)        as TongChiTieu
+    from KhachHang kh
+    join HoaDon hd on kh.MaKH = hd.MaKH
+    where hd.TrangThai = N'Đã thanh toán'
+    group by kh.MaKH, kh.TenKH, kh.SDT
+    order by TongChiTieu desc;
+end;
+go
+ 
+-- Kiểm tra:
+-- exec sp_Top5KhachHangVIP;
+ 
+ 
+-- ── SP 3: Kiểm tra hàng sắp hết (tồn kho < ngưỡng) ─────────
+-- Mục đích: cảnh báo để nhập hàng kịp thời (mở rộng sp_BaoCaoTonKho)
+create procedure sp_CanhBaoTonKho
+    @Nguong int = 10    -- mặc định cảnh báo khi tồn < 10
+as
+begin
+    set nocount on;
+ 
+    select
+        lk.MaLK,
+        lk.TenLK,
+        ll.TenLoai,
+        lk.SoLuongTon,
+        lk.DVT,
+        lk.DonGiaBan,
+        case
+            when lk.SoLuongTon = 0 then N'Hết hàng'
+            else N'Sắp hết hàng'
+        end as TinhTrang
+    from LinhKien lk
+    join LoaiLK ll on lk.MaLoai = ll.MaLoai
+    where lk.SoLuongTon < @Nguong
+      and lk.NgungKinhDoanh = 0
+    order by lk.SoLuongTon asc;
+end;
+go
+ 
+-- Kiểm tra:
+-- exec sp_CanhBaoTonKho;           -- ngưỡng mặc định 10
+-- exec sp_CanhBaoTonKho @Nguong = 20;
+ 
+ 
+-- ── SP 4: Lịch sử mua hàng của một khách hàng ───────────────
+-- Mục đích: tra cứu nhanh toàn bộ giao dịch của khách
+create procedure sp_LichSuMuaHang
+    @MaKH char(6)
+as
+begin
+    set nocount on;
+ 
+    if not exists (select 1 from KhachHang where MaKH = @MaKH)
+    begin
+        print N'Không tìm thấy khách hàng ' + @MaKH;
+        return;
+    end
+ 
+    -- Thông tin khách hàng
+    select MaKH, TenKH, SDT, DChi, Email
+    from KhachHang
+    where MaKH = @MaKH;
+ 
+    -- Danh sách hóa đơn
+    select
+        hd.MaHD,
+        hd.NgayHD,
+        nv.TenNV      as NhanVienBan,
+        hd.TongTien,
+        hd.TrangThai,
+        hd.PhuongThucThanhToan
+    from HoaDon hd
+    join NhanVien nv on hd.MaNV = nv.MaNV
+    where hd.MaKH = @MaKH
+    order by hd.NgayHD desc;
+end;
+go
+ 
+-- Kiểm tra:
+-- exec sp_LichSuMuaHang @MaKH = 'KH001';
+ 
+ 
+-- ── SP 5: Nhập hàng theo phiếu nhập (transaction đầy đủ) ────
+-- Mục đích: demo giao tác khi nhập hàng vào kho
+create procedure sp_NhapHang
+    @MaPN   char(5),
+    @NgayNhap date,
+    @MaNV   char(6),
+    @MaLK   char(6),
+    @SoLuongNhap int,
+    @DonGiaNhap  money
+as
+begin
+    begin tran;
+    begin try
+        -- Kiểm tra nhân viên tồn tại
+        if not exists (select 1 from NhanVien where MaNV = @MaNV)
+        begin
+            raiserror(N'Nhân viên không tồn tại!', 16, 1);
+            return;
+        end
+ 
+        -- Kiểm tra linh kiện tồn tại
+        if not exists (select 1 from LinhKien where MaLK = @MaLK)
+        begin
+            raiserror(N'Linh kiện không tồn tại!', 16, 1);
+            return;
+        end
+ 
+        -- Tạo phiếu nhập nếu chưa có
+        if not exists (select 1 from PhieuNhap where MaPN = @MaPN)
+        begin
+            insert into PhieuNhap (MaPN, NgayNhap, MaNV)
+            values (@MaPN, @NgayNhap, @MaNV);
+        end
+ 
+        -- Thêm chi tiết phiếu nhập
+        insert into ChiTietPN (MaPN, MaLK, SoLuongNhap, DonGiaNhap)
+        values (@MaPN, @MaLK, @SoLuongNhap, @DonGiaNhap);
+ 
+        -- Cập nhật tồn kho
+        update LinhKien
+        set SoLuongTon = SoLuongTon + @SoLuongNhap
+        where MaLK = @MaLK;
+ 
+        commit tran;
+        print N'THÀNH CÔNG: Nhập ' + cast(@SoLuongNhap as varchar) +
+              N' cái vào kho. Phiếu nhập: ' + @MaPN;
+    end try
+    begin catch
+        rollback tran;
+        print N'LỖI: ' + error_message();
+    end catch
+end;
+go
+ 
+-- Kiểm tra:
+-- exec sp_NhapHang 'PN011', '15-05-2025', 'NV008', 'MOU001', 50, 95000;
+ 
+
+
 
 /*
 ----1. Kịch bản 1: Mức READ UNCOMMITTED 
