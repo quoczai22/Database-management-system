@@ -3,13 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:Icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-    StartupUri="LoginApp.xaml">
+    StartupUri="Views/LoginView.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/StyleLogin.xaml"/>
-                <ResourceDictionary Source="Themes/StyleMainWindow.xaml"/>
-                <ResourceDictionary Source="Themes/StyleTrangChu.xaml"/>
+                <ResourceDictionary Source="/Themes/ThemeDark.xaml"/>
+                <ResourceDictionary Source="/Themes/ThemeLight.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

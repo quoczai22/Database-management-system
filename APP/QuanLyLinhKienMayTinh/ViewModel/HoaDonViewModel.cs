@@ -1,6 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LiveCharts.Wpf;
+using Microsoft.EntityFrameworkCore;
 using QuanLyLinhKienMayTinh.Models;
+using QuanLyLinhKienMayTinh.Views;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -9,44 +12,37 @@ using System.Windows.Media;
 
 namespace QuanLyLinhKienMayTinh.ViewModels
 {
-    // Display class cho danh sách hóa đơn (DataGrid trái)
     public class HoaDonDisplay
     {
         public string MaHoaDon { get; set; }
         public string TenKhachHang { get; set; }
         public string TenNhanVien { get; set; }
         public DateTime? NgayTao { get; set; }
-        public int? TongTien { get; set; }
-        public int? TamTinh { get; set; }
-        public int? GiamGia { get; set; }
+        public decimal? TongTien { get; set; }
+        public decimal? TamTinh { get; set; }
+        public decimal? GiamGia { get; set; }
         public string TrangThai { get; set; }
         public Brush TrangThaiMauNen { get; set; }
         public Brush TrangThaiMauChu { get; set; }
         public string SoDienThoai { get; set; }
+        public string PhuongThucThanhToan { get; set; }
     }
 
-    // Display class cho chi tiết sản phẩm (DataGrid trong panel phải)
     public class ChiTietSanPhamDisplay
     {
         public string TenSanPham { get; set; }
         public byte? SoLuong { get; set; }
-        public int? DonGia { get; set; }
+        public decimal? DonGia { get; set; }
+        public string HanBaoHanhHienThi { get; set; }
     }
 
     public class HoaDonViewModel : BaseViewModel, ISearchable
     {
-        // ── Backing data ─────────────────────────────────────────────────────
+        // ── CÁC BIẾN ───────────────────────────────────
         private ObservableCollection<HoaDonDisplay> _all;
-
-        // ── Danh sách hóa đơn (DataGrid) ────────────────────────────────────
         private ObservableCollection<HoaDonDisplay> _danhSachHoaDon;
-        public ObservableCollection<HoaDonDisplay> DanhSachHoaDon
-        {
-            get => _danhSachHoaDon;
-            set { _danhSachHoaDon = value; OnPropertyChanged(); }
-        }
+        public ObservableCollection<HoaDonDisplay> DanhSachHoaDon { get => _danhSachHoaDon; set { _danhSachHoaDon = value; OnPropertyChanged(); } }
 
-        // ── Hóa đơn đang chọn ───────────────────────────────────────────────
         private HoaDonDisplay _hoaDonChon;
         public HoaDonDisplay HoaDonChon
         {
@@ -55,332 +51,307 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             {
                 _hoaDonChon = value;
                 OnPropertyChanged();
-                // Cập nhật panel chi tiết
                 ChiTietVisibility = value != null ? Visibility.Visible : Visibility.Collapsed;
                 ChuaChonHoaDonVisibility = value == null ? Visibility.Visible : Visibility.Collapsed;
                 TaiChiTietSanPham(value?.MaHoaDon);
+                ThanhToanButtonVisibility = (value != null && value.TrangThai != "Đã thanh toán") ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
-        // ── Chi tiết sản phẩm trong hóa đơn ─────────────────────────────────
         private ObservableCollection<ChiTietSanPhamDisplay> _chiTietSanPham;
-        public ObservableCollection<ChiTietSanPhamDisplay> ChiTietSanPham
-        {
-            get => _chiTietSanPham;
-            set { _chiTietSanPham = value; OnPropertyChanged(); }
-        }
+        public ObservableCollection<ChiTietSanPhamDisplay> ChiTietSanPham { get => _chiTietSanPham; set { _chiTietSanPham = value; OnPropertyChanged(); } }
 
-        // ── Visibility panel chi tiết ────────────────────────────────────────
         private Visibility _chiTietVisibility = Visibility.Collapsed;
-        public Visibility ChiTietVisibility
-        {
-            get => _chiTietVisibility;
-            set { _chiTietVisibility = value; OnPropertyChanged(); }
-        }
+        public Visibility ChiTietVisibility { get => _chiTietVisibility; set { _chiTietVisibility = value; OnPropertyChanged(); } }
 
         private Visibility _chuaChonHoaDonVisibility = Visibility.Visible;
-        public Visibility ChuaChonHoaDonVisibility
-        {
-            get => _chuaChonHoaDonVisibility;
-            set { _chuaChonHoaDonVisibility = value; OnPropertyChanged(); }
-        }
+        public Visibility ChuaChonHoaDonVisibility { get => _chuaChonHoaDonVisibility; set { _chuaChonHoaDonVisibility = value; OnPropertyChanged(); } }
 
-        // ── Toolbar: search, filter trạng thái, lọc ngày ────────────────────
         private string _tuKhoanTimKiem = string.Empty;
-        public string TuKhoanTimKiem
-        {
-            get => _tuKhoanTimKiem;
-            set { _tuKhoanTimKiem = value; OnPropertyChanged(); }
-        }
+        public string TuKhoanTimKiem { get => _tuKhoanTimKiem; set { _tuKhoanTimKiem = value; OnPropertyChanged(); } }
 
         private ObservableCollection<string> _danhSachTrangThai;
-        public ObservableCollection<string> DanhSachTrangThai
-        {
-            get => _danhSachTrangThai;
-            set { _danhSachTrangThai = value; OnPropertyChanged(); }
-        }
+        public ObservableCollection<string> DanhSachTrangThai { get => _danhSachTrangThai; set { _danhSachTrangThai = value; OnPropertyChanged(); } }
 
         private string _trangThaiChon;
-        public string TrangThaiChon
-        {
-            get => _trangThaiChon;
-            set { _trangThaiChon = value; OnPropertyChanged(); }
-        }
+        public string TrangThaiChon { get => _trangThaiChon; set { _trangThaiChon = value; OnPropertyChanged(); } }
 
         private DateTime? _tuNgay;
-        public DateTime? TuNgay
-        {
-            get => _tuNgay;
-            set { _tuNgay = value; OnPropertyChanged(); }
-        }
+        public DateTime? TuNgay { get => _tuNgay; set { _tuNgay = value; OnPropertyChanged(); } }
 
         private DateTime? _denNgay;
-        public DateTime? DenNgay
-        {
-            get => _denNgay;
-            set { _denNgay = value; OnPropertyChanged(); }
-        }
+        public DateTime? DenNgay { get => _denNgay; set { _denNgay = value; OnPropertyChanged(); } }
 
-        // ── Footer thống kê ──────────────────────────────────────────────────
         private int _tongSoHoaDon;
-        public int TongSoHoaDon
-        {
-            get => _tongSoHoaDon;
-            set { _tongSoHoaDon = value; OnPropertyChanged(); }
-        }
+        public int TongSoHoaDon { get => _tongSoHoaDon; set { _tongSoHoaDon = value; OnPropertyChanged(); } }
 
         private long _tongDoanhThu;
-        public long TongDoanhThu
-        {
-            get => _tongDoanhThu;
-            set { _tongDoanhThu = value; OnPropertyChanged(); }
-        }
+        public long TongDoanhThu { get => _tongDoanhThu; set { _tongDoanhThu = value; OnPropertyChanged(); } }
 
         private int _soHoaDonDaThanhToan;
-        public int SoHoaDonDaThanhToan
-        {
-            get => _soHoaDonDaThanhToan;
-            set { _soHoaDonDaThanhToan = value; OnPropertyChanged(); }
-        }
+        public int SoHoaDonDaThanhToan { get => _soHoaDonDaThanhToan; set { _soHoaDonDaThanhToan = value; OnPropertyChanged(); } }
 
         private int _soHoaDonChoXuLy;
-        public int SoHoaDonChoXuLy
-        {
-            get => _soHoaDonChoXuLy;
-            set { _soHoaDonChoXuLy = value; OnPropertyChanged(); }
-        }
+        public int SoHoaDonChoXuLy { get => _soHoaDonChoXuLy; set { _soHoaDonChoXuLy = value; OnPropertyChanged(); } }
 
-        // ── Commands ─────────────────────────────────────────────────────────
-        public ICommand TaoHoaDonMoiCommand { get; private set; }
+        private Visibility _thanhToanButtonVisibility = Visibility.Collapsed;
+        public Visibility ThanhToanButtonVisibility { get => _thanhToanButtonVisibility; set { _thanhToanButtonVisibility = value; OnPropertyChanged(); } }
+
+        // ── COMMANDS ─────────────────────────────────────────────────────────
+        public ICommand TaoHoaDonCommand { get; private set; }
         public ICommand SuaHoaDonCommand { get; private set; }
         public ICommand InHoaDonCommand { get; private set; }
         public ICommand XoaHoaDonCommand { get; private set; }
         public ICommand LocHoaDonCommand { get; private set; }
+        public ICommand ThanhToanHoaDonCommand { get; private set; }
 
         public HoaDonViewModel()
         {
-            DanhSachTrangThai = new ObservableCollection<string>
-            {
-                "-- Tất cả --", "Đã thanh toán", "Chờ xử lý"
-            };
-            TrangThaiChon = "-- Tất cả --";
-
             TaiDuLieu();
             KhoiTaoCommands();
         }
 
-        // ── Tải toàn bộ hóa đơn ─────────────────────────────────────────────
-        public void TaiDuLieu()
+        private void KhoiTaoCommands()
+        {
+            TaoHoaDonCommand = new RelayCommand<object>(p => true, p => ThucHienTaoHoaDon());
+            SuaHoaDonCommand = new RelayCommand<object>(p => HoaDonChon != null, p => ThucHienSuaHoaDon());
+            InHoaDonCommand = new RelayCommand<object>(p => HoaDonChon != null, p => ThucHienInHoaDon());
+            XoaHoaDonCommand = new RelayCommand<object>(p => HoaDonChon != null, p => ThucHienXoaHoaDon());
+            LocHoaDonCommand = new RelayCommand<object>(p => true, p => LocHoaDon());
+            ThanhToanHoaDonCommand = new RelayCommand<object>(p => HoaDonChon != null, p => ThucHienThanhToan());
+        }
+
+        // ── HÀM TẠO MÃ TỰ ĐỘNG NỘI BỘ (THAY THẾ SERVICE) ─────────────────────
+        private string TaoMaTuDong(string tienTo, string maCu)
+        {
+            if (string.IsNullOrEmpty(maCu)) return tienTo + "001";
+            string soCuStr = maCu.Substring(tienTo.Length);
+            if (int.TryParse(soCuStr, out int soCu))
+            {
+                return tienTo + (soCu + 1).ToString("D3");
+            }
+            return tienTo + "001";
+        }
+
+        private void ThucHienTaoHoaDon()
         {
             try
             {
-                var db = DataProvider.Ins.DB;
+                var dbRead = DataProvider.Ins.GetContext();
+                var lastID = dbRead.HoaDons
+                    .OrderByDescending(x => x.MaHd)
+                    .Select(x => x.MaHd).FirstOrDefault();
 
-                var list = db.HoaDons
-                    .AsNoTracking()
-                    .Include(hd => hd.MaKhNavigation)
-                    .Include(hd => hd.MaNvNavigation)
-                    .OrderByDescending(hd => hd.NgayHd)
-                    .ToList()
-                    .Select(hd => MapToDisplay(hd))
-                    .ToList();
+                string newID = TaoMaTuDong("HD", lastID);
 
-                _all = new ObservableCollection<HoaDonDisplay>(list);
-                DanhSachHoaDon = new ObservableCollection<HoaDonDisplay>(list);
-
-                CapNhatThongKe(_all);
+                var dialog = new ThemHoaDonDialog(newID);
+                dialog.Owner = Application.Current.MainWindow;
+                if (dialog.ShowDialog() == true)
+                {
+                    LuuHoaDonAnToan(dialog.HoaDonMoi, dialog.ChiTietHds);
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải dữ liệu hóa đơn: " + ex.Message,
-                    "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Lỗi khi tạo hóa đơn: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ── Tải chi tiết sản phẩm khi chọn hóa đơn ─────────────────────────
-        private void TaiChiTietSanPham(string maHoaDon)
+        private void ThucHienSuaHoaDon()
         {
-            if (string.IsNullOrEmpty(maHoaDon))
+            if (HoaDonChon.TrangThai == "Đã thanh toán")
             {
-                ChiTietSanPham = new ObservableCollection<ChiTietSanPhamDisplay>();
+                MessageBox.Show("Hóa đơn đã thanh toán, không thể chỉnh sửa!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
             try
             {
-                var db = DataProvider.Ins.DB;
-                var chiTiet = db.ChiTietHds
-                    .AsNoTracking()
-                    .Include(ct => ct.MaLkNavigation)
-                    .Where(ct => ct.MaHd == maHoaDon)
-                    .Select(ct => new ChiTietSanPhamDisplay
-                    {
-                        TenSanPham = ct.MaLkNavigation.TenLk,
-                        SoLuong = ct.SoLuong,
-                        DonGia = ct.DonGia
-                    }).ToList();
-
-                ChiTietSanPham = new ObservableCollection<ChiTietSanPhamDisplay>(chiTiet);
+                var dialog = new SuaHoaDonDialog(HoaDonChon.MaHoaDon);
+                dialog.Owner = Application.Current.MainWindow;
+                if (dialog.ShowDialog() == true) TaiDuLieu();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải chi tiết hóa đơn: " + ex.Message,
-                    "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Lỗi khi sửa hóa đơn: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ── Map entity → display ─────────────────────────────────────────────
+        private void ThucHienInHoaDon()
+        {
+            var hd = HoaDonChon;
+            string content = $"HÓA ĐƠN BÁN HÀNG\nMã HD: {hd.MaHoaDon}\nNgày: {hd.NgayTao:dd/MM/yyyy}\nKhách hàng: {hd.TenKhachHang}\nSĐT: {hd.SoDienThoai}\n------------------------------------------\nSản phẩm\tSL\tĐơn giá\n";
+
+            foreach (var item in ChiTietSanPham)
+            {
+                content += $"{item.TenSanPham}\t{item.SoLuong}\t{item.DonGia:N0}\n";
+            }
+            content += $"------------------------------------------\nTỔNG TIỀN: {hd.TongTien:N0} VNĐ";
+
+            var sfd = new Microsoft.Win32.SaveFileDialog { FileName = $"HoaDon_{hd.MaHoaDon}.txt", Filter = "Text File (*.txt)|*.txt" };
+            if (sfd.ShowDialog() == true)
+            {
+                System.IO.File.WriteAllText(sfd.FileName, content);
+                MessageBox.Show("Đã xuất hóa đơn thành công!", "In hóa đơn");
+            }
+        }
+
+        private void ThucHienThanhToan()
+        {
+            var res = MessageBox.Show($"Xác nhận thanh toán TIỀN MẶT cho hóa đơn [{HoaDonChon.MaHoaDon}]?", "Thanh toán", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (res == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    var db = DataProvider.Ins.GetContext();
+                    var hd = db.HoaDons.Find(HoaDonChon.MaHoaDon);
+                    if (hd != null)
+                    {
+                        hd.TrangThai = "Đã thanh toán";
+                        hd.PhuongThucThanhToan = "Tiền mặt";
+                        hd.NgayThanhToan = DateOnly.FromDateTime(DateTime.Now);
+                        db.SaveChanges();
+
+                        MessageBox.Show("Thanh toán thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                        TaiDuLieu();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi thanh toán: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void ThucHienXoaHoaDon()
+        {
+            var res = MessageBox.Show($"Bạn có chắc muốn xóa hóa đơn [{HoaDonChon.MaHoaDon}]?\nHàng tồn kho sẽ được hoàn trả lại.", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (res == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    var db = DataProvider.Ins.GetContext();
+                    var entity = db.HoaDons.Include(h => h.ChiTietHds).FirstOrDefault(h => h.MaHd == HoaDonChon.MaHoaDon);
+                    if (entity == null) return;
+
+                    using (var giaoDich = db.Database.BeginTransaction())
+                    {
+                        foreach (var chiTiet in entity.ChiTietHds)
+                        {
+                            var linhKien = db.LinhKiens.Find(chiTiet.MaLk);
+                            if (linhKien != null) linhKien.SoLuongTon += chiTiet.SoLuong;
+                        }
+                        db.ChiTietHds.RemoveRange(entity.ChiTietHds);
+                        db.HoaDons.Remove(entity);
+                        db.SaveChanges();
+                        giaoDich.Commit();
+
+                        TaiDuLieu();
+                        MessageBox.Show("Xóa hóa đơn thành công! Đã hoàn trả hàng.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error); }
+            }
+        }
+
+        // ── LOAD DỮ LIỆU & ÉP KIỂU DECIMAL ──────────────────────
+        public void TaiDuLieu()
+        {
+            try
+            {
+                var db = DataProvider.Ins.GetContext();
+                var list = db.HoaDons.AsNoTracking().Include(hd => hd.MaKhNavigation).Include(hd => hd.MaNvNavigation)
+                             .OrderByDescending(hd => hd.NgayHd).ToList().Select(hd => MapToDisplay(hd)).ToList();
+
+                _all = new ObservableCollection<HoaDonDisplay>(list);
+                DanhSachHoaDon = new ObservableCollection<HoaDonDisplay>(list);
+                CapNhatThongKe(_all);
+            }
+            catch (Exception ex) { MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error); }
+        }
+
+        private void TaiChiTietSanPham(string maHoaDon)
+        {
+            if (string.IsNullOrEmpty(maHoaDon)) { ChiTietSanPham = new ObservableCollection<ChiTietSanPhamDisplay>(); return; }
+            try
+            {
+                var db = DataProvider.Ins.GetContext();
+                var chiTiet = db.ChiTietHds.AsNoTracking().Include(ct => ct.MaLkNavigation).Where(ct => ct.MaHd == maHoaDon).ToList()
+                    .Select(ct => new ChiTietSanPhamDisplay
+                    {
+                        TenSanPham = ct.MaLkNavigation?.TenLk ?? "Linh kiện ẩn",
+                        SoLuong = ct.SoLuong,
+                        DonGia = (decimal?)ct.DonGia,
+                        HanBaoHanhHienThi = (ct.MaLkNavigation?.Tgbh != null) ? "Có" : "Không có"
+                    }).ToList();
+                ChiTietSanPham = new ObservableCollection<ChiTietSanPhamDisplay>(chiTiet);
+            }
+            catch { }
+        }
+
         private static HoaDonDisplay MapToDisplay(HoaDon hd)
         {
-            // Xác định trạng thái: có tổng tiền > 0 → đã thanh toán
-            bool daThanhToan = (hd.TongTien ?? 0) > 0;
-            string trangThai = daThanhToan ? "Đã thanh toán" : "Chờ xử lý";
-
-            var mauNen = daThanhToan
-                ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e8f5e9"))
-                : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#fff3e0"));
-
-            var mauChu = daThanhToan
-                ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2e7d32"))
-                : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e65100"));
-
-            // Convert DateOnly? → DateTime?
-            DateTime? ngayTao = hd.NgayHd.HasValue
-                ? hd.NgayHd.Value.ToDateTime(TimeOnly.MinValue)
-                : (DateTime?)null;
-
+            string trangThai = hd.TrangThai ?? "Chưa thanh toán";
             return new HoaDonDisplay
             {
                 MaHoaDon = hd.MaHd,
                 TenKhachHang = hd.MaKhNavigation?.TenKh ?? hd.MaKh,
                 TenNhanVien = hd.MaNvNavigation?.TenNv ?? hd.MaNv,
-                NgayTao = ngayTao,
-                TongTien = hd.TongTien,
-                TamTinh = hd.TongTien,   // chưa có chiết khấu riêng
+                NgayTao = hd.NgayHd.HasValue ? hd.NgayHd.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
+                TongTien = (decimal?)hd.TongTien,
+                TamTinh = (decimal?)hd.TongTien,
                 GiamGia = 0,
                 TrangThai = trangThai,
-                TrangThaiMauNen = mauNen,
-                TrangThaiMauChu = mauChu,
-                SoDienThoai = hd.MaKhNavigation?.Dthoai ?? string.Empty
+                TrangThaiMauNen = trangThai == "Đã thanh toán" ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e8f5e9")) : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#fff3e0")),
+                TrangThaiMauChu = trangThai == "Đã thanh toán" ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2e7d32")) : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e65100")),
+                SoDienThoai = hd.MaKhNavigation?.Sdt ?? "",
+                PhuongThucThanhToan = hd.PhuongThucThanhToan ?? "Tiền mặt"
             };
         }
 
-        // ── Lọc hóa đơn theo toolbar ─────────────────────────────────────────
-        private void LocHoaDon()
-        {
-            var filtered = _all.AsEnumerable();
+        private void LocHoaDon() { /* Viết nội dung lọc vào đây nếu cần */ }
+        public void ApplySearch(string keyword) { TuKhoanTimKiem = keyword?.Trim() ?? string.Empty; LocHoaDon(); }
 
-            // Lọc từ khóa
-            if (!string.IsNullOrWhiteSpace(TuKhoanTimKiem))
-            {
-                string kw = TuKhoanTimKiem.ToLower();
-                filtered = filtered.Where(hd =>
-                    (hd.MaHoaDon?.ToLower().Contains(kw) ?? false) ||
-                    (hd.TenKhachHang?.ToLower().Contains(kw) ?? false) ||
-                    (hd.TenNhanVien?.ToLower().Contains(kw) ?? false));
-            }
-
-            // Lọc trạng thái
-            if (!string.IsNullOrEmpty(TrangThaiChon) && TrangThaiChon != "-- Tất cả --")
-                filtered = filtered.Where(hd => hd.TrangThai == TrangThaiChon);
-
-            // Lọc theo ngày
-            if (TuNgay.HasValue)
-                filtered = filtered.Where(hd => hd.NgayTao >= TuNgay.Value);
-            if (DenNgay.HasValue)
-                filtered = filtered.Where(hd => hd.NgayTao <= DenNgay.Value.AddDays(1));
-
-            var result = filtered.ToList();
-            DanhSachHoaDon = new ObservableCollection<HoaDonDisplay>(result);
-            CapNhatThongKe(DanhSachHoaDon);
-            HoaDonChon = null;
-        }
-
-        // ── Cập nhật thống kê footer ─────────────────────────────────────────
         private void CapNhatThongKe(IEnumerable<HoaDonDisplay> ds)
         {
-            var list = ds.ToList();
-            TongSoHoaDon = list.Count;
-            TongDoanhThu = list.Sum(hd => (long)(hd.TongTien ?? 0));
-            SoHoaDonDaThanhToan = list.Count(hd => hd.TrangThai == "Đã thanh toán");
-            SoHoaDonChoXuLy = list.Count(hd => hd.TrangThai == "Chờ xử lý");
+            TongSoHoaDon = ds.Count();
+            TongDoanhThu = (long)ds.Where(hd => hd.TrangThai == "Đã thanh toán").Sum(hd => hd.TongTien ?? 0);
+            SoHoaDonDaThanhToan = ds.Count(hd => hd.TrangThai == "Đã thanh toán");
+            SoHoaDonChoXuLy = ds.Count(hd => hd.TrangThai == "Chưa thanh toán");
         }
 
-        // ── ISearchable ──────────────────────────────────────────────────────
-        public void ApplySearch(string keyword)
+        public void LuuHoaDonAnToan(HoaDon hdMoi, List<ChiTietHd> danhSachMonHang)
         {
-            TuKhoanTimKiem = keyword?.Trim() ?? string.Empty;
-            LocHoaDon();
-        }
-
-        // ── Khởi tạo Commands ────────────────────────────────────────────────
-        private void KhoiTaoCommands()
-        {
-            TaoHoaDonMoiCommand = new RelayCommand<object>(
-                _ => true,
-                _ => MessageBox.Show(
-                    "Chức năng tạo hóa đơn mới đang được phát triển.",
-                    "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information));
-
-            SuaHoaDonCommand = new RelayCommand<object>(
-                _ => HoaDonChon != null,
-                _ => MessageBox.Show(
-                    $"Chức năng sửa hóa đơn [{HoaDonChon?.MaHoaDon}] đang được phát triển.",
-                    "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information));
-
-            InHoaDonCommand = new RelayCommand<object>(
-                _ => HoaDonChon != null,
-                _ => MessageBox.Show(
-                    $"Chức năng in hóa đơn [{HoaDonChon?.MaHoaDon}] đang được phát triển.",
-                    "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information));
-
-            XoaHoaDonCommand = new RelayCommand<object>(
-                _ => HoaDonChon != null,
-                _ =>
+            var db = DataProvider.Ins.GetContext();
+            using (var giaoDich = db.Database.BeginTransaction()) 
+            {
+                try
                 {
-                    var hd = HoaDonChon;
-                    if (hd == null) return;
-                    var res = MessageBox.Show(
-                        $"Bạn có chắc chắn muốn xóa hóa đơn [{hd.MaHoaDon}]?\n" +
-                        "Tất cả chi tiết hóa đơn cũng sẽ bị xóa.",
-                        "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    if (res == MessageBoxResult.Yes)
-                        ThucHienXoa(hd);
-                });
+                    db.HoaDons.Add(hdMoi);
 
-            LocHoaDonCommand = new RelayCommand<object>(
-                _ => true,
-                _ => LocHoaDon());
-        }
+                    foreach (var mon in danhSachMonHang)
+                    {
+                        var kho = db.LinhKiens.Find(mon.MaLk);
+                        if (kho.SoLuongTon < mon.SoLuong)
+                        {
+                            throw new Exception($"Linh kiện '{kho.TenLk}' không đủ hàng!");
+                        }
 
-        // ── Xóa hóa đơn ─────────────────────────────────────────────────────
-        private void ThucHienXoa(HoaDonDisplay hd)
-        {
-            try
-            {
-                var db = DataProvider.Ins.DB;
-                var entity = db.HoaDons
-                    .Include(h => h.ChiTietHds)
-                    .FirstOrDefault(h => h.MaHd == hd.MaHoaDon);
-                if (entity == null) return;
+                        kho.SoLuongTon -= mon.SoLuong;
+                        db.ChiTietHds.Add(mon);
+                    }
 
-                // Xóa chi tiết trước, sau đó xóa hóa đơn
-                db.ChiTietHds.RemoveRange(entity.ChiTietHds);
-                db.HoaDons.Remove(entity);
-                db.SaveChanges();
+                    db.SaveChanges();
+                    giaoDich.Commit();
 
-                _all.Remove(hd);
-                DanhSachHoaDon.Remove(hd);
-                HoaDonChon = null;
-                CapNhatThongKe(DanhSachHoaDon);
-
-                MessageBox.Show("Xóa hóa đơn thành công!",
-                    "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi xóa hóa đơn: " + ex.Message,
-                    "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                    TaiDuLieu();
+                    MessageBox.Show("Thanh toán thành công! Đã cập nhật kho.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    giaoDich.Rollback();
+                    MessageBox.Show("Lỗi thanh toán: " + ex.Message, "Báo lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
     }

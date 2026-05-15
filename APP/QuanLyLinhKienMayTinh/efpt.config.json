@@ -5,7 +5,7 @@
    "FilterSchemas": false,
    "IncludeConnectionString": false,
    "IrregularWords": null,
-   "MinimumProductVersion": "2.6.1382",
+   "MinimumProductVersion": "2.6.1465",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -20,6 +20,10 @@
    "Tables": [
       {
          "Name": "[dbo].[ChiTietHD]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ChiTietPN]",
          "ObjectType": 0
       },
       {
@@ -43,8 +47,32 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[NhaSanXuat]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PhieuNhap]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[TaiKhoan]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[sp_BanLinhKien]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_BaoCaoTonKho]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_DanhSacKhachHangChuaTT]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[fn_DoanhThuTheoThang]",
+         "ObjectType": 2
       }
    ],
    "UiHint": null,

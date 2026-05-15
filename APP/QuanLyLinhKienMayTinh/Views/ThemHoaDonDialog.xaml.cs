@@ -14,8 +14,8 @@ namespace QuanLyLinhKienMayTinh.Views
         public string MaLk { get; set; }
         public string TenLk { get; set; }
         public int SoLuong { get; set; }
-        public int DonGia { get; set; }
-        public int ThanhTien => SoLuong * DonGia;
+        public decimal DonGia { get; set; }
+        public decimal ThanhTien => SoLuong * DonGia;
         public int TonKho { get; set; }
     }
 
@@ -142,7 +142,7 @@ namespace QuanLyLinhKienMayTinh.Views
             }
 
             string maHd = TxtMaHd.Text.Trim();
-            int tongTien = _gioHang.Sum(g => g.ThanhTien);
+            decimal tongTien = _gioHang.Sum(g => g.ThanhTien);
 
             string phuongThuc = "Tiền mặt";
             if (CboPhuongThuc.SelectedItem is System.Windows.Controls.ComboBoxItem selectedItem)

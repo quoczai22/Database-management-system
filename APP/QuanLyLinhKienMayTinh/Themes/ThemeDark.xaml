@@ -1,0 +1,39 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="BackgroundColor" Color="#1a202c"/>
+    <SolidColorBrush x:Key="BackgroundColor2" Color="#2d3748"/>
+    <SolidColorBrush x:Key="WindowBgColor" Color="#1a202c"/>
+    <SolidColorBrush x:Key="MainTextColor" Color="White"/>
+    <SolidColorBrush x:Key="SubTextColor" Color="#a0aec0"/>
+    <SolidColorBrush x:Key="AccentColor" Color="#FFC107"/>
+    <SolidColorBrush x:Key="ForegroundColor" Color="White"/>
+    <SolidColorBrush x:Key="ButtonColor" Color="#FFC107"/>
+    <SolidColorBrush x:Key="ButtonTextColor" Color="#1a202c"/>
+    <SolidColorBrush x:Key="BorderColor" Color="#4a5568"/>
+
+    <Style x:Key="PrimaryBtn" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource ButtonColor}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ButtonTextColor}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ThemeToggleButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryBtn}">
+        <Setter Property="Content" Value="☀️ Chế độ sáng"/>
+        <Setter Property="Background" Value="#f8f9fc"/>
+        <Setter Property="Foreground" Value="#2d3748"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="10"/>
+    </Style>
+</ResourceDictionary>

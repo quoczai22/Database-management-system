@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuanLyLinhKienMayTinh.Models;
+using QuanLyLinhKienMayTinh.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -19,7 +20,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         public string Nsx { get; set; }
         public string Dvt { get; set; }
         public byte? Tgbh { get; set; }
-        public DateOnly? NgaySx { get; set; }
+        public DateOnly? NgayNhap { get; set; }
     }
     public class LinhKienViewModel : BaseViewModel, ISearchable
     {
@@ -80,21 +81,23 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         {
             try
             {
-                var db = DataProvider.Ins.DB;
+                var db = DataProvider.Ins.GetContext();
 
                 // Load với navigation property để lấy TenLoai
                 var list = db.LinhKiens
                     .AsNoTracking()
+                    .Where(lk => lk.NgungKinhDoanh == false)
                     .Include(lk => lk.MaLoaiNavigation)
+                    .Include(lk => lk.MaNsxNavigation)
                     .Select(lk => new LinhKienDisplay
                     {
                         MaLk = lk.MaLk,
                         TenLk = lk.TenLk,
                         TenLoai = lk.MaLoaiNavigation.TenLoai,
-                        Nsx = lk.Nsx,
+                        Nsx = lk.MaNsxNavigation.TenNsx,
                         Dvt = lk.Dvt,
                         Tgbh = lk.Tgbh,
-                        NgaySx = lk.NgaySx
+                        NgayNhap = lk.NgayNhap
                     }).ToList();
 
                 _all = new ObservableCollection<LinhKienDisplay>(list);
@@ -126,7 +129,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 || (item.Nsx?.ToLower().Contains(TimKiem.ToLower()) ?? false)
                 || (item.Dvt?.ToLower().Contains(TimKiem.ToLower()) ?? false)
                 || (item.Tgbh?.ToString().Contains(TimKiem) ?? false)
-                || (item.NgaySx?.ToString().Contains(TimKiem) ?? false);
+                || (item.NgayNhap?.ToString().Contains(TimKiem) ?? false);
 
             // Lọc theo loại
             bool matchLoai = LoaiChon == null
@@ -145,42 +148,117 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         // ── Khởi tạo Commands ────────────────────────────────────────────────
         private void KhoiTaoCommands()
         {
-            ThemLinhKienCommand = new RelayCommand<object>(
-                _ => true,
-                _ => MessageBox.Show(
-                    "Chức năng thêm linh kiện đang được phát triển.",
-                    "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information));
+            ThemLinhKienCommand = new RelayCommand<object>(p => true, p => ThucHienThemLinhKien());
+            SuaLinhKienCommand = new RelayCommand<LinhKienDisplay>(p => true, lk => ThucHienSuaLinhKien(lk));
+            XoaLinhKienCommand = new RelayCommand<LinhKienDisplay>(p => true, lk => ThucHienXoaLinhKien(lk));
+            LamMoiCommand = new RelayCommand<object>(p => true, p => ThucHienLamMoi());
+        }
 
-            SuaLinhKienCommand = new RelayCommand<LinhKienDisplay>(
-                _ => true,
-                lk =>
+        private void ThucHienThemLinhKien()
+        {
+            try
+            {
+                // Tạo mã gợi ý, user có thể tự sửa trong dialog
+                var dbRead = DataProvider.Ins.GetContext();
+                var allMaLk = dbRead.LinhKiens
+                    .AsNoTracking()
+                    .Select(x => x.MaLk)
+                    .ToList();
+                // Lấy số lớn nhất trong tất cả mã (vd: MOU003 → 3, VGA004 → 4)
+                int maxNum = 0;
+                foreach (var ma in allMaLk)
                 {
-                    if (lk == null) return;
-                    MessageBox.Show(
-                        $"Chức năng sửa linh kiện [{lk.TenLk}] đang được phát triển.",
-                        "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-                });
+                    var m = System.Text.RegularExpressions.Regex.Match(ma ?? "", @"\d+$");
+                    if (m.Success && int.TryParse(m.Value, out int n) && n > maxNum)
+                        maxNum = n;
+                }
+                string newID = "LK" + (maxNum + 1).ToString("D3");
 
-            XoaLinhKienCommand = new RelayCommand<LinhKienDisplay>(
-                _ => true,
-                lk =>
+                var dialog = new ThemSuaLinhKienDialog(newID);
+                dialog.Owner = Application.Current.MainWindow;
+                if (dialog.ShowDialog() == true)
                 {
-                    if (lk == null) return;
-                    var res = MessageBox.Show(
-                        $"Bạn có chắc chắn muốn xóa linh kiện [{lk.TenLk}]?",
-                        "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    if (res == MessageBoxResult.Yes)
-                        ThucHienXoa(lk);
-                });
+                    var lkMoi = new LinhKien
+                    {
+                        MaLk = dialog.MaLk,
+                        TenLk = dialog.TenLk,
+                        MaLoai = dialog.MaLoai,
+                        MaNsx = dialog.MaNsx,
+                        Dvt = dialog.Dvt,
+                        Tgbh = dialog.Tgbh,
+                        DonGiaBan = dialog.DonGiaBan,
+                        SoLuongTon = dialog.SoLuongTon ?? 0,
+                        NgayNhap = dialog.NgayNhap,
+                        NgungKinhDoanh = false
+                    };
 
-            LamMoiCommand = new RelayCommand<object>(
-                _ => true,
-                _ =>
-                {
-                    TimKiem = string.Empty;
-                    LoaiChon = null;
+                    var dbSave = DataProvider.Ins.GetContext();
+                    dbSave.LinhKiens.Add(lkMoi);
+                    dbSave.SaveChanges();
                     TaiDuLieu();
-                });
+
+                    MessageBox.Show("Thêm linh kiện thành công!",
+                        "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi thêm linh kiện: " + ex.Message,
+                    "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ThucHienSuaLinhKien(LinhKienDisplay lk)
+        {
+            try
+            {
+                var dialog = new ThemSuaLinhKienDialog(lk);
+                dialog.Owner = Application.Current.MainWindow;
+                if (dialog.ShowDialog() == true)
+                {
+                    var db = DataProvider.Ins.GetContext();
+                    var entity = db.LinhKiens.Find(dialog.MaLk);
+                    if (entity != null)
+                    {
+                        entity.TenLk = dialog.TenLk;
+                        entity.MaLoai = dialog.MaLoai;
+                        entity.MaNsx = dialog.MaNsx;
+                        entity.Dvt = dialog.Dvt;
+                        entity.Tgbh = dialog.Tgbh;
+                        entity.DonGiaBan = dialog.DonGiaBan;
+                        if (dialog.SoLuongTon.HasValue)
+                            entity.SoLuongTon = dialog.SoLuongTon;
+                        entity.NgayNhap = dialog.NgayNhap;
+
+                        db.SaveChanges();
+                        TaiDuLieu();
+
+                        MessageBox.Show("Cập nhật linh kiện thành công!",
+                            "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi sửa linh kiện: " + ex.Message,
+                    "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ThucHienXoaLinhKien(LinhKienDisplay lk)
+        {
+            var res = MessageBox.Show(
+                    $"Bạn có chắc chắn muốn xóa linh kiện [{lk.TenLk}] không?",
+                    "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (res == MessageBoxResult.Yes)
+                ThucHienXoa(lk);
+        }
+
+        private void ThucHienLamMoi()
+        {
+            TimKiem = string.Empty; 
+            TaiDuLieu();
+            DanhSachLinhKienView.Refresh();
         }
 
         // ── Xóa linh kiện ────────────────────────────────────────────────────
@@ -188,11 +266,11 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         {
             try
             {
-                var db = DataProvider.Ins.DB;
+                var db = DataProvider.Ins.GetContext();
                 var entity = db.LinhKiens.Find(lk.MaLk);
                 if (entity == null) return;
 
-                db.LinhKiens.Remove(entity);
+                entity.NgungKinhDoanh = true;
                 db.SaveChanges();
                 _all.Remove(lk);
 

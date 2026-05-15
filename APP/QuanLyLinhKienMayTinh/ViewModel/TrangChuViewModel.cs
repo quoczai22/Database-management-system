@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -37,6 +38,9 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 OnPropertyChanged();
             }
         }
+
+        public Func<double, string> Formatter { get; set; }
+
         private SeriesCollection _chuVu;
         public SeriesCollection ChucVu
         {
@@ -47,8 +51,8 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 OnPropertyChanged();
             }
         }
-        private List<ThongKeHang> _danhSachThongKeHang;
-        public List<ThongKeHang> DanhSachThongKeBanHang
+        private List<ThongKeBanHang> _danhSachThongKeHang;
+        public List<ThongKeBanHang> DanhSachThongKeBanHang
         {
             get { return _danhSachThongKeHang; }
             set
@@ -119,8 +123,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             DoanhThu = new SeriesCollection();
             Labels = new List<string>();
             ChucVu = new SeriesCollection();
-            DanhSachThongKeBanHang = new List<ThongKeHang>();
-            ChucVu = new SeriesCollection();
+            DanhSachThongKeBanHang = new List<ThongKeBanHang>();
 
             TaiDuLieu();
             LoadPieChart();
@@ -129,63 +132,80 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         {
             try
             {
-                var db = DataProvider.Ins.DB;
+                var db = DataProvider.Ins.GetContext();
                 TongNV = db.NhanViens.Count();
                 TongKH = db.KhachHangs.Count();
-                TongLK = db.LinhKiens.Count();
+                TongLK = db.LinhKiens.Sum(lk => lk.SoLuongTon ?? 0);
                 TongLoaiLK = db.LoaiLks.Count();
                 TongHD = db.HoaDons.Count();
+                var year = Enumerable.Range(2023, 4).ToList();
 
-                var topSanPham = db.ChiTietHds
-                    .GroupBy(ct => ct.MaLkNavigation.TenLk)
-                    .Select(g => new { TenLk = g.Key, TongBan = g.Sum(ct => ct.SoLuong) })
-                    .OrderByDescending(x => x.TongBan)
-                    .Take(5)
-                    .ToList();
+                // 1. Khởi tạo dữ liệu
+                var giaTriDoanhThu = new ChartValues<double>(); // Dữ liệu doanh thu theo tháng
+                var danhSachThang = new List<string>(); // danh sách tháng theo trục hoành
 
-                var giaTriSanPham = new ChartValues<double>();
-                var tenDanhSachLK = new List<string>();
-
-                foreach (var sp in topSanPham)
+                foreach (int y in year)
                 {
-                    tenDanhSachLK.Add(sp.TenLk);
-                    giaTriSanPham.Add(Convert.ToDouble(sp.TongBan ?? 0));
+                    for (int m = 1; m <= 12; m++)
+                    {
+                        var doanhThuThang = QL_LinhKien_PC_Context.fn_DoanhThuTheoThang(m, y); // gọi hàm tính doanh thu theo tháng từ database
+
+                        giaTriDoanhThu.Add((double)doanhThuThang); // thêm doanh thu vào danh sách ép kiểu thành double 
+                        danhSachThang.Add($"Tháng {m}/{y}");
+                    }
                 }
 
-                Labels = tenDanhSachLK;
+                // 4. Cập nhật UI
+                Labels = danhSachThang; // cập nhật danh sách tháng cho trục hoành
+                Formatter = value => value.ToString("N0") + " đ"; // định dạng giá trị doanh thu hiển thị trên biểu đồ 
 
-                DoanhThu.Add(new LineSeries
+                DoanhThu = new SeriesCollection
+    {
+                new LineSeries
                 {
-                    Title = "Đã bán (Cái/Bộ)",
-                    Values = giaTriSanPham,
-                    AreaLimit = 0,
-                    Stroke = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7b61ff")),
-                    Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#337b61ff"))
-                });
+                    Title = $"Doanh thu từ năm {year.Min()} - {year.Max()} ",
+                    Values = giaTriDoanhThu,
+                    PointGeometry = DefaultGeometries.Circle,
+                    PointGeometrySize = 10,
+                    Stroke = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#3f51b5")),
+                    Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#153f51b5"))
+                }
+            };
 
-                var hangSX = db.LinhKiens
-                    .GroupBy(lk => lk.Nsx)
-                    .Select(g => new ThongKeHang { HangSX = g.Key, SoLuong = g.Count() })
+                var hangSX = db.ChiTietHds
+                    .Include(ct => ct.MaLkNavigation)
+                    .Include(ct => ct.MaHdNavigation)
+                    .Include(ct => ct.MaLkNavigation.MaNsxNavigation)
+                    .GroupBy(ct => ct.MaLkNavigation.MaNsxNavigation.TenNsx)
+                    .Select(g => new ThongKeBanHang
+                    {
+                        HangSX = g.Key,
+                        SoLuongBan = (int)(g.Sum(x => x.SoLuong) ?? 0),
+                        DoanhThu = (double)(g.Sum(x => x.SoLuong * x.DonGia) ?? 0),
+                        GiaTrungBinh = (double)(g.Average(x => x.DonGia) ?? 0),
+                        SoDonHang = g.Select(x => x.MaHd).Distinct().Count()
+                    })
                     .ToList();
 
                 DanhSachThongKeBanHang = hangSX;
             }
-
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
         }
+
+        // hàm này cho dữ liệu biểu đồ tròn về số lượng nhân viên theo chức vụ
         public void LoadPieChart()
         {
             try
             {
-                ChucVu.Clear();
-                var db = DataProvider.Ins.DB;
+                ChucVu.Clear(); // nếu có dữ liệu cũ thì xóa đi để tránh trùng lặp khi tải lại dữ liệu
+                var db = DataProvider.Ins.GetContext(); // lấy dữ liệu từ database
                 var chucVuNV = db.NhanViens
-                    .GroupBy(nv => nv.ChucVu)
-                    .Select(g => new { ChucVu = g.Key, SoLuong = g.Count() })
-                    .ToList();
+                .GroupBy(nv => nv.ChucVu)
+                .Select(g => new { ChucVu = g.Key, SoLuong = g.Count() })
+                .ToList();
 
                 var danhSachMau = new List<string> { "#ff9800", "#e91e63", "#2196f3", "#4caf50", "#9c27b0" };
 
@@ -196,7 +216,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         Title = chucVuNV[i].ChucVu,
                         Values = new ChartValues<double> { chucVuNV[i].SoLuong },
                         DataLabels = true,
-                        Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString(danhSachMau[i % danhSachMau.Count]))
+                        Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString(danhSachMau[i % danhSachMau.Count])) // tô màu cho từng nhân viên theo chức vụ 
                     });
                 }
             }

@@ -77,7 +77,7 @@ namespace QuanLyLinhKienMayTinh.Views
                         MaLk = ct.MaLk,
                         TenLk = lk.TenLk,
                         SoLuong = ct.SoLuong ?? 1,
-                        DonGia = ct.DonGia ?? lk.DonGiaBan ?? 0,
+                        DonGia = (int)(ct.DonGia ?? lk.DonGiaBan ?? 0),
                         // Tồn kho thực tế = tồn hiện tại + số lượng đang có trong HD này
                         TonKho = (lk.SoLuongTon ?? 0) + (ct.SoLuong ?? 0)
                     });
@@ -127,7 +127,7 @@ namespace QuanLyLinhKienMayTinh.Views
                     MaLk = lk.MaLk,
                     TenLk = lk.TenLk,
                     SoLuong = soLuong,
-                    DonGia = lk.DonGiaBan ?? 0,
+                    DonGia = (int)(lk.DonGiaBan ?? 0),
                     TonKho = tonKhoHieuLuc
                 });
             }

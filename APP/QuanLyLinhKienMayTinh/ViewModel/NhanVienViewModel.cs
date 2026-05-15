@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LiveCharts.Wpf;
+using Microsoft.EntityFrameworkCore;
 using QuanLyLinhKienMayTinh.Models;
+using QuanLyLinhKienMayTinh.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -10,18 +12,16 @@ using System.Windows.Input;
 
 namespace QuanLyLinhKienMayTinh.ViewModels
 {
-    // Display class khớp với binding trong NhanVienView.xaml
     public class NhanVienDisplay
     {
         public string MaNv { get; set; }
-        public string HoTen { get; set; }   // map TenNv
+        public string HoTen { get; set; }
         public string ChucVu { get; set; }
         public string Sdt { get; set; }
-        public string Email { get; set; }   // map TenDn (login name)
-        public DateOnly? NgayVaoLam { get; set; } // map NgaySinh
+        public string Email { get; set; }
+        public DateOnly? NgayVaoLam { get; set; }
     }
 
-    // Item cho ComboBox lọc chức vụ
     public class ChucVuItem
     {
         public string TenChucVu { get; set; }
@@ -30,10 +30,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
     public class NhanVienViewModel : BaseViewModel, ISearchable
     {
-        // ── Backing collection ──────────────────────────────────────────────
         private ObservableCollection<NhanVienDisplay> _all;
-
-        // ── Bound to DataGrid ────────────────────────────────────────────────
         private ICollectionView _danhSachNhanVien;
         public ICollectionView DanhSachNhanVien
         {
@@ -48,7 +45,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             set { _nhanVienChon = value; OnPropertyChanged(); }
         }
 
-        // ── ComboBox chức vụ ────────────────────────────────────────────────
         private ObservableCollection<ChucVuItem> _danhSachChucVu;
         public ObservableCollection<ChucVuItem> DanhSachChucVu
         {
@@ -63,7 +59,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             set { _chucVuChon = value; OnPropertyChanged(); DanhSachNhanVien?.Refresh(); }
         }
 
-        // ── Search box ───────────────────────────────────────────────────────
         private string _timKiem = string.Empty;
         public string TimKiem
         {
@@ -71,7 +66,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             set { _timKiem = value; OnPropertyChanged(); DanhSachNhanVien?.Refresh(); }
         }
 
-        // ── Commands ─────────────────────────────────────────────────────────
         public ICommand ThemNhanVienCommand { get; private set; }
         public ICommand SuaNhanVienCommand { get; private set; }
         public ICommand XoaNhanVienCommand { get; private set; }
@@ -83,30 +77,29 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             KhoiTaoCommands();
         }
 
-        // ── Tải dữ liệu ─────────────────────────────────────────────────────
         public void TaiDuLieu()
         {
             try
             {
-                var db = DataProvider.Ins.DB;
+                var db = DataProvider.Ins.GetContext();
 
                 var list = db.NhanViens
-                    .AsNoTracking()
-                    .Select(nv => new NhanVienDisplay
-                    {
-                        MaNv = nv.MaNv,
-                        HoTen = nv.TenNv,
-                        ChucVu = nv.ChucVu,
-                        Sdt = nv.Sdt,
-                        Email = nv.TenDn,
-                        NgayVaoLam = nv.NgaySinh
-                    }).ToList();
+                .AsNoTracking()
+                .Where(x => x.DaNghiViec == false)
+                .Select(nv => new NhanVienDisplay
+                {
+                    MaNv = nv.MaNv,
+                    HoTen = nv.TenNv,
+                    ChucVu = nv.ChucVu,
+                    Sdt = nv.Sdt,
+                    Email = nv.Email,
+                    NgayVaoLam = nv.NgayVaoLam
+                }).ToList();
 
                 _all = new ObservableCollection<NhanVienDisplay>(list);
                 DanhSachNhanVien = CollectionViewSource.GetDefaultView(_all);
                 DanhSachNhanVien.Filter = Filter;
 
-                // Danh sách chức vụ cho ComboBox
                 var cacChucVu = db.NhanViens
                     .AsNoTracking()
                     .Where(nv => nv.ChucVu != null)
@@ -121,24 +114,20 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải dữ liệu nhân viên: " + ex.Message,
-                    "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Lỗi tải dữ liệu nhân viên: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // ── Filter ───────────────────────────────────────────────────────────
         private bool Filter(object obj)
         {
             if (obj is not NhanVienDisplay item) return false;
 
-            // Lọc theo từ khóa tìm kiếm
             bool matchSearch = string.IsNullOrWhiteSpace(TimKiem)
                 || (item.MaNv?.ToLower().Contains(TimKiem.ToLower()) ?? false)
                 || (item.HoTen?.ToLower().Contains(TimKiem.ToLower()) ?? false)
                 || (item.Sdt?.ToLower().Contains(TimKiem.ToLower()) ?? false)
                 || (item.Email?.ToLower().Contains(TimKiem.ToLower()) ?? false);
 
-            // Lọc theo chức vụ
             bool matchChucVu = ChucVuChon == null
                 || ChucVuChon.TenChucVu == "-- Tất cả --"
                 || item.ChucVu == ChucVuChon.TenChucVu;
@@ -146,74 +135,177 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             return matchSearch && matchChucVu;
         }
 
-        // ── ISearchable ──────────────────────────────────────────────────────
         public void ApplySearch(string keyword)
         {
             TimKiem = keyword?.Trim() ?? string.Empty;
         }
 
-        // ── Khởi tạo Commands ────────────────────────────────────────────────
         private void KhoiTaoCommands()
         {
-            ThemNhanVienCommand = new RelayCommand<object>(
-                _ => true,
-                _ => MessageBox.Show(
-                    "Chức năng thêm nhân viên đang được phát triển.",
-                    "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information));
-
-            SuaNhanVienCommand = new RelayCommand<NhanVienDisplay>(
-                _ => true,
-                nv =>
-                {
-                    if (nv == null) return;
-                    MessageBox.Show(
-                        $"Chức năng sửa nhân viên [{nv.HoTen}] đang được phát triển.",
-                        "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-                });
-
-            XoaNhanVienCommand = new RelayCommand<NhanVienDisplay>(
-                _ => true,
-                nv =>
-                {
-                    if (nv == null) return;
-                    var res = MessageBox.Show(
-                        $"Bạn có chắc chắn muốn xóa nhân viên [{nv.HoTen}]?",
-                        "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    if (res == MessageBoxResult.Yes)
-                        ThucHienXoa(nv);
-                });
-
-            LamMoiCommand = new RelayCommand<object>(
-                _ => true,
-                _ =>
-                {
-                    TimKiem = string.Empty;
-                    ChucVuChon = null;
-                    TaiDuLieu();
-                });
+            ThemNhanVienCommand = new RelayCommand<object>(p => true, p => ThucHienThem());
+            SuaNhanVienCommand = new RelayCommand<NhanVienDisplay>(p => true, nv => ThucHienSua(nv));
+            XoaNhanVienCommand = new RelayCommand<NhanVienDisplay>(p => true, nv => ThucHienXoa(nv));
+            LamMoiCommand = new RelayCommand<object>(p => true, p => ThucHienLamMoi());
         }
 
-        // ── Xóa nhân viên ────────────────────────────────────────────────────
-        private void ThucHienXoa(NhanVienDisplay nv)
+        // ── Hàm tạo mã tự động nội bộ ──────────────
+        private string TaoMaTuDong(string tienTo, string maCu)
         {
+            if (string.IsNullOrEmpty(maCu)) return tienTo + "001";
+            string soCuStr = maCu.Substring(tienTo.Length);
+            if (int.TryParse(soCuStr, out int soCu))
+            {
+                return tienTo + (soCu + 1).ToString("D3");
+            }
+            return tienTo + "001";
+        }
+
+        private void ThucHienThem()
+        {
+            if (LuuTrangThai.QuyenDangNhap != "Quản lý toàn bộ")
+            {
+                MessageBox.Show("Chỉ tài khoản quản lý (machpv) mới được phép thêm nhân viên!", "Từ chối truy cập", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
-                var db = DataProvider.Ins.DB;
-                var entity = db.NhanViens.Find(nv.MaNv);
-                if (entity == null) return;
+                using var db = DataProvider.Ins.GetContext();
 
-                db.NhanViens.Remove(entity);
-                db.SaveChanges();
-                _all.Remove(nv);
+                var lastID = db.NhanViens
+                    .OrderByDescending(x => x.MaNv)
+                    .Select(x => x.MaNv).FirstOrDefault();
 
-                MessageBox.Show("Xóa nhân viên thành công!",
-                    "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                // Bỏ AutoIDService, xài hàm nội bộ
+                string newID = TaoMaTuDong("NV", lastID);
+
+                var dialog = new ThemSuaNhanVienDialog(newID);
+                dialog.Owner = Application.Current.MainWindow;
+                if (dialog.ShowDialog() == true)
+                {
+                    string quyen = LayQuyenTuChucVu(dialog.ChucVu);
+
+                    var nvMoi = new NhanVien
+                    {
+                        MaNv = dialog.MaNv,
+                        TenNv = dialog.HoTen,
+                        ChucVu = dialog.ChucVu,
+                        Quyen = quyen,
+                        GioiTinh = dialog.GioiTinh,
+                        Sdt = dialog.Sdt,
+                        Email = dialog.Email,
+                        NgaySinh = dialog.NgaySinh,
+                        NgayVaoLam = dialog.NgayVaoLam,
+                        DaNghiViec = false
+                    };
+
+                    var tkMoi = new TaiKhoan { TenDn = dialog.MaNv, MatKhau = "123", MaNv = dialog.MaNv };
+
+                    db.NhanViens.Add(nvMoi);
+                    db.TaiKhoans.Add(tkMoi);
+                    db.SaveChanges();
+
+                    TaiDuLieu();
+                    MessageBox.Show($"Thêm nhân viên thành công!\nTài khoản mặc định: {dialog.MaNv} / 123",
+                        "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi xóa nhân viên: " + ex.Message,
-                    "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Lỗi khi thêm nhân viên: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void ThucHienSua(NhanVienDisplay nv)
+        {
+            if (LuuTrangThai.QuyenDangNhap != "Quản lý toàn bộ")
+            {
+                MessageBox.Show("Chỉ tài khoản quản lý (machpv) mới được phép sửa nhân viên!", "Từ chối truy cập", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                var dialog = new ThemSuaNhanVienDialog(nv);
+                dialog.Owner = Application.Current.MainWindow;
+                if (dialog.ShowDialog() == true)
+                {
+                    using var db = DataProvider.Ins.GetContext();
+                    var entity = db.NhanViens.Find(dialog.MaNv);
+                    if (entity != null)
+                    {
+                        entity.TenNv = dialog.HoTen;
+                        entity.ChucVu = dialog.ChucVu;
+                        entity.Quyen = LayQuyenTuChucVu(dialog.ChucVu);
+                        entity.GioiTinh = dialog.GioiTinh;
+                        entity.Sdt = dialog.Sdt;
+                        entity.Email = dialog.Email;
+                        entity.NgaySinh = dialog.NgaySinh;
+                        entity.NgayVaoLam = dialog.NgayVaoLam;
+
+                        db.SaveChanges();
+                        TaiDuLieu();
+
+                        MessageBox.Show("Cập nhật nhân viên thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi sửa nhân viên: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ThucHienXoa(NhanVienDisplay nv)
+        {
+            if (LuuTrangThai.QuyenDangNhap != "Quản lý toàn bộ")
+            {
+                MessageBox.Show("Chỉ tài khoản quản lý (machpv) mới được phép xóa nhân viên!", "Từ chối truy cập", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var res = MessageBox.Show($"Bạn có chắc chắn muốn xóa nhân viên [{nv.HoTen}] không?", "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (res != MessageBoxResult.Yes) return;
+
+            try
+            {
+                using var db = DataProvider.Ins.GetContext();
+                var entity = db.NhanViens.Find(nv.MaNv);
+                if (entity == null) return;
+
+                entity.DaNghiViec = true;
+                db.SaveChanges();
+
+                _all.Remove(nv);
+
+                MessageBox.Show("Xóa nhân viên thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi xóa nhân viên: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ThucHienLamMoi()
+        {
+            TimKiem = string.Empty;
+            ChucVuChon = null;
+            TaiDuLieu();
+            DanhSachNhanVien.Refresh();
+        }
+
+        private string LayQuyenTuChucVu(string chucVu)
+        {
+            return chucVu switch
+            {
+                "Quản lý" => "Quản lý toàn bộ",
+                "Nhân viên thu ngân" => "Thu ngân",
+                "Nhân viên bán hàng" => "Bán hàng",
+                "Nhân viên kỹ thuật" => "Kỹ thuật",
+                "Nhân viên kho" => "Kho",
+                _ => "Bán hàng"
+            };
         }
     }
 }

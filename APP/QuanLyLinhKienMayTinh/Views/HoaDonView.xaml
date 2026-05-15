@@ -154,7 +154,7 @@
             </StackPanel>
             <Button HorizontalAlignment="Right" Content="＋  Tạo hóa đơn mới"
                     Style="{StaticResource SuccessBtnStyle}" Padding="16,10"
-                    Command="{Binding TaoHoaDonMoiCommand}"/>
+                    Command="{Binding TaoHoaDonCommand}"/>
         </Grid>
 
         <Border Grid.Row="1" Background="{DynamicResource BackgroundColor}" CornerRadius="10" Padding="14,10"
