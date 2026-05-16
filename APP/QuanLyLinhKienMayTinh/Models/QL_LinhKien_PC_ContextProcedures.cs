@@ -123,7 +123,7 @@ namespace QuanLyLinhKienMayTinh.Models
             return _;
         }
 
-        public virtual async Task<int> sp_DanhSacKhachHangChuaTTAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        public virtual async Task<List<sp_DanhSacKhachHangChuaTTResult>> sp_DanhSacKhachHangChuaTTAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -136,7 +136,7 @@ namespace QuanLyLinhKienMayTinh.Models
             {
                 parameterreturnValue,
             };
-            var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[sp_DanhSacKhachHangChuaTT]", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<sp_DanhSacKhachHangChuaTTResult>("EXEC @returnValue = [dbo].[sp_DanhSacKhachHangChuaTT]", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 

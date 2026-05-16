@@ -74,13 +74,13 @@ namespace QuanLyLinhKienMayTinh.Views
             // Kiểm tra tồn kho
             int tonKho = lk.SoLuongTon ?? 0;
             var existItem = _gioHang.FirstOrDefault(g => g.MaLk == lk.MaLk);
-            int soLuongDaChon = existItem?.SoLuong ?? 0;
-            if (soLuongDaChon + soLuong > tonKho)
-            {
-                MessageBox.Show($"Linh kiện '{lk.TenLk}' chỉ còn {tonKho} cái trong kho (đã chọn {soLuongDaChon})!",
-                    "Không đủ hàng", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            //int soLuongDaChon = existItem?.SoLuong ?? 0;
+            //if (soLuongDaChon + soLuong > tonKho)
+            //{
+            //    MessageBox.Show($"Linh kiện '{lk.TenLk}' chỉ còn {tonKho} cái trong kho (đã chọn {soLuongDaChon})!",
+            //        "Không đủ hàng", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //    return;
+            //}
 
             if (existItem != null)
             {

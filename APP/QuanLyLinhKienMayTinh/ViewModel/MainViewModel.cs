@@ -1,4 +1,5 @@
-﻿using QuanLyLinhKienMayTinh.Models;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using QuanLyLinhKienMayTinh.Models;
 using QuanLyLinhKienMayTinh.Views;
 using System.Collections.Generic;
 using System.Linq;
@@ -160,6 +161,13 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         danhSachThongBao.Add($"- CẢNH BÁO: Có {spSapHetHang.Count} linh kiện sắp hết hàng!");
                     }
 
+                    var khachHangChuaTT = await db.Procedures.sp_DanhSacKhachHangChuaTTAsync();
+
+                    if (khachHangChuaTT != null && khachHangChuaTT.Count > 0)
+                    {
+                        danhSachThongBao.Add($"- CẢNH BÁO: Có {khachHangChuaTT.Count} hóa đơn KHÁCH CHƯA THANH TOÁN!");
+                    }
+
                     if (danhSachThongBao.Count > 0)
                     {
                         MessageBox.Show("Hệ thống có thay đổi:\n\n" + string.Join("\n", danhSachThongBao),
@@ -170,6 +178,13 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                             var window = new ThongBaoTonKhoWindow(spSapHetHang);
                             window.Owner = Application.Current.MainWindow;
                             window.ShowDialog();
+                        }
+
+                        if (khachHangChuaTT != null && khachHangChuaTT.Count > 0)
+                        {
+                            var windowKhachNo = new ThongBaoKhachHangWindow(khachHangChuaTT);
+                            windowKhachNo.Owner = Application.Current.MainWindow;
+                            windowKhachNo.ShowDialog();
                         }
 
                         soNhanVienGoc = soNhanVienMoi;

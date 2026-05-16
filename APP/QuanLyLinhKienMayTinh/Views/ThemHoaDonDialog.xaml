@@ -127,7 +127,6 @@
                           Foreground="{DynamicResource MainTextColor}"
                           BorderBrush="{DynamicResource BorderColor}">
                     <ComboBoxItem Content="Tiền mặt" IsSelected="True"/>
-                    <ComboBoxItem Content="Ví MoMo"/>
                 </ComboBox>
             </StackPanel>
         </Grid>

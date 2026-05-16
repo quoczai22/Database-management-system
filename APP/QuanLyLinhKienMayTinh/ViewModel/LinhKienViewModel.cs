@@ -21,6 +21,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         public string Dvt { get; set; }
         public byte? Tgbh { get; set; }
         public DateOnly? NgayNhap { get; set; }
+        public int? SoluongTon { get; internal set; }
     }
     public class LinhKienViewModel : BaseViewModel, ISearchable
     {
@@ -97,7 +98,8 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         Nsx = lk.MaNsxNavigation.TenNsx,
                         Dvt = lk.Dvt,
                         Tgbh = lk.Tgbh,
-                        NgayNhap = lk.NgayNhap
+                        NgayNhap = lk.NgayNhap,
+                        SoluongTon = lk.SoLuongTon,
                     }).ToList();
 
                 _all = new ObservableCollection<LinhKienDisplay>(list);

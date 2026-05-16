@@ -319,39 +319,33 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             SoHoaDonDaThanhToan = ds.Count(hd => hd.TrangThai == "Đã thanh toán");
             SoHoaDonChoXuLy = ds.Count(hd => hd.TrangThai == "Chưa thanh toán");
         }
-
-        public void LuuHoaDonAnToan(HoaDon hdMoi, List<ChiTietHd> danhSachMonHang)
+        private async void LuuHoaDonAnToan(HoaDon hoaDonMoi, List<ChiTietHd> chiTietHds)
         {
-            var db = DataProvider.Ins.GetContext();
-            using (var giaoDich = db.Database.BeginTransaction()) 
+            try
             {
-                try
+                var db = DataProvider.Ins.GetContext();
+                DateOnly ngayLapHD = hoaDonMoi.NgayHd ?? DateOnly.FromDateTime(DateTime.Now);
+                foreach (var ct in chiTietHds)
                 {
-                    db.HoaDons.Add(hdMoi);
-
-                    foreach (var mon in danhSachMonHang)
-                    {
-                        var kho = db.LinhKiens.Find(mon.MaLk);
-                        if (kho.SoLuongTon < mon.SoLuong)
-                        {
-                            throw new Exception($"Linh kiện '{kho.TenLk}' không đủ hàng!");
-                        }
-
-                        kho.SoLuongTon -= mon.SoLuong;
-                        db.ChiTietHds.Add(mon);
-                    }
-
-                    db.SaveChanges();
-                    giaoDich.Commit();
-
-                    TaiDuLieu();
-                    MessageBox.Show("Thanh toán thành công! Đã cập nhật kho.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    await db.Procedures.sp_BanLinhKienAsync(
+                        hoaDonMoi.MaHd,
+                        ngayLapHD,
+                        hoaDonMoi.MaKh,
+                        hoaDonMoi.MaNv,
+                        ct.MaLk,
+                        ct.SoLuong 
+                    );
                 }
-                catch (Exception ex)
-                {
-                    giaoDich.Rollback();
-                    MessageBox.Show("Lỗi thanh toán: " + ex.Message, "Báo lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+
+                MessageBox.Show($"Tạo thành công hóa đơn [{hoaDonMoi.MaHd}] thông qua Stored Procedure!",
+                                "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                TaiDuLieu();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi hệ thống kho khi thực hiện bán hàng:\n" + ex.Message,
+                                "Lỗi SQL Server", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

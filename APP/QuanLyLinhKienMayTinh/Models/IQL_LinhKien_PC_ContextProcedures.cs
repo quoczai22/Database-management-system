@@ -15,6 +15,6 @@ namespace QuanLyLinhKienMayTinh.Models
     {
         Task<int> sp_BanLinhKienAsync(string maHD, DateOnly? ngayHD, string maKH, string maNV, string maLK, byte? soLuongBan, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<sp_BaoCaoTonKhoResult>> sp_BaoCaoTonKhoAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
-        Task<int> sp_DanhSacKhachHangChuaTTAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<List<sp_DanhSacKhachHangChuaTTResult>> sp_DanhSacKhachHangChuaTTAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
     }
 }

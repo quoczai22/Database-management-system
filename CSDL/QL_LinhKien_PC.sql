@@ -336,7 +336,6 @@ on ChiTietHD
 after insert, update, delete
 as
 begin
-    set nocount on;
     update LinhKien
     set SoLuongTon = SoLuongTon - T.SoLuong
     from LinhKien
@@ -362,7 +361,6 @@ on ChiTietPN
 after insert
 as
 begin
-    set nocount on;
     update LinhKien
     set SoLuongTon = LinhKien.SoLuongTon + HangVuaNhap.SoLuongNhap
     from LinhKien
@@ -375,7 +373,6 @@ on ChiTietHD
 after insert, update, delete
 as
 begin
-    set nocount on;
     update HoaDon
     set TongTien = (
         select isnull(sum(SoLuong * DonGia), 0) 
@@ -429,7 +426,7 @@ begin
 
         if (@TonKhoHienTai < @SoLuongBan)
         begin
-            print N'LỖI: Không đủ hàng trong kho!';
+            throw 50001, N'LỖI: Không đủ số lượng hàng tồn trong kho để bán!', 1;
             rollback tran; 
             return;
         end
@@ -445,13 +442,11 @@ begin
 
         insert into ChiTietHD (MaHD, MaLK, SoLuong, DonGia) 
         values (@MaHD, @MaLK, @SoLuongBan, @GiaBanHienHanh);
-
         commit tran;
-        print N'THÀNH CÔNG: Đã bán hàng với giá ' + cast(@GiaBanHienHanh as varchar) + N' VND/cái.';
     end try
     begin catch
         rollback tran;
-        print N'LỖI: ' + error_message();
+        throw;
     end catch
 end;
 go
@@ -460,29 +455,32 @@ go
 create procedure sp_DanhSacKhachHangChuaTT
 as
 begin
-    declare @MaKH char(6);
-    declare @TenKH nvarchar(30);
-    declare @TongNo money;
-    declare cur_NoKH cursor for
-    select kh.MaKH, kh.TenKH, sum(hd.TongTien) as TongNo
-    from KhachHang kh
-    join HoaDon hd on kh.MaKH = hd.MaKH
-    where hd.TrangThai = N'Chưa thanh toán'
-    group by kh.MaKH, kh.TenKH;
-    
-    open cur_NoKH;
-    fetch next from cur_NoKH into @MaKH, @TenKH, @TongNo;
-    
-    print N'--- DANH SÁCH KHÁCH HÀNG CÒN NỢ ---';
+    declare @KhachHangNo table (
+        MaHD char(5),
+        TenKH nvarchar(30),
+        SDT char(10),
+        NgayLap date,
+        SoTienNo money
+    );
+    declare @MaHD char(5), @TenKH nvarchar(30), @SDT char(10), @NgayLap date, @SoTienNo money;
+    declare cur_KhachNo cursor for
+        select hd.MaHD, kh.TenKH, kh.SDT, hd.NgayHD, hd.TongTien
+        from HoaDon hd
+        join KhachHang kh on hd.MaKH = kh.MaKH
+        where hd.TrangThai = N'Chưa thanh toán';
+    open cur_KhachNo;
+    fetch next from cur_KhachNo into @MaHD, @TenKH, @SDT, @NgayLap, @SoTienNo;
 
     while @@fetch_status = 0
     begin
-        print N'Khách hàng: ' + @TenKH + N' (Mã: ' + @MaKH + N') - Tổng nợ: ' + format(@TongNo, 'c', 'vi-VN');
-        fetch next from cur_NoKH into @MaKH, @TenKH, @TongNo;
+        insert into @KhachHangNo (MaHD, TenKH, SDT, NgayLap, SoTienNo)
+        values (@MaHD, @TenKH, @SDT, @NgayLap, @SoTienNo);
+
+        fetch next from cur_KhachNo into @MaHD, @TenKH, @SDT, @NgayLap, @SoTienNo;
     end;
-    
-    close cur_NoKH;
-    deallocate cur_NoKH;
+    close cur_KhachNo;
+    deallocate cur_KhachNo;
+    select * from @KhachHangNo;
 end;
 go
 
