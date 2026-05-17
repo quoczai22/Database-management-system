@@ -212,7 +212,7 @@
                     <DataGridTextColumn Header="ĐVT" Binding="{Binding Dvt}" Width="80"/>
                     <DataGridTextColumn Header="Bảo hành" Binding="{Binding Tgbh}" Width="90"/>
                     <DataGridTextColumn Header="Ngày nhập" Binding="{Binding NgayNhap, StringFormat=dd/MM/yyyy}" Width="110"/>
-                    <DataGridTextColumn Header="Số lượng tồn" Binding="{Binding SoluongTon}" Width="90"/>
+                    <DataGridTextColumn Header="Số lượng tồn" Binding="{Binding SoluongTon}" Width="110"/>
                     <DataGridTemplateColumn Header="Thao tác" Width="110">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

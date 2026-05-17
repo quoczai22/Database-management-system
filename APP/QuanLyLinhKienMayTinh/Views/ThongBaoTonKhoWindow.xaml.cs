@@ -17,10 +17,10 @@ namespace QuanLyLinhKienMayTinh.Views
 {
     public partial class ThongBaoTonKhoWindow : Window
     {
-        public ThongBaoTonKhoWindow(List<sp_BaoCaoTonKhoResult> danhSachHetHang)
+        public ThongBaoTonKhoWindow(List<sp_baocaotonkhoResult> Soluonton)
         {
             InitializeComponent();
-            dgTonKho.ItemsSource = danhSachHetHang;
+            dgTonKho.ItemsSource = Soluonton;
         }
     }
 }

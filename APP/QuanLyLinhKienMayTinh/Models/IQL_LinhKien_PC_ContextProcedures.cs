@@ -14,7 +14,7 @@ namespace QuanLyLinhKienMayTinh.Models
     public partial interface IQL_LinhKien_PC_ContextProcedures
     {
         Task<int> sp_BanLinhKienAsync(DateOnly? ngayHD, string maKH, string maNV, string maLK, byte? soLuongBan, OutputParameter<string> maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
-        Task<List<sp_BaoCaoTonKhoResult>> sp_BaoCaoTonKhoAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<List<sp_baocaotonkhoResult>> sp_baocaotonkhoAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<sp_DanhSacKhachHangChuaTTResult>> sp_DanhSacKhachHangChuaTTAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_kichban1_giaotacaAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_kichban1_giaotacbAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
@@ -28,6 +28,5 @@ namespace QuanLyLinhKienMayTinh.Models
         Task<int> sp_kichban5_giaotacbAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_ThanhToanHoaDonAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_XoaHoaDonAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
-
     }
 }

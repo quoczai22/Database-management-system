@@ -174,7 +174,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                     if (soHoaDonMoi > soHoaDonGoc)
                         danhSachThongBao.Add($"- Có {soHoaDonMoi - soHoaDonGoc} hóa đơn MỚI.");
 
-                    var spSapHetHang = await db.Procedures.sp_BaoCaoTonKhoAsync();
+                    var spSapHetHang = await db.Procedures.sp_baocaotonkhoAsync();
 
                     if (spSapHetHang != null && spSapHetHang.Count > 0)
                     {

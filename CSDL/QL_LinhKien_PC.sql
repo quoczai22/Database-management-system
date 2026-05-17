@@ -613,6 +613,65 @@ begin
 end;
 go
 
+create procedure sp_baocaotonkho
+as
+begin
+    -- 1. khai báo biến bảng để hứng kết quả
+    declare @tonkhotable table (
+        malk char(10),
+        tenlk nvarchar(200),
+        tenloai nvarchar(100),
+        tennsx nvarchar(100),
+        soluongton int
+    );
+
+    -- 2. khai báo các biến tạm để dùng trong cursor
+    declare @malk char(10), 
+            @tenlk nvarchar(200), 
+            @tenloai nvarchar(100), 
+            @tennsx nvarchar(100), 
+            @soluongton int;
+
+    -- 3. khai báo cursor duyệt danh sách linh kiện
+    -- lưu ý: dùng tên bảng nhansx để tránh lỗi invalid object name
+    declare cur_tonkho cursor for
+        select lk.malk, lk.tenlk, loai.tenloai, nsx.tennsx, lk.soluongton
+        from linhkien lk
+        join loailk loai on lk.maloai = loai.maloai
+        join NhaSanXuat nsx on lk.mansx = nsx.mansx
+        where lk.soluongton<10;
+
+    open cur_tonkho;
+
+    -- 4. nạp dòng đầu tiên
+    fetch next from cur_tonkho into @malk, @tenlk, @tenloai, @tennsx, @soluongton;
+
+    -- 5. vòng lặp xử lý từng dòng dữ liệu
+    while @@fetch_status = 0
+    begin
+        -- chèn dữ liệu tạm vào biến bảng kết quả
+        insert into @tonkhotable (malk, tenlk, tenloai, tennsx, soluongton)
+        values (@malk, @tenlk, @tenloai, @tennsx, @soluongton);
+
+        -- nạp dòng tiếp theo
+        fetch next from cur_tonkho into @malk, @tenlk, @tenloai, @tennsx, @soluongton;
+    end;
+
+    -- 6. đóng và giải phóng cursor
+    close cur_tonkho;
+    deallocate cur_tonkho;
+
+    -- 7. trả về tập kết quả cuối cùng (đặt alias rõ ràng để ef core nhận diện)
+    select 
+        malk as malk, 
+        tenlk as tenlk, 
+        tenloai as tenloai, 
+        tennsx as tennsx, 
+        soluongton as soluongton 
+    from @tonkhotable;
+end;
+go
+
 -- quản trị người dùng
 if exists (select * from sys.server_principals where name = 'QuanLyLogin') drop login QuanLyLogin;
 if exists (select * from sys.server_principals where name = 'NhanVienBanHangLogin') drop login NhanVienBanHangLogin;
@@ -771,11 +830,11 @@ begin
         set transaction isolation level repeatable read; 
 
     begin tran;
-    select   count(*) from linhkien where maloai = 'MOU'; -- ví dụ ra 5 linh kiện
+    select   count(*) as tongso from linhkien where maloai = 'MOU'; -- ví dụ ra 5 linh kiện
     
     waitfor delay '00:00:10';
     
-    select count(*)  from linhkien where maloai = 'MOU'; -- đếm lại ra 6 (dòng bóng ma xuất hiện) / hoặc chắc chắn vẫn là 5 (nếu fix)
+    select count(*) as tongso  from linhkien where maloai = 'MOU'; -- đếm lại ra 6 (dòng bóng ma xuất hiện) / hoặc chắc chắn vẫn là 5 (nếu fix)
     commit tran;
 end
 go

@@ -106,7 +106,7 @@ namespace QuanLyLinhKienMayTinh.Models
             return _;
         }
 
-        public virtual async Task<List<sp_BaoCaoTonKhoResult>> sp_BaoCaoTonKhoAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        public virtual async Task<List<sp_baocaotonkhoResult>> sp_baocaotonkhoAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -119,7 +119,7 @@ namespace QuanLyLinhKienMayTinh.Models
             {
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryAsync<sp_BaoCaoTonKhoResult>("EXEC @returnValue = [dbo].[sp_BaoCaoTonKho]", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<sp_baocaotonkhoResult>("EXEC @returnValue = [dbo].[sp_baocaotonkho]", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -146,11 +146,7 @@ namespace QuanLyLinhKienMayTinh.Models
             return _;
         }
 
-
         public virtual async Task<int> sp_kichban1_giaotacaAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
-
-        public virtual async Task<int> sp_ThanhToanHoaDonAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
-
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -163,7 +159,6 @@ namespace QuanLyLinhKienMayTinh.Models
             {
                 new SqlParameter
                 {
-<<<<<<< HEAD
                     ParameterName = "isfixmode",
                     Value = isfixmode ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.Bit,
@@ -171,27 +166,13 @@ namespace QuanLyLinhKienMayTinh.Models
                 parameterreturnValue,
             };
             var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[sp_kichban1_giaotaca] @isfixmode = @isfixmode", sqlParameters, cancellationToken);
-=======
-                    ParameterName = "MaHD",
-                    Size = 10,
-                    Value = maHD ?? Convert.DBNull,
-                    SqlDbType = System.Data.SqlDbType.VarChar,
-                },
-                parameterreturnValue,
-            };
-            var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[sp_ThanhToanHoaDon] @MaHD = @MaHD", sqlParameters, cancellationToken);
->>>>>>> refs/remotes/origin/main
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
             return _;
         }
 
-<<<<<<< HEAD
         public virtual async Task<int> sp_kichban1_giaotacbAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
-=======
-        public virtual async Task<int> sp_XoaHoaDonAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
->>>>>>> refs/remotes/origin/main
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -204,7 +185,6 @@ namespace QuanLyLinhKienMayTinh.Models
             {
                 new SqlParameter
                 {
-<<<<<<< HEAD
                     ParameterName = "isfixmode",
                     Value = isfixmode ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.Bit,
@@ -396,7 +376,52 @@ namespace QuanLyLinhKienMayTinh.Models
                 parameterreturnValue,
             };
             var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[sp_kichban5_giaotacb] @isfixmode = @isfixmode", sqlParameters, cancellationToken);
-=======
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
+        public virtual async Task<int> sp_ThanhToanHoaDonAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "MaHD",
+                    Size = 10,
+                    Value = maHD ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.VarChar,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[sp_ThanhToanHoaDon] @MaHD = @MaHD", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
+        public virtual async Task<int> sp_XoaHoaDonAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
                     ParameterName = "MaHD",
                     Size = 10,
                     Value = maHD ?? Convert.DBNull,
@@ -405,7 +430,6 @@ namespace QuanLyLinhKienMayTinh.Models
                 parameterreturnValue,
             };
             var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[sp_XoaHoaDon] @MaHD = @MaHD", sqlParameters, cancellationToken);
->>>>>>> refs/remotes/origin/main
 
             returnValue?.SetValue(parameterreturnValue.Value);
 

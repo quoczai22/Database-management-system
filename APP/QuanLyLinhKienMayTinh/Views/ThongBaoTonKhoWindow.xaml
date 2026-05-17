@@ -15,9 +15,9 @@
         <DataGrid x:Name="dgTonKho" Grid.Row="1" AutoGenerateColumns="False" 
                   IsReadOnly="True" HeadersVisibility="Column" Background="White">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Mã LK" Binding="{Binding MaLK}" Width="80"/>
-                <DataGridTextColumn Header="Tên Linh Kiện" Binding="{Binding TenLK}" Width="*"/>
-                <DataGridTextColumn Header="Số Lượng Còn" Binding="{Binding SoLuongTon}" Width="100">
+                <DataGridTextColumn Header="Mã LK" Binding="{Binding malk}" Width="80"/>
+                <DataGridTextColumn Header="Tên Linh Kiện" Binding="{Binding tenlk}" Width="*"/>
+                <DataGridTextColumn Header="Số Lượng Còn" Binding="{Binding soluongton}" Width="100">
                     <DataGridTextColumn.ElementStyle>
                         <Style TargetType="TextBlock">
                             <Setter Property="Foreground" Value="Red"/>

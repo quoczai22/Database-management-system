@@ -8,6 +8,6 @@ namespace QuanLyLinhKienMayTinh.Models
 {
     public partial class sp_kichban3_giaotacaResult
     {
-        public int? soluongton { get; set; }
+        public int? tonkho { get; set; }
     }
 }
