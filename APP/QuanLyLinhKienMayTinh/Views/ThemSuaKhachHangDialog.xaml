@@ -69,33 +69,23 @@
     </Window.Resources>
 
     <StackPanel Margin="24">
-        <!-- Header -->
         <TextBlock x:Name="TitleText" Text="Thêm Khách Hàng" FontSize="18" FontWeight="Bold"
                    Foreground="{DynamicResource MainTextColor}" Margin="0,0,0,20"/>
 
-        <!-- Mã KH (readonly khi sửa) -->
-        <TextBlock Text="Mã khách hàng" Style="{StaticResource LabelStyle}"/>
-        <TextBox x:Name="TxtMaKh" Style="{StaticResource InputStyle}" Margin="0,0,0,14"/>
-
-        <!-- Họ tên -->
         <TextBlock Text="Họ tên *" Style="{StaticResource LabelStyle}"/>
         <TextBox x:Name="TxtHoTen" Style="{StaticResource InputStyle}" Margin="0,0,0,14"/>
 
-        <!-- Số điện thoại -->
         <TextBlock Text="Số điện thoại" Style="{StaticResource LabelStyle}"/>
         <TextBox x:Name="TxtSdt" Style="{StaticResource InputStyle}" Margin="0,0,0,14"/>
 
-        <!-- Email -->
         <TextBlock Text="Email" Style="{StaticResource LabelStyle}"/>
         <TextBox x:Name="TxtEmail" Style="{StaticResource InputStyle}" Margin="0,0,0,14"/>
 
-        <!-- Địa chỉ -->
         <TextBlock Text="Địa chỉ" Style="{StaticResource LabelStyle}"/>
         <TextBox x:Name="TxtDiaChi" Style="{StaticResource InputStyle}" Margin="0,0,0,24"
                  TextWrapping="Wrap" Height="65" VerticalScrollBarVisibility="Auto"
                  AcceptsReturn="True" VerticalContentAlignment="Top"/>
 
-        <!-- Buttons -->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="Hủy" Style="{StaticResource CancelBtnStyle}"
                     Margin="0,0,10,0" Click="BtnHuy_Click"/>

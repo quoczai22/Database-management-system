@@ -155,6 +155,9 @@
             <Button HorizontalAlignment="Right" Content="＋  Tạo hóa đơn mới"
                     Style="{StaticResource SuccessBtnStyle}" Padding="16,10"
                     Command="{Binding TaoHoaDonCommand}"/>
+            <Button Content="↺  Làm mới"
+                    Style="{StaticResource PrimaryBtnStyle}" Padding="16,10"
+                    Command="{Binding ResetLocCommand}" Margin="695,0,158,0"/>
         </Grid>
 
         <Border Grid.Row="1" Background="{DynamicResource BackgroundColor}" CornerRadius="10" Padding="14,10"
@@ -176,7 +179,7 @@
                 <ComboBox Grid.Column="1" Margin="0,0,10,0" Padding="10,8" FontSize="13"
                           BorderBrush="{DynamicResource BorderColor}" Foreground="{DynamicResource MainTextColor}" Background="Transparent"
                           ItemsSource="{Binding DanhSachTrangThai}"
-                          SelectedItem="{Binding TrangThaiChon}"/>
+                          SelectedItem="{Binding TrangThaiChon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>        
 
                 <DatePicker Grid.Column="2" Margin="0,0,10,0" Foreground="{DynamicResource MainTextColor}" Background="Transparent"
                             SelectedDate="{Binding TuNgay}" FontSize="13"/>

@@ -333,7 +333,7 @@ set TongTien = isnull((
 go
 
 -- tạo trigger
-create trigger trg_CapNhatTonKho_Full
+create trigger trg_CapNhatTonKho
 on ChiTietHD
 after insert, update, delete
 as
@@ -398,22 +398,144 @@ begin
 end;
 go
 
-create procedure sp_BaoCaoTonKho
+create function fn_TaoMaHoaDonMoi()
+returns varchar(10)
 as
 begin
-    select 
-        MaLK, 
-        TenLK, 
-        SoLuongTon,
-        DVT,
-        DonGiaBan
-    from LinhKien
-    where SoLuongTon < 10;
+    declare @MaCu varchar(10);
+    declare @MaMoi varchar(10);
+    declare @So int;
+
+    select top 1 @MaCu = MaHD 
+    from HoaDon 
+    order by MaHD desc;
+
+    if @MaCu is null
+        set @MaMoi = 'HD001';
+    else
+    begin
+        set @So = cast(right(@MaCu, len(@MaCu) - 2) as int) + 1;
+        set @MaMoi = 'HD' + right('000' + cast(@So as varchar), 3);
+    end
+
+    return @MaMoi;
+end;
+go
+
+create function fn_TaoMaKhachHangMoi()
+returns varchar(10)
+as
+begin
+    declare @MaCu varchar(10);
+    declare @MaMoi varchar(10);
+    declare @So int;
+
+    select top 1 @MaCu = MaKH 
+    from KhachHang 
+    order by MaKH desc;
+
+    if @MaCu is null
+        set @MaMoi = 'KH001';
+    else
+    begin
+        set @So = cast(right(@MaCu, len(@MaCu) - 2) as int) + 1;
+        set @MaMoi = 'KH' + right('000' + cast(@So as varchar), 3);
+    end
+
+    return @MaMoi;
+end;
+go
+
+create function fn_TaoMaNhanVienMoi()
+returns varchar(10)
+as
+begin
+    declare @MaCu varchar(10);
+    declare @MaMoi varchar(10);
+    declare @So int;
+
+    select top 1 @MaCu = MaNV 
+    from NhanVien 
+    order by MaNV desc;
+
+    if @MaCu is null
+        set @MaMoi = 'NV001';
+    else
+    begin
+        set @So = cast(right(@MaCu, len(@MaCu) - 2) as int) + 1;
+        set @MaMoi = 'NV' + right('000' + cast(@So as varchar), 3);
+    end
+
+    return @MaMoi;
+end;
+go
+
+create function fn_TaoMaLinhKienMoi(@MaLoai varchar(3))
+returns varchar(6) 
+as
+begin
+    declare @MaCu varchar(6);
+    declare @MaMoi varchar(6);
+    declare @So int;
+
+    select top 1 @MaCu = MaLK 
+    from LinhKien 
+    where MaLK like @MaLoai + '%' 
+    order by MaLK desc;
+
+    if @MaCu is null
+        set @MaMoi = @MaLoai + '001';
+    else
+    begin
+        set @So = cast(right(@MaCu, 3) as int) + 1;
+        set @MaMoi = @MaLoai + right('000' + cast(@So as varchar), 3);
+    end
+
+    return @MaMoi;
+end;
+go
+
+create procedure sp_ThanhToanHoaDon
+    @MaHD varchar(10)
+as
+begin
+    begin try
+        if not exists (select 1 from HoaDon where MaHD = @MaHD)
+        begin
+            throw 50002, N'Hóa đơn không tồn tại!', 1;
+        end
+        update HoaDon
+        set TrangThai = N'Đã thanh toán',
+            PhuongThucThanhToan = N'Tiền mặt',
+            NgayThanhToan = cast(getdate() as date)
+        where MaHD = @MaHD;
+    end try
+    begin catch
+        throw;
+    end catch
+end;
+go
+
+create procedure sp_XoaHoaDon
+    @MaHD varchar(10)
+as
+begin
+    begin try
+        begin transaction;
+        delete from ChiTietHd where MaHD = @MaHD;
+        delete from HoaDon where MaHD = @MaHD;
+        commit transaction;
+    end try
+    begin catch
+        if @@trancount > 0
+            rollback transaction;
+        throw;
+    end catch
 end;
 go
 
 create procedure sp_BanLinhKien 
-    @MaHD char(5), 
+    @MaHD char(5) OUTPUT, 
     @NgayHD date, 
     @MaKH char(6), 
     @MaNV char(6), 
@@ -423,31 +545,36 @@ as
 begin
     begin tran;
     begin try
+        if (@MaHD is null or ltrim(rtrim(@MaHD)) = '')
+        begin
+            set @MaHD = dbo.fn_TaoMaHoaDonMoi();
+        end
+
         declare @TonKhoHienTai int;
         select @TonKhoHienTai = SoLuongTon from LinhKien where MaLK = @MaLK;
 
-        if (@TonKhoHienTai < @SoLuongBan)
+        if (@TonKhoHienTai is null or @TonKhoHienTai < @SoLuongBan)
         begin
+            rollback tran;
             throw 50001, N'LỖI: Không đủ số lượng hàng tồn trong kho để bán!', 1;
-            rollback tran; 
             return;
         end
-        
+
         declare @GiaBanHienHanh money;
         select @GiaBanHienHanh = DonGiaBan from LinhKien where MaLK = @MaLK;
-        
+
         if not exists (select 1 from HoaDon where MaHD = @MaHD)
         begin
             insert into HoaDon (MaHD, NgayHD, MaKH, MaNV) 
             values (@MaHD, @NgayHD, @MaKH, @MaNV);
         end
-
         insert into ChiTietHD (MaHD, MaLK, SoLuong, DonGia) 
         values (@MaHD, @MaLK, @SoLuongBan, @GiaBanHienHanh);
+        
         commit tran;
     end try
     begin catch
-        rollback tran;
+        if @@TRANCOUNT > 0 rollback tran;
         throw;
     end catch
 end;

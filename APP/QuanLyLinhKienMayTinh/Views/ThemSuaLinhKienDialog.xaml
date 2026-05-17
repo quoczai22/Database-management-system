@@ -72,18 +72,9 @@
         <TextBlock x:Name="TitleText" Text="Thêm Linh Kiện" FontSize="18" FontWeight="Bold"
                    Foreground="{DynamicResource MainTextColor}" Margin="0,0,0,20"/>
 
-        <!-- Row 1: Mã LK -->
-        <TextBlock Text="Mã linh kiện *" Style="{StaticResource LabelStyle}"/>
-        <TextBox x:Name="TxtMaLk" Style="{StaticResource InputStyle}" Margin="0,0,0,4"
-                 MaxLength="6"/>
-        <TextBlock x:Name="TxtMaLkHint" Text="Nhập mã tối đa 6 ký tự, ví dụ: MOU001, RAM001, CPU001..."
-                   FontSize="11" Foreground="{DynamicResource SubTextColor}" Margin="0,0,0,14"/>
-
-        <!-- Row 2: Tên LK -->
         <TextBlock Text="Tên linh kiện *" Style="{StaticResource LabelStyle}"/>
         <TextBox x:Name="TxtTenLk" Style="{StaticResource InputStyle}" Margin="0,0,0,14"/>
 
-        <!-- Row 3: Loại và NSX trên cùng dòng -->
         <Grid Margin="0,0,0,14">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -108,7 +99,6 @@
             </StackPanel>
         </Grid>
 
-        <!-- Row 4: ĐVT và Bảo hành -->
         <Grid Margin="0,0,0,14">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -125,7 +115,6 @@
             </StackPanel>
         </Grid>
 
-        <!-- Row 5: Đơn giá bán và Số lượng tồn -->
         <Grid Margin="0,0,0,14">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -142,7 +131,6 @@
             </StackPanel>
         </Grid>
 
-        <!-- Row 6: Ngày nhập -->
         <TextBlock Text="Ngày nhập" Style="{StaticResource LabelStyle}"/>
         <DatePicker x:Name="DpNgayNhap" Margin="0,0,0,24" FontSize="13"
                     Background="{DynamicResource BackgroundColor2}"

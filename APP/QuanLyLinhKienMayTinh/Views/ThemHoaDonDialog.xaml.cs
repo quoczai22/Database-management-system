@@ -26,10 +26,9 @@ namespace QuanLyLinhKienMayTinh.Views
 
         private ObservableCollection<GioHangItem> _gioHang = new();
 
-        public ThemHoaDonDialog(string maHdMoi)
+        public ThemHoaDonDialog()
         {
             InitializeComponent();
-            TxtMaHd.Text = maHdMoi;
             TaiDuLieu();
             DgGioHang.ItemsSource = _gioHang;
         }
@@ -141,7 +140,6 @@ namespace QuanLyLinhKienMayTinh.Views
                 return;
             }
 
-            string maHd = TxtMaHd.Text.Trim();
             decimal tongTien = _gioHang.Sum(g => g.ThanhTien);
 
             string phuongThuc = "Tiền mặt";
@@ -152,7 +150,7 @@ namespace QuanLyLinhKienMayTinh.Views
 
             HoaDonMoi = new HoaDon
             {
-                MaHd = maHd,
+                MaHd = null,
                 NgayHd = DateOnly.FromDateTime(DateTime.Now),
                 MaKh = kh.MaKh,
                 MaNv = nv.MaNv,
@@ -163,7 +161,7 @@ namespace QuanLyLinhKienMayTinh.Views
 
             ChiTietHds = _gioHang.Select(g => new ChiTietHd
             {
-                MaHd = maHd,
+                MaHd = null,
                 MaLk = g.MaLk,
                 SoLuong = (byte)g.SoLuong,
                 DonGia = g.DonGia

@@ -71,6 +71,7 @@
          "ObjectType": 1
       },
       {
+<<<<<<< HEAD
          "Name": "[dbo].[sp_kichban1_giaotaca]",
          "ObjectType": 1
       },
@@ -108,10 +109,33 @@
       },
       {
          "Name": "[dbo].[sp_kichban5_giaotacb]",
+=======
+         "Name": "[dbo].[sp_ThanhToanHoaDon]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_XoaHoaDon]",
+>>>>>>> refs/remotes/origin/main
          "ObjectType": 1
       },
       {
          "Name": "[dbo].[fn_DoanhThuTheoThang]",
+         "ObjectType": 2
+      },
+      {
+         "Name": "[dbo].[fn_TaoMaHoaDonMoi]",
+         "ObjectType": 2
+      },
+      {
+         "Name": "[dbo].[fn_TaoMaKhachHangMoi]",
+         "ObjectType": 2
+      },
+      {
+         "Name": "[dbo].[fn_TaoMaLinhKienMoi]",
+         "ObjectType": 2
+      },
+      {
+         "Name": "[dbo].[fn_TaoMaNhanVienMoi]",
          "ObjectType": 2
       }
    ],

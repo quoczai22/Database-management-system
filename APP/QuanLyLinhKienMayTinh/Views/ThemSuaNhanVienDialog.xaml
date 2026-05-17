@@ -72,9 +72,6 @@
         <TextBlock x:Name="TitleText" Text="Thêm Nhân Viên" FontSize="18" FontWeight="Bold"
                    Foreground="{DynamicResource MainTextColor}" Margin="0,0,0,20"/>
 
-        <TextBlock Text="Mã nhân viên" Style="{StaticResource LabelStyle}"/>
-        <TextBox x:Name="TxtMaNv" Style="{StaticResource InputStyle}" Margin="0,0,0,14"/>
-
         <TextBlock Text="Họ tên *" Style="{StaticResource LabelStyle}"/>
         <TextBox x:Name="TxtHoTen" Style="{StaticResource InputStyle}" Margin="0,0,0,14"/>
 

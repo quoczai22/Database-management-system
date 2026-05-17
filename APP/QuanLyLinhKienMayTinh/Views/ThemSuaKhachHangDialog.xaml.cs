@@ -11,12 +11,11 @@ namespace QuanLyLinhKienMayTinh.Views
         /// <summary>
         /// Mở dialog ở chế độ THÊM
         /// </summary>
-        public ThemSuaKhachHangDialog(string maKhMoi)
+        public ThemSuaKhachHangDialog()
         {
             InitializeComponent();
             _laSua = false;
             TitleText.Text = "Thêm Khách Hàng";
-            TxtMaKh.Text = maKhMoi;
         }
 
         /// <summary>
@@ -28,9 +27,6 @@ namespace QuanLyLinhKienMayTinh.Views
             _laSua = true;
             TitleText.Text = "Sửa Khách Hàng";
             BtnLuu.Content = "Cập nhật";
-            TxtMaKh.Text = kh.MaKh;
-            TxtMaKh.IsReadOnly = true;
-            TxtMaKh.Opacity = 0.6;
             TxtHoTen.Text = kh.HoTen;
             TxtSdt.Text = kh.Sdt;
             TxtEmail.Text = kh.Email;
@@ -49,7 +45,7 @@ namespace QuanLyLinhKienMayTinh.Views
 
             KetQua = new KhachHangDisplay
             {
-                MaKh = TxtMaKh.Text.Trim(),
+                MaKh = null,
                 HoTen = TxtHoTen.Text.Trim(),
                 Sdt = TxtSdt.Text.Trim(),
                 Email = TxtEmail.Text.Trim(),

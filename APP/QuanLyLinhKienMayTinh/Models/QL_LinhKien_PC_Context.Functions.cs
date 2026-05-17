@@ -17,6 +17,63 @@ namespace QuanLyLinhKienMayTinh.Models
             throw new NotSupportedException("This method can only be called from Entity Framework Core queries");
         }
 
+        [DbFunction("fn_TaoMaHoaDonMoi", "dbo")]
+        public static string fn_TaoMaHoaDonMoi()
+        {
+            using (var db = DataProvider.Ins.GetContext())
+            {
+                return db.Database
+                    .SqlQueryRaw<string>("SELECT dbo.fn_TaoMaHoaDonMoi() AS Value")
+                    .AsEnumerable()
+                    .FirstOrDefault();
+            }
+        }
+
+        public async Task<string> fn_TaoMaHoaDonMoiAsync()
+            => await Database.SqlQueryRaw<string>("select Value = [dbo].[fn_TaoMaHoaDonMoi]()").SingleAsync();
+
+        [DbFunction("fn_TaoMaKhachHangMoi", "dbo")]
+        public static string fn_TaoMaKhachHangMoi()
+        {
+            using (var db = DataProvider.Ins.GetContext())
+            {
+                return db.Database
+                    .SqlQueryRaw<string>("SELECT dbo.fn_TaoMaKhachHangMoi() AS Value")
+                    .AsEnumerable()
+                    .FirstOrDefault();
+            }
+        }
+
+        public async Task<string> fn_TaoMaKhachHangMoiAsync()
+            => await Database.SqlQueryRaw<string>("select Value = [dbo].[fn_TaoMaKhachHangMoi]()").SingleAsync();
+
+        [DbFunction("fn_TaoMaLinhKienMoi", "dbo")]
+        public static string fn_TaoMaLinhKienMoi(string MaLoai)
+        {
+            using (var db = DataProvider.Ins.GetContext())
+            {
+                return db.Database
+                    .SqlQueryRaw<string>($"SELECT dbo.fn_TaoMaLinhKienMoi('{MaLoai}') AS Value")
+                    .AsEnumerable()
+                    .FirstOrDefault();
+            }
+        }
+
+        [DbFunction("fn_TaoMaNhanVienMoi", "dbo")]
+        public static string fn_TaoMaNhanVienMoi()
+        {
+            using (var db = DataProvider.Ins.GetContext())
+            {
+                return db.Database
+                    .SqlQueryRaw<string>("SELECT dbo.fn_TaoMaNhanVienMoi() AS Value")
+                    .AsEnumerable()
+                    .FirstOrDefault();
+            }
+        }
+
+        public async Task<string> fn_TaoMaNhanVienMoiAsync()
+            => await Database.SqlQueryRaw<string>("select Value = [dbo].[fn_TaoMaNhanVienMoi]()").SingleAsync();
+
         protected void OnModelCreatingGeneratedFunctions(ModelBuilder modelBuilder)
         {
         }
