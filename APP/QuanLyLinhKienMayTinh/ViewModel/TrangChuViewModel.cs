@@ -51,13 +51,13 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 OnPropertyChanged();
             }
         }
-        private List<ThongKeBanHang> _danhSachThongKeHang;
-        public List<ThongKeBanHang> DanhSachThongKeBanHang
+        private List<TopKhachHang> _danhSachTopKhachHang;
+        public List<TopKhachHang> DanhSachTopKhachHang
         {
-            get { return _danhSachThongKeHang; }
+            get { return _danhSachTopKhachHang; }
             set
             {
-                _danhSachThongKeHang = value;
+                _danhSachTopKhachHang = value;
                 OnPropertyChanged();
             }
         }
@@ -123,7 +123,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             DoanhThu = new SeriesCollection();
             Labels = new List<string>();
             ChucVu = new SeriesCollection();
-            DanhSachThongKeBanHang = new List<ThongKeBanHang>();
 
             TaiDuLieu();
             LoadPieChart();
@@ -172,22 +171,21 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 }
             };
 
-                var hangSX = db.ChiTietHds
-                    .Include(ct => ct.MaLkNavigation)
-                    .Include(ct => ct.MaHdNavigation)
-                    .Include(ct => ct.MaLkNavigation.MaNsxNavigation)
-                    .GroupBy(ct => ct.MaLkNavigation.MaNsxNavigation.TenNsx)
-                    .Select(g => new ThongKeBanHang
-                    {
-                        HangSX = g.Key,
-                        SoLuongBan = (int)(g.Sum(x => x.SoLuong) ?? 0),
-                        DoanhThu = (double)(g.Sum(x => x.SoLuong * x.DonGia) ?? 0),
-                        GiaTrungBinh = (double)(g.Average(x => x.DonGia) ?? 0),
-                        SoDonHang = g.Select(x => x.MaHd).Distinct().Count()
-                    })
-                    .ToList();
+                var top5KhachHang = db.HoaDons
+                .Include(hd => hd.MaKhNavigation)
+                .Where(hd => hd.TrangThai == "Đã thanh toán") 
+                .GroupBy(hd => new { hd.MaKhNavigation.MaKh, hd.MaKhNavigation.TenKh })
+                .Select(g => new TopKhachHang
+                {
+                    MaKh = g.Key.MaKh,
+                    TenKh = g.Key.TenKh,
+                    TongTien = (double)g.Sum(hd => hd.TongTien ?? 0)
+                })
+                .OrderByDescending(x => x.TongTien) 
+                .Take(5) 
+                .ToList();
 
-                DanhSachThongKeBanHang = hangSX;
+                DanhSachTopKhachHang = top5KhachHang;
             }
             catch (Exception ex)
             {

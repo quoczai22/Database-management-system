@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace QuanLyLinhKienMayTinh.Models
 {
-    public class ThongKeHang
+    public class TopKhachHang
     {
-        public int SoLuong { get; set; }
-        public string HangSX { get; set; }
+        public string MaKh { get; set; }
+        public string TenKh { get; set; }
+        public double TongTien { get; set; } = 0;
     }
 }
-

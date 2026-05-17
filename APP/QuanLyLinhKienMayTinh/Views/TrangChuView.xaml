@@ -221,15 +221,13 @@
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
                         <Border Width="4" CornerRadius="2" Background="#4caf50" Margin="0,2,10,2"/>
                         <StackPanel>
-                            <TextBlock Text="Thống kê bán hàng theo Hãng" FontSize="14"
+                            <TextBlock Text="Top khách hàng mua nhiều nhất" FontSize="14"
                                        FontWeight="SemiBold" Foreground="{DynamicResource MainTextColor}"/>
-                            <TextBlock Text="Tổng hợp số lượng và doanh thu theo nhà sản xuất"
-                                       FontSize="11" Foreground="{DynamicResource SubTextColor}"/>
                         </StackPanel>
                     </StackPanel>
 
                     <DataGrid Grid.Row="1"
-                              ItemsSource="{Binding DanhSachThongKeBanHang}"
+                              ItemsSource="{Binding DanhSachTopKhachHang}"
                               AutoGenerateColumns="False" IsReadOnly="True"
                               CanUserAddRows="False"
                               Background="Transparent" BorderThickness="0"
@@ -251,23 +249,9 @@
                         </DataGrid.ColumnHeaderStyle>
 
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Hãng sản xuất" Binding="{Binding HangSX}" Width="*"/>
-
-                            <DataGridTextColumn Header="SL bán" Binding="{Binding SoLuongBan}" Width="100"/>
-
-                            <DataGridTextColumn Header="Doanh thu (VNĐ)" Binding="{Binding DoanhThu, StringFormat={}{0:N0}}" Width="150">
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#4caf50"/>
-                                        <Setter Property="FontWeight" Value="SemiBold"/>
-                                        <Setter Property="HorizontalAlignment" Value="Right"/>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-
-                            <DataGridTextColumn Header="Giá TB" Binding="{Binding GiaTrungBinh}" Width="120"/>
-
-                            <DataGridTextColumn Header="Số đơn" Binding="{Binding SoDonHang}" Width="100"/>
+                            <DataGridTextColumn Header="Mã khách hàng" Binding="{Binding MaKh}" Width="200"/>
+                            <DataGridTextColumn Header="Tên khách hàng" Binding="{Binding TenKh}" Width="300"/>
+                            <DataGridTextColumn Header="Tổng tiền đã thanh toán" Binding="{Binding TongTien, StringFormat={}{0:N0}}" Width="*"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

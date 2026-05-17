@@ -26,5 +26,6 @@ namespace QuanLyLinhKienMayTinh.Views
             InitializeComponent();
             DataContext = new LoaiLinhKienViewModel();
         }
+
     }
 }

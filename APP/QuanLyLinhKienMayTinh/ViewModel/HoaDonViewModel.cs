@@ -68,19 +68,45 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         public Visibility ChuaChonHoaDonVisibility { get => _chuaChonHoaDonVisibility; set { _chuaChonHoaDonVisibility = value; OnPropertyChanged(); } }
 
         private string _tuKhoanTimKiem = string.Empty;
-        public string TuKhoanTimKiem { get => _tuKhoanTimKiem; set { _tuKhoanTimKiem = value; OnPropertyChanged(); } }
+        public string TuKhoanTimKiem
+        {
+            get => _tuKhoanTimKiem;
+            set { _tuKhoanTimKiem = value; OnPropertyChanged(); }
+        }
 
         private ObservableCollection<string> _danhSachTrangThai;
-        public ObservableCollection<string> DanhSachTrangThai { get => _danhSachTrangThai; set { _danhSachTrangThai = value; OnPropertyChanged(); } }
+        public ObservableCollection<string> DanhSachTrangThai
+        {
+            get => _danhSachTrangThai;
+            set { _danhSachTrangThai = value; OnPropertyChanged(); }
+        }
 
         private string _trangThaiChon;
-        public string TrangThaiChon { get => _trangThaiChon; set { _trangThaiChon = value; OnPropertyChanged(); } }
+        public string TrangThaiChon
+        {
+            get => _trangThaiChon;
+            set { _trangThaiChon = value; OnPropertyChanged(); }
+        }
+        private ObservableCollection<string> _danhSachPhuongThuc;
+        public ObservableCollection<string> DanhSachPhuongThuc
+        {
+            get => _danhSachPhuongThuc;
+            set { _danhSachPhuongThuc = value; OnPropertyChanged(); }
+        }
 
         private DateTime? _tuNgay;
-        public DateTime? TuNgay { get => _tuNgay; set { _tuNgay = value; OnPropertyChanged(); } }
+        public DateTime? TuNgay
+        {
+            get => _tuNgay;
+            set { _tuNgay = value; OnPropertyChanged(); }
+        }
 
         private DateTime? _denNgay;
-        public DateTime? DenNgay { get => _denNgay; set { _denNgay = value; OnPropertyChanged(); } }
+        public DateTime? DenNgay
+        {
+            get => _denNgay;
+            set { _denNgay = value; OnPropertyChanged(); }
+        }
 
         private int _tongSoHoaDon;
         public int TongSoHoaDon { get => _tongSoHoaDon; set { _tongSoHoaDon = value; OnPropertyChanged(); } }
@@ -93,7 +119,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
         private int _soHoaDonChoXuLy;
         public int SoHoaDonChoXuLy { get => _soHoaDonChoXuLy; set { _soHoaDonChoXuLy = value; OnPropertyChanged(); } }
-
         private Visibility _thanhToanButtonVisibility = Visibility.Collapsed;
         public Visibility ThanhToanButtonVisibility { get => _thanhToanButtonVisibility; set { _thanhToanButtonVisibility = value; OnPropertyChanged(); } }
 
@@ -104,9 +129,15 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         public ICommand XoaHoaDonCommand { get; private set; }
         public ICommand LocHoaDonCommand { get; private set; }
         public ICommand ThanhToanHoaDonCommand { get; private set; }
+        public ICommand ResetLocCommand { get; private set; }
 
         public HoaDonViewModel()
         {
+            DanhSachTrangThai = new ObservableCollection<string>
+            {
+                "--Tất cả--", "Đã thanh toán", "Chưa thanh toán"
+            };
+            TrangThaiChon = "--Tất cả--";
             TaiDuLieu();
             KhoiTaoCommands();
         }
@@ -117,8 +148,9 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             SuaHoaDonCommand = new RelayCommand<object>(p => HoaDonChon != null, p => ThucHienSuaHoaDon());
             InHoaDonCommand = new RelayCommand<object>(p => HoaDonChon != null, p => ThucHienInHoaDon());
             XoaHoaDonCommand = new RelayCommand<object>(p => HoaDonChon != null, p => ThucHienXoaHoaDon());
-            LocHoaDonCommand = new RelayCommand<object>(p => true, p => LocHoaDon());
+            LocHoaDonCommand = new RelayCommand<object>(p => true, p => ThucHienLocHoaDon());
             ThanhToanHoaDonCommand = new RelayCommand<object>(p => HoaDonChon != null, p => ThucHienThanhToan());
+            ResetLocCommand = new RelayCommand<object>(p => true, p => ThucHienResetLoc());
         }
 
         // ── HÀM TẠO MÃ TỰ ĐỘNG NỘI BỘ (THAY THẾ SERVICE) ─────────────────────
@@ -222,7 +254,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 }
             }
         }
-
         private void ThucHienXoaHoaDon()
         {
             var res = MessageBox.Show($"Bạn có chắc muốn xóa hóa đơn [{HoaDonChon.MaHoaDon}]?\nHàng tồn kho sẽ được hoàn trả lại.", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -253,7 +284,18 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error); }
             }
         }
-
+        private void ThucHienLocHoaDon()
+        {
+            LocHoaDon();
+        }
+        private void ThucHienResetLoc()
+        {
+            TuKhoanTimKiem = string.Empty;
+            TrangThaiChon = "--Tất cả--";
+            TuNgay = null;
+            DenNgay = null;
+            LocHoaDon();
+        }
         // ── LOAD DỮ LIỆU & ÉP KIỂU DECIMAL ──────────────────────
         public void TaiDuLieu()
         {
@@ -309,8 +351,38 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             };
         }
 
-        private void LocHoaDon() { /* Viết nội dung lọc vào đây nếu cần */ }
-        public void ApplySearch(string keyword) { TuKhoanTimKiem = keyword?.Trim() ?? string.Empty; LocHoaDon(); }
+        private void LocHoaDon()
+        {
+            if (_all == null) return;
+
+            var filtered = _all.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(TuKhoanTimKiem))
+            {
+                string kw = TuKhoanTimKiem.ToLower();
+                filtered = filtered.Where(hd =>
+                    (hd.MaHoaDon?.ToLower().Contains(kw) ?? false) ||
+                    (hd.TenKhachHang?.ToLower().Contains(kw) ?? false) ||
+                    (hd.TenNhanVien?.ToLower().Contains(kw) ?? false));
+            }
+            if (!string.IsNullOrEmpty(TrangThaiChon) && TrangThaiChon != "--Tất cả--")
+                filtered = filtered.Where(hd => hd.TrangThai == TrangThaiChon);
+
+            if (TuNgay.HasValue)
+                filtered = filtered.Where(hd => hd.NgayTao >= TuNgay.Value);
+            if (DenNgay.HasValue)
+                filtered = filtered.Where(hd => hd.NgayTao <= DenNgay.Value.AddDays(1));
+
+            var result = filtered.ToList();
+            DanhSachHoaDon = new ObservableCollection<HoaDonDisplay>(result);
+            CapNhatThongKe(DanhSachHoaDon);
+            HoaDonChon = null;
+        }
+        public void ApplySearch(string keyword)
+        {
+            TuKhoanTimKiem = keyword?.Trim() ?? string.Empty;
+            LocHoaDon();
+        }
 
         private void CapNhatThongKe(IEnumerable<HoaDonDisplay> ds)
         {
