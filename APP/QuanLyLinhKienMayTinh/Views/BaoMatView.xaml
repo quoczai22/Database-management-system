@@ -1,0 +1,325 @@
+<Page x:Class="QuanLyLinhKienMayTinh.Views.BaoMatView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:vm="clr-namespace:QuanLyLinhKienMayTinh.ViewModels"
+      mc:Ignorable="d" 
+      d:DesignHeight="680" d:DesignWidth="1100"
+      Background="{DynamicResource BackgroundColor}"
+      Title="BaoMatView">
+    
+    <Page.Resources>
+        
+        <vm:StringContainsConverter x:Key="StringContainsConverter" />
+        
+        <!-- ===== STYLES ===== -->
+        <Style x:Key="PrimaryBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource ButtonColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ButtonTextColor}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="16,9"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{DynamicResource ButtonColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ButtonTextColor}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+        </Style>
+
+        <Style TargetType="DataGridRow">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource MainTextColor}"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource BackgroundColor}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource BackgroundColor}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="Foreground" Value="{DynamicResource MainTextColor}"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <!-- Tiêu đề trang -->
+            <RowDefinition Height="Auto"/>
+            <!-- Thanh điều khiển kịch bản -->
+            <RowDefinition Height="Auto"/>
+            <!-- Khu vực song song 2 user -->
+            <RowDefinition Height="*"/>
+            <!-- Log -->
+            <RowDefinition Height="190"/>
+        </Grid.RowDefinitions>
+
+        <!-- ===== ROW 0: TIÊU ĐỀ ===== -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="Mô phỏng Bảo mật &amp; Xung đột Giao dịch"
+                       FontSize="20" FontWeight="Bold"
+                       Foreground="{DynamicResource MainTextColor}"/>
+            <TextBlock Text="Trình diễn trực quan các vấn đề đồng thời trong cơ sở dữ liệu và cách khắc phục"
+                       FontSize="12"
+                       Foreground="{DynamicResource SubTextColor}"
+                       Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- ===== ROW 1: THANH ĐIỀU KHIỂN ===== -->
+        <Border Grid.Row="1"
+        Background="#0a000000"
+        BorderBrush="{DynamicResource BorderColor}"
+        BorderThickness="1" CornerRadius="8"
+        Padding="16,12" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+
+                <TextBlock Text="Chọn kịch bản Demo:"
+                   VerticalAlignment="Center"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource MainTextColor}"
+                   Margin="0,0,10,0"/>
+
+                <ComboBox ItemsSource="{Binding DanhSachKichBan}"
+                  SelectedItem="{Binding KichBanChon, Mode=TwoWay}"
+                  DisplayMemberPath="TenKichBan"
+                  Width="450" Padding="10,8" FontSize="13" 
+                  VerticalContentAlignment="Center"/>
+
+                <CheckBox Content="Chạy chế độ Đã Fix Lỗi"
+                  IsChecked="{Binding IsFixMode, Mode=TwoWay}"
+                  VerticalAlignment="Center"
+                  Margin="20,0,0,0"
+                  Foreground="{DynamicResource MainTextColor}"
+                  FontWeight="Bold"/>
+
+                <Button Content="↺  Reset Data Gốc"
+                Command="{Binding ResetDataCommand}"
+                Style="{StaticResource PrimaryBtnStyle}"
+                Background="#78909c"
+                Foreground="White"
+                Margin="20,0,0,0"/>
+            </StackPanel>
+        </Border>
+        <!-- ===== ROW 2: SONG SONG USER A / USER B ===== -->
+        <Grid Grid.Row="2" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+         
+            <Border Grid.Column="0"
+                    BorderBrush="#1e88e5" BorderThickness="1"
+                    CornerRadius="8" Padding="15"
+                    Background="#0a000000">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header User A -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Ellipse Width="10" Height="10" Fill="#1e88e5" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Giao tác T1  —  User A"
+                                   FontWeight="Bold" FontSize="14"
+                                   Foreground="#1e88e5"/>
+                    </StackPanel>
+
+                    <!-- DataGrid User A — ItemsSource bind tới ViewModel -->
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding DataUserA}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              IsReadOnly="True"
+                              HeadersVisibility="Column"
+                              Background="Transparent"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="{DynamicResource BorderColor}"
+                              BorderThickness="0"
+                              RowHeaderWidth="0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Mã LK"        Binding="{Binding MaLk}"       Width="80"/>
+                            <DataGridTextColumn Header="Tên Linh Kiện" Binding="{Binding TenLk}"      Width="*"/>
+                            <DataGridTextColumn Header="Tồn Kho"      Binding="{Binding SoLuongTon}"  Width="80"/>
+                            <DataGridTextColumn Header="Đơn Giá"      Binding="{Binding DonGiaBan}"   Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Nút User A — Command binding, IsEnabled theo IsUserAIdle -->
+                    <Button Grid.Row="2"
+                            Content="▶  Kích hoạt Tiến trình A"
+                            Command="{Binding RunUserACommand}"
+                            IsEnabled="{Binding IsUserAIdle}"
+                            Style="{StaticResource PrimaryBtnStyle}"
+                            Background="#1e88e5"
+                            Foreground="White"
+                            Margin="0,10,0,0"
+                            HorizontalAlignment="Right"/>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2"
+                    BorderBrush="#e53935" BorderThickness="1"
+                    CornerRadius="8" Padding="15"
+                    Background="#0a000000">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header User B -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Ellipse Width="10" Height="10" Fill="#e53935" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Giao tác T2  —  User B"
+                                   FontWeight="Bold" FontSize="14"
+                                   Foreground="#e53935"/>
+                    </StackPanel>
+
+                    <!-- DataGrid User B -->
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding DataUserB}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              IsReadOnly="True"
+                              HeadersVisibility="Column"
+                              Background="Transparent"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="{DynamicResource BorderColor}"
+                              BorderThickness="0"
+                              RowHeaderWidth="0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Mã LK"        Binding="{Binding MaLk}"       Width="80"/>
+                            <DataGridTextColumn Header="Tên Linh Kiện" Binding="{Binding TenLk}"      Width="*"/>
+                            <DataGridTextColumn Header="Tồn Kho"      Binding="{Binding SoLuongTon}"  Width="80"/>
+                            <DataGridTextColumn Header="Đơn Giá"      Binding="{Binding DonGiaBan}"   Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Nút User B -->
+                    <Button Grid.Row="2"
+                            Content="▶  Kích hoạt Tiến trình B"
+                            Command="{Binding RunUserBCommand}"
+                            IsEnabled="{Binding IsUserBIdle}"
+                            Style="{StaticResource PrimaryBtnStyle}"
+                            Background="#e53935"
+                            Foreground="White"
+                            Margin="0,10,0,0"
+                            HorizontalAlignment="Right"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ===== ROW 3: LOG HỆ THỐNG ===== -->
+        <Border Grid.Row="3"
+                BorderBrush="{DynamicResource BorderColor}"
+                BorderThickness="1" CornerRadius="8"
+                Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header log -->
+                <Border Grid.Row="0"
+                        Background="#0a000000"
+                        CornerRadius="8,8,0,0"
+                        Padding="14,8"
+                        BorderBrush="{DynamicResource BorderColor}"
+                        BorderThickness="0,0,0,1">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Fill="#43a047" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Trình theo dõi xung đột hệ thống — Log theo thời gian thực"
+                                   FontWeight="SemiBold" FontSize="12"
+                                   Foreground="{DynamicResource MainTextColor}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Danh sách log — ItemsSource bind tới ViewModel.Logs -->
+                <ListBox Grid.Row="1"
+                         x:Name="LstLogs"
+                         ItemsSource="{Binding Logs}"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         FontFamily="Consolas"
+                         FontSize="12"
+                         Padding="10,6"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Padding" Value="4,2"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <!-- Màu mặc định cho log hệ thống -->
+                            <Setter Property="Foreground" Value="DimGray"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <!--
+                                Tô màu dựa theo nội dung log:
+                                [USER A] → xanh dương, [USER B] → đỏ, [HỆ THỐNG] → xám
+                                Dùng TextBlock với Style trigger trên binding string
+                            -->
+                            <TextBlock Text="{Binding}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#9e9e9e"/>
+                                        <Style.Triggers>
+                                            <!-- USER A → xanh -->
+                                            <DataTrigger Binding="{Binding Converter={StaticResource StringContainsConverter}, ConverterParameter='USER A'}" Value="True">
+                                                <Setter Property="Foreground" Value="#42a5f5"/>
+                                            </DataTrigger>
+                                            <!-- USER B → đỏ -->
+                                            <DataTrigger Binding="{Binding Converter={StaticResource StringContainsConverter}, ConverterParameter='USER B'}" Value="True">
+                                                <Setter Property="Foreground" Value="#ef5350"/>
+                                            </DataTrigger>
+                                            <!-- DEADLOCK → cam -->
+                                            <DataTrigger Binding="{Binding Converter={StaticResource StringContainsConverter}, ConverterParameter='DEADLOCK'}" Value="True">
+                                                <Setter Property="Foreground" Value="#ff7043"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

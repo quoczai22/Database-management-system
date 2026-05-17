@@ -16,5 +16,15 @@ namespace QuanLyLinhKienMayTinh.Models
         Task<int> sp_BanLinhKienAsync(string maHD, DateOnly? ngayHD, string maKH, string maNV, string maLK, byte? soLuongBan, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<sp_BaoCaoTonKhoResult>> sp_BaoCaoTonKhoAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<sp_DanhSacKhachHangChuaTTResult>> sp_DanhSacKhachHangChuaTTAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> sp_kichban1_giaotacaAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> sp_kichban1_giaotacbAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> sp_kichban2_giaotacaAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<List<sp_kichban2_giaotacbResult>> sp_kichban2_giaotacbAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<List<sp_kichban3_giaotacaResult>> sp_kichban3_giaotacaAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> sp_kichban3_giaotacbAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<List<sp_kichban4_giaotacaResult>> sp_kichban4_giaotacaAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> sp_kichban4_giaotacbAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> sp_kichban5_giaotacaAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> sp_kichban5_giaotacbAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
     }
 }

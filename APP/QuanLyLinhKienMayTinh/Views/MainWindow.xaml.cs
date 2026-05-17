@@ -50,5 +50,9 @@ namespace QuanLyLinhKienMayTinh
         {
             MainFrame.Navigate(new NhanVienView());
         }
+        void btnBaoMat_Click(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Navigate(new BaoMatView());
+        }
     }
 }

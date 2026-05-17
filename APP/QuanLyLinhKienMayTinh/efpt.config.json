@@ -71,6 +71,46 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[sp_kichban1_giaotaca]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_kichban1_giaotacb]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_kichban2_giaotaca]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_kichban2_giaotacb]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_kichban3_giaotaca]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_kichban3_giaotacb]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_kichban4_giaotaca]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_kichban4_giaotacb]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_kichban5_giaotaca]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_kichban5_giaotacb]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[fn_DoanhThuTheoThang]",
          "ObjectType": 2
       }

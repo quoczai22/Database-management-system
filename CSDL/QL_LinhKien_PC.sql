@@ -232,7 +232,8 @@ insert into NhanVien (MaNV, TenNV, GioiTinh, NgaySinh, SDT, ChucVu, Quyen, Email
 ('NV007', N'Bùi Văn Quốc', N'Nam', '30-04-1994', '0907234567', N'Nhân viên chăm sóc khách hàng', N'Chăm sóc khách hàng', 'quoc1994@gmail.com', '18-09-2019'),
 ('NV008', N'Đặng Thị Hà Anh', N'Nữ', '14-02-1999', '0906234567', N'Nhân viên kho', N'Kho', 'anh1999@gmail.com', '25-05-2022'),
 ('NV009', N'Đỗ Thị Ngọc Huyền', N'Nữ', '02-09-1996', '0908234567', N'Nhân viên kho', N'Kho', 'huyen1996@gmail.com', '03-07-2020'),
-('NV010', N'Võ Văn An', N'Nam', '22-12-1993', '0909234567', N'Nhân viên kho', N'Kho', 'an1993@gmail.com', '11-10-2018');
+('NV010', N'Võ Văn An', N'Nam', '22-12-1993', '0909234567', N'Nhân viên kho', N'Kho', 'an1993@gmail.com', '11-10-2018'),
+('NV011', N'Đỗ Tấn Thành',N'Nam','24-03-2000', '091799019', N'Nhân viên kĩ thuật', N'Bảo mật', 'dtt2000@gmail.com', '11-10-2020');
 go
 
 insert into HoaDon (MaHD, NgayHD, MaKH, MaNV, TrangThai) values
@@ -318,7 +319,8 @@ insert into TaiKhoan (TenDN, MatKhau, MaNV) values
 ('quocbv', '123456', 'NV007'), 
 ('anhdth', '123456', 'NV008'),
 ('huyendtn', '123456', 'NV009'), 
-('anvv', '123456', 'NV010');
+('anvv', '123456', 'NV010'),
+('thanhdt','123456','NV011');
 go
 
 -- tổng tiền hóa đơn
@@ -522,56 +524,324 @@ alter table NhanVien add DaNghiViec bit default 0 not null;
 alter table LinhKien add NgungKinhDoanh bit default 0 not null;
 go
 
-/*
-----1. Kịch bản 1: Mức READ UNCOMMITTED 
-begin tran 
-set transaction isolation level read uncommitted
-update linhkien set soluongton=1000 where malk='MOU001'
-waitfor delay '00:00:10';
-rollback tran;
-
-begin tran
-set transaction isolation level read uncommitted
-select soluongton from linhkien where malk = 'MOU001'
-commit tran
-
-----2. Kịch bản 2: Mức READ COMMITTED 
-set transaction isolation level read committed; 
-begin tran
-    select malk, tenlk, dongiaban from linhkien where malk = 'MOU001';
-commit tran;
-
-----3. Kịch bản 3: Khóa UPDLOCK 
-begin tran
+--1. kịch bản 1 mức cô lập read uncommited( lỗi mất dữ liệu cập nhật) 
+-- giao tác a:
+create procedure sp_kichban1_giaotaca
+    @isfixmode bit
+as
+begin
+    begin tran;
     declare @tonkho int;
-    select @tonkho = soluongton from linhkien with (updlock) where malk = 'MOU002';
-    waitfor delay '00:00:10';
-    update linhkien set soluongton = @tonkho - 1 where malk = 'MOU002';
-commit tran;
 
----- Kịch bản: Mức REPEATABLE READ
-set transaction isolation level repeatable read; 
-begin tran
-    select malk, tenlk, dongiaban from linhkien where malk = 'MOU001';
-    waitfor delay '00:00:10';
-    select malk, tenlk, dongiaban from linhkien where malk = 'MOU001';
-commit tran;
+    if @isfixmode = 1
+        select @tonkho = soluongton from linhkien with (updlock) where malk = 'MOU001'; 
+    else
+        -- a đọc được số lượng là 50
+        select @tonkho = soluongton from linhkien where malk = 'MOU001'; 
 
-----4. Kịch bản 4: Mức SERIALIZABLE (Sửa lỗi Phantom)
-set transaction isolation level serializable;
-begin tran
-    select count(*) as soluongloaichuot from linhkien where maloai = 'MOU';
+    waitfor delay '00:00:10'; -- demo thời gian chờ thực tế 
+    
+    -- a tính toán: 50 - 10 = 40 và ghi xuống
+    update linhkien set soluongton = @tonkho - 10 where malk = 'MOU001';
+    commit tran;
+end
+go
+
+-- giao tác b:
+create procedure sp_kichban1_giaotacb
+    @isfixmode bit
+as
+begin
+    begin tran;
+    declare @tonkho int;
+
+    if @isfixmode = 1
+        select @tonkho = soluongton from linhkien with (updlock) where malk = 'MOU001'; 
+    else
+        -- do a không giữ khóa đọc, b vẫn đọc được số lượng cũ là 50
+        select @tonkho = soluongton from linhkien where malk = 'MOU001';
+
+    -- b tính toán: 50 - 20 = 30 và ghi xuống kho ngay lập tức
+    update linhkien set soluongton = @tonkho - 20 where malk = 'MOU001';
+    commit tran;
+end
+go
+
+-- 2. kịch bản 2: mức read committed( lỗi đọc dữ liệu rác)
+-- giao tác a:
+create procedure sp_kichban2_giaotaca
+as
+begin
+    begin tran;
+    update linhkien set soluongton = 1000 where malk = 'MOU001';
     waitfor delay '00:00:10';
-    select count(*) as soluongloaichuot from linhkien where maloai = 'MOU';
-commit tran;
+    rollback tran; 
+end
+go
+
+-- giao tác b:
+create procedure sp_kichban2_giaotacb
+    @isfixmode bit
+as
+begin
+    if @isfixmode = 1
+        -- sửa lỗi bằng mức cô lập read committed
+        set transaction isolation level read committed; 
+    else
+        -- demo lỗi đọc dữ liệu rác( dirty read)
+        set transaction isolation level read uncommitted; 
+
+    begin tran;
+    select soluongton from linhkien where malk = 'MOU001';
+    commit tran;
+end
+go
+
+-- 3. kịch bản 3: mức cô lập repeatable read( lỗi không thể đọc lại)
+-- giao tác a:
+create procedure sp_kichban3_giaotaca
+    @isfixmode bit
+as
+begin
+    if @isfixmode = 1
+        -- sửa lỗi bằng mức cô lập repeatable read
+        set transaction isolation level repeatable read; 
+    else
+        -- demo lỗi không thể đọc lại( unrepeatable read)
+        set transaction isolation level read committed; 
+
+    begin tran;
+    select     soluongton as tonkho from linhkien where malk = 'MOU001'; -- lần 1: số lượng gốc
+    
+    waitfor delay '00:00:10';
+    
+    select    soluongton as tonkho from linhkien where malk = 'MOU001'; -- lần 2: số lượng đã bị b thay đổi
+    commit tran;
+end
+go
+
+-- giao tác b:
+create procedure sp_kichban3_giaotacb
+as
+begin
+    begin tran;
+    update linhkien set soluongton = 9999 where malk = 'MOU001';
+    commit tran; -- b ghi thành công ngay lập tức do a ở mức read committed không giữ khóa đọc (s-lock)
+end
+go
+
+-- 4. kịch bản 4: mức cô lập serializable (sửa lỗi bóng ma dữ liệu)
+-- giao tác a:
+create procedure sp_kichban4_giaotaca
+    @isfixmode bit
+as
+begin
+    if @isfixmode = 1
+        -- sửa lỗi bằng mức cô lập serializable
+        set transaction isolation level serializable; 
+    else
+        -- demo lỗi bóng ma dữ liệu( phantom read)
+        set transaction isolation level repeatable read; 
+
+    begin tran;
+    select   count(*) from linhkien where maloai = 'MOU'; -- ví dụ ra 5 linh kiện
+    
+    waitfor delay '00:00:10';
+    
+    select count(*)  from linhkien where maloai = 'MOU'; -- đếm lại ra 6 (dòng bóng ma xuất hiện) / hoặc chắc chắn vẫn là 5 (nếu fix)
+    commit tran;
+end
+go
+
+-- giao tác b:
+create procedure sp_kichban4_giaotacb
+as
+begin
+    begin tran;
+    -- xóa dòng rác để tránh lỗi khóa chính khi test lại nhiều lần
+    delete from linhkien where malk = 'MOU099';
+    
+    -- b thêm thành công 1 linh kiện mới vào nhóm 'mou'
+    insert into linhkien(malk, tenlk, maloai,MaNSX) values ('MOU099', N'chuột bluetooth', 'MOU','NSX02');
+    commit tran;
+end
+go
+
+-- 5. kịch bản 5: dùng khóa xlock gây tắc nghẽn (deadlock)
+-- giao tác a:
+create procedure sp_kichban5_giaotaca
+as
+begin
+    begin tran;
+    -- 1. a khóa độc quyền mou001
+    update linhkien with (xlock) set dongiaban = 160000 where malk = 'MOU001';
+    waitfor delay '00:00:05'; 
+    -- 3. a đòi khóa mou002 (nhưng lúc này b đang giữ) -> a bị treo
+    update linhkien with (xlock) set dongiaban = 460000 where malk = 'MOU002';
+    commit tran;
+end
+go
+
+-- giao tác b:
+create procedure sp_kichban5_giaotacb
+    @isfixmode bit
+as
+begin
+    begin tran;
+
+    if @isfixmode = 1
+    begin
+        -- cách fix: ép giao tác b cũng phải xin khóa mou001 trước
+        -- nếu a đang chạy, b sẽ bị treo ngay tại dòng này và kiên nhẫn chờ đợi a xong
+        update linhkien with (xlock) set dongiaban = 999999 where malk = 'MOU001';
+        waitfor delay '00:00:05';
+        -- sau khi a commit và nhả khóa, b mới được đi tiếp xuống đây để khóa mou002
+        update linhkien with (xlock) set dongiaban = 888888 where malk = 'MOU002';
+    end
+    else
+    begin
+        -- 2. b khóa độc quyền mou002 
+        update linhkien with (xlock) set dongiaban = 888888 where malk = 'MOU002';
+        waitfor delay '00:00:05';
+        -- 4. b đòi khóa mou001 (nhưng lúc này a đang giữ) -> b bị treo
+        update linhkien with (xlock) set dongiaban = 999999 where malk = 'MOU001';
+    end
+
+    commit tran;
+end
+go
+
+--/* 1.Kịch bản 1 mức cô lập READ UNCOMMITED( lỗi mất dữ liệu cập nhật)
+--Vì lỗi mất dữ liệu cập nhật( Updated Lost) được SQL Sever đều tự động xin khóa độc quyền (X-Lock) và giữ đến cuối giao tác, bất kể mức cô lập nào các thao tác CRUD*/
+---- Giao tác A:
+--begin tran
+--    declare @tonkho int;
+--    -- A đọc được số lượng là 50
+--    select @tonkho = soluongton from linhkien where malk = 'MOU001'; 
+--    waitfor delay '00:00:10';-- Demo thời gian chờ thực tế 
+--     -- A tính toán: 50 - 10 = 40 và ghi xuống
+--    update linhkien set soluongton = @tonkho - 10 where malk = 'MOU001';
+--commit tran;
+
+----Giao tác B
+--begin tran
+--    declare @tonkho int;
+--    -- Do A không giữ khóa đọc, B vẫn đọc được số lượng cũ là 50
+--    select @tonkho = soluongton from linhkien where malk = 'MOU001'; 
+--    -- B tính toán: 50 - 20 = 30 và ghi xuống kho ngay lập tức
+--    update linhkien set soluongton = @tonkho - 20 where malk = 'MOU001';
+--commit tran;
+
+--select SoLuongTon 
+--from LinhKien
+--where malk = 'MOU001'
+
+---- sửa lỗi bằng mức cô lập  READ UNCOMMITED
+--/*set transaction isolation level read committed;
+--begin tran
+--    declare @tonkho int;
+--    select @tonkho = soluongton from linhkien where malk = 'MOU001'; 
+--    waitfor delay '00:00:10'; 
+--    update linhkien set soluongton = @tonkho - 10 where malk = 'MOU001';
+--commit tran;
+
+--set transaction isolation level read committed;
+--begin tran
+--    declare @tonkho int;
+--    select @tonkho = soluongton from linhkien where malk = 'MOU001'; 
+--    update linhkien set soluongton = @tonkho - 20 where malk = 'MOU001';
+--commit tran;*/
+
+--2. Kịch bản 2: Mức READ COMMITTED( lỗi đọc dữ liệu rác)
+-- demo lỗi đọc dữ liệu rác( Dirty Read)
+--begin tran
+--    update linhkien set soluongton = 1000 where malk = 'MOU001';
+--    waitfor delay '00:00:10';
+--rollback tran;
+
+--set transaction isolation level read uncommitted;
+--begin tran
+--    select soluongton from linhkien where malk = 'MOU001';
+--commit tran;
+
+---- sửa lỗi bằng mức cô lập  READ COMMITED
+--set transaction isolation level read committed;
+--begin tran
+--    select soluongton from linhkien where malk = 'MOU001';
+--commit tran;
+
+-- 3. Kịch bản 3:mức cô lập REPEATABLE READ( lỗi không thể đọc lại)
+--demo lỗi không thể đọc lại( UNREPEATABLE READ)
+--set transaction isolation level read committed;
+--begin tran
+--    select soluongton from linhkien where malk = 'MOU001'; -- Lần 1: Số lượng gốc
+--    waitfor delay '00:00:10';
+--    select soluongton from linhkien where malk = 'MOU001'; -- Lần 2: Số lượng đã bị B thay đổi
+--commit tran;
+
+--begin tran
+--    update linhkien set soluongton = 9999 where malk = 'MOU001';
+--commit tran; -- B ghi thành công ngay lập tức do A ở mức Read Committed không giữ khóa đọc (S-Lock)
+
+---- sửa lỗi bằng mức cô lập  REPEATABLE READ
+--set transaction isolation level repeatable read;
+--begin tran
+--    select soluongton from linhkien where malk = 'MOU001'; 
+--    waitfor delay '00:00:10';
+--    select soluongton from linhkien where malk = 'MOU001'; 
+--commit tran;
+
+--4. Kịch bản 4: Mức cô lập  SERIALIZABLE (Sửa lỗi bóng ma dữ liệu)
+--demo lỗi bóng ma dữ liệu( Repeatable Read)
+--set transaction isolation level repeatable read;
+--begin tran
+--    select count(*) from linhkien where maloai = 'MOU'; -- Ví dụ ra 5 linh kiện
+--    waitfor delay '00:00:10';
+--    select count(*) from linhkien where maloai = 'MOU'; -- Đếm lại ra 6 (Dòng bóng ma xuất hiện)
+--commit tran;
+
+--begin tran
+--     B thêm thành công 1 linh kiện mới vào nhóm 'MOU'
+--    insert into linhkien(malk, tenlk, maloai,MaNSX) values ('MOU099', N'chuột bluetooth', 'MOU','NSX02');
+--commit tran;
+
+-- sửa lỗi bằng mức cô lập SERIALIZABLE
+--set transaction isolation level serializable;
+--begin tran
+--    select count(*) from linhkien where maloai = 'MOU'; 
+--    waitfor delay '00:00:10';
+--    select count(*) from linhkien where maloai = 'MOU'; -- Chắc chắn vẫn là 5
+--commit tran;
 
 ----5. Kịch bản 5: Dùng khóa XLOCK gây Tắc nghẽn (Deadlock)
-begin tran
-    update linhkien with (xlock) set dongiaban = 160000 where malk = 'MOU001';
-    waitfor delay '00:00:05';
-    update linhkien with (xlock) set dongiaban = 460000 where malk = 'MOU002';
-commit tran;
-*/
+----Giao tác A:
+--begin tran
+--    -- 1. A Khóa độc quyền MOU001
+--    update linhkien with (xlock) set dongiaban = 160000 where malk = 'MOU001';
+--    waitfor delay '00:00:05'; -- 
+--    -- 3. A đòi khóa MOU002 (Nhưng lúc này B đang giữ) -> A BỊ TREO
+--    update linhkien with (xlock) set dongiaban = 460000 where malk = 'MOU002';
+--commit tran;
+
+----Giao tác B:
+--begin tran
+--    -- 2. B Khóa độc quyền MOU002 
+--    update linhkien with (xlock) set dongiaban = 888888 where malk = 'MOU002';
+--    waitfor delay '00:00:05';
+--    -- 4. B đòi khóa MOU001 (Nhưng lúc này A đang giữ) -> B BỊ TREO
+--    update linhkien with (xlock) set dongiaban = 999999 where malk = 'MOU001';
+--commit tran;
+
+---- theo sách thì SQL sever sẽ tự hủy 1 giao tác để chạy hoàn tất thì ở đây giao tác A là giao tác bị hủy\
+
+-- -- CÁCH FIX: Ép Giao tác B CŨNG PHẢI xin khóa MOU001 TRƯỚC
+--begin tran
+--    -- Nếu A đang chạy, B sẽ BỊ TREO ngay tại dòng này và KIÊN NHẪN CHỜ ĐỢI A xong
+--    update linhkien with (xlock) set dongiaban = 999999 where malk = 'MOU001';
+--    waitfor delay '00:00:05';
+--    -- Sau khi A commit và nhả khóa, B mới được đi tiếp xuống đây để khóa MOU002
+--    update linhkien with (xlock) set dongiaban = 888888 where malk = 'MOU002';
+--commit tran;
 
 -- sao lưu và backup khi cần và khi chạy phải comment backup với restore
 

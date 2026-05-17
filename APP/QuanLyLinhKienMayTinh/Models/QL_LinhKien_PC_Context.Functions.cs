@@ -14,13 +14,7 @@ namespace QuanLyLinhKienMayTinh.Models
         [DbFunction("fn_DoanhThuTheoThang", "dbo")]
         public static int? fn_DoanhThuTheoThang(int? Thang, int? Nam)
         {
-            using (var db = DataProvider.Ins.GetContext())
-            {
-                return db.Database
-                    .SqlQuery<int?>($"SELECT dbo.fn_DoanhThuTheoThang({Thang}, {Nam}) AS Value")
-                    .AsEnumerable()
-                    .FirstOrDefault() ?? 0;
-            }
+            throw new NotSupportedException("This method can only be called from Entity Framework Core queries");
         }
 
         protected void OnModelCreatingGeneratedFunctions(ModelBuilder modelBuilder)

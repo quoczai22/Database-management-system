@@ -144,16 +144,26 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 var giaTriDoanhThu = new ChartValues<double>(); // Dữ liệu doanh thu theo tháng
                 var danhSachThang = new List<string>(); // danh sách tháng theo trục hoành
 
-                foreach (int y in year)
+                db.Database.OpenConnection();
+                using (var command = db.Database.GetDbConnection().CreateCommand())
                 {
-                    for (int m = 1; m <= 12; m++)
+                    foreach (int y in year)
                     {
-                        var doanhThuThang = QL_LinhKien_PC_Context.fn_DoanhThuTheoThang(m, y); // gọi hàm tính doanh thu theo tháng từ database
+                        for (int m = 1; m <= 12; m +=3)
+                        {
+                            // Truyền lệnh SQL gọi trực tiếp Function của bạn
+                            command.CommandText = $"SELECT dbo.fn_DoanhThuTheoThang({m}, {y})";
+                            var result = command.ExecuteScalar();
 
-                        giaTriDoanhThu.Add((double)doanhThuThang); // thêm doanh thu vào danh sách ép kiểu thành double 
-                        danhSachThang.Add($"Tháng {m}/{y}");
+                            // Xử lý giá trị trả về
+                            double doanhThuThang = (result != null && result != DBNull.Value) ? Convert.ToDouble(result) : 0;
+
+                            giaTriDoanhThu.Add(doanhThuThang);
+                            danhSachThang.Add($"Tháng {m}/{y}");
+                        }
                     }
                 }
+                db.Database.CloseConnection();
 
                 // 4. Cập nhật UI
                 Labels = danhSachThang; // cập nhật danh sách tháng cho trục hoành

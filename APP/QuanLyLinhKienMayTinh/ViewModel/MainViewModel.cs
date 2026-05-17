@@ -61,6 +61,12 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             get => _menuHoaDonVisibility;
             set { _menuHoaDonVisibility = value; OnPropertyChanged(); }
         }
+        private Visibility _menuBaoMatVisibility = Visibility.Collapsed;
+        public Visibility MenuBaoMatVisibility
+        {
+            get => _menuBaoMatVisibility;
+            set { _menuBaoMatVisibility = value; OnPropertyChanged(); }
+        }
 
         bool _isDark = false; 
 
@@ -89,6 +95,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 MenuNhanVienVisibility = Visibility.Visible;
                 MenuKhachHangVisibility = Visibility.Visible;
                 MenuHoaDonVisibility = Visibility.Visible;
+                MenuBaoMatVisibility = Visibility.Visible;
             }
             else if (quyen == "Thu ngân")
             {
@@ -98,6 +105,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 MenuNhanVienVisibility = Visibility.Collapsed;
                 MenuKhachHangVisibility = Visibility.Collapsed;
                 MenuHoaDonVisibility = Visibility.Visible;
+                MenuBaoMatVisibility = Visibility.Collapsed;
             }
             else if (quyen == "Chăm sóc khách hàng")
             {
@@ -107,6 +115,17 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 MenuNhanVienVisibility = Visibility.Collapsed;
                 MenuKhachHangVisibility = Visibility.Visible;
                 MenuHoaDonVisibility = Visibility.Collapsed;
+                MenuBaoMatVisibility = Visibility.Collapsed;
+            }
+            else if (quyen == "Quản lý kho")
+            {
+                MenuDashboardVisibility = Visibility.Visible;
+                MenuLinhKienVisibility = Visibility.Visible;
+                MenuLoaiLKVisibility = Visibility.Visible;
+                MenuNhanVienVisibility = Visibility.Collapsed;
+                MenuKhachHangVisibility = Visibility.Collapsed;
+                MenuHoaDonVisibility = Visibility.Collapsed;
+                MenuBaoMatVisibility = Visibility.Collapsed;
             }
             else
             {
@@ -116,6 +135,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 MenuNhanVienVisibility = Visibility.Collapsed;
                 MenuKhachHangVisibility = Visibility.Collapsed;
                 MenuHoaDonVisibility = Visibility.Collapsed;
+                MenuBaoMatVisibility = Visibility.Visible;
             }
         }
         private void LaySoLuongGoc()

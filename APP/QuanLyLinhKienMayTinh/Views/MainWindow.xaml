@@ -215,6 +215,13 @@
                             <TextBlock Text="Hóa Đơn" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
+
+                    <Button Style="{StaticResource menuButton}" Click="btnBaoMat_Click" Visibility="{Binding MenuBaoMatVisibility}">
+                        <StackPanel Orientation="Horizontal">
+                            <Icon:PackIconMaterial Kind="Tools" Style="{StaticResource menuButtonIcon}"/>
+                            <TextBlock Text="Bảo Mật" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </DockPanel>
         </Border>
