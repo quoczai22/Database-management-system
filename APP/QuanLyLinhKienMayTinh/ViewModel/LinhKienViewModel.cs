@@ -16,7 +16,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
     {
         public string MaLk { get; set; }
         public string TenLk { get; set; }
-        public string TenLoai { get; set; }  // từ MaLoaiNavigation.TenLoai
+        public string TenLoai { get; set; }  
         public string Nsx { get; set; }
         public string Dvt { get; set; }
         public byte? Tgbh { get; set; }
@@ -82,9 +82,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         {
             try
             {
-                var db = DataProvider.Ins.GetContext();
-
-                // Load với navigation property để lấy TenLoai
+                using var db = DataProvider.Ins.GetContext();
                 var list = db.LinhKiens
                     .AsNoTracking()
                     .Where(lk => lk.NgungKinhDoanh == false)
@@ -160,29 +158,20 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         {
             try
             {
-                // Tạo mã gợi ý, user có thể tự sửa trong dialog
-                var dbRead = DataProvider.Ins.GetContext();
-                var allMaLk = dbRead.LinhKiens
-                    .AsNoTracking()
-                    .Select(x => x.MaLk)
-                    .ToList();
-                // Lấy số lớn nhất trong tất cả mã (vd: MOU003 → 3, VGA004 → 4)
-                int maxNum = 0;
-                foreach (var ma in allMaLk)
-                {
-                    var m = System.Text.RegularExpressions.Regex.Match(ma ?? "", @"\d+$");
-                    if (m.Success && int.TryParse(m.Value, out int n) && n > maxNum)
-                        maxNum = n;
-                }
-                string newID = "LK" + (maxNum + 1).ToString("D3");
-
-                var dialog = new ThemSuaLinhKienDialog(newID);
+                var dialog = new ThemSuaLinhKienDialog();
                 dialog.Owner = Application.Current.MainWindow;
                 if (dialog.ShowDialog() == true)
                 {
-                    var lkMoi = new LinhKien
+                    string maLoaiChon = dialog.MaLoai;
+                    using var db = DataProvider.Ins.GetContext();
+                    string newMaLk = QL_LinhKien_PC_Context.fn_TaoMaLinhKienMoi(maLoaiChon);
+                    if (string.IsNullOrEmpty(newMaLk))
                     {
-                        MaLk = dialog.MaLk,
+                        newMaLk = maLoaiChon + "001";
+                    }
+                    var LkMoi = new LinhKien
+                    {
+                        MaLk = newMaLk,
                         TenLk = dialog.TenLk,
                         MaLoai = dialog.MaLoai,
                         MaNsx = dialog.MaNsx,
@@ -193,15 +182,11 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         NgayNhap = dialog.NgayNhap,
                         NgungKinhDoanh = false
                     };
-
-                    var dbSave = DataProvider.Ins.GetContext();
-                    dbSave.LinhKiens.Add(lkMoi);
-                    dbSave.SaveChanges();
+                    db.LinhKiens.Add(LkMoi);
+                    db.SaveChanges();
+                    MessageBox.Show($"Thêm linh kiện thành công!\nMã LK: {newMaLk}","Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     TaiDuLieu();
-
-                    MessageBox.Show("Thêm linh kiện thành công!",
-                        "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
+                }    
             }
             catch (Exception ex)
             {
@@ -218,7 +203,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 dialog.Owner = Application.Current.MainWindow;
                 if (dialog.ShowDialog() == true)
                 {
-                    var db = DataProvider.Ins.GetContext();
+                    using var db = DataProvider.Ins.GetContext();
                     var entity = db.LinhKiens.Find(dialog.MaLk);
                     if (entity != null)
                     {
@@ -268,7 +253,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         {
             try
             {
-                var db = DataProvider.Ins.GetContext();
+                using var db = DataProvider.Ins.GetContext();
                 var entity = db.LinhKiens.Find(lk.MaLk);
                 if (entity == null) return;
 

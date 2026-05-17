@@ -41,7 +41,7 @@ public partial class QL_LinhKien_PC_Context : DbContext
 
             entity.ToTable("ChiTietHD", tb =>
                 {
-                    tb.HasTrigger("trg_CapNhatTonKho_Full");
+                    tb.HasTrigger("trg_CapNhatTonKho");
                     tb.HasTrigger("trg_CapNhatTongTien");
                 });
 

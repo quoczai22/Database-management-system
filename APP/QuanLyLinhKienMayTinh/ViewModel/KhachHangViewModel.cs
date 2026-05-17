@@ -68,7 +68,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         MaKh = kh.MaKh,
                         HoTen = kh.TenKh,
                         Sdt = kh.Sdt,
-                        Email = string.Empty,
+                        Email = kh.Email,
                         DiaChi = kh.Dchi
                     }).ToList();
 
@@ -107,50 +107,35 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             LamMoiCommand = new RelayCommand<object>(_ => true, _ => ThucHienLamMoi());
         }
 
-        // ── Hàm tạo mã tự động nội bộ (Thay thế AutoIDService) ──────────────
-        private string TaoMaTuDong(string tienTo, string maCu)
-        {
-            if (string.IsNullOrEmpty(maCu)) return tienTo + "001";
-            string soCuStr = maCu.Substring(tienTo.Length);
-            if (int.TryParse(soCuStr, out int soCu))
-            {
-                return tienTo + (soCu + 1).ToString("D3");
-            }
-            return tienTo + "001";
-        }
-
         private void ThucHienThemKhachHang()
         {
             try
             {
-                var dbRead = DataProvider.Ins.GetContext();
-                var lastID = dbRead.KhachHangs
-                    .OrderByDescending(x => x.MaKh)
-                    .Select(x => x.MaKh).FirstOrDefault();
-
-                // Đã bỏ Services, gọi thẳng hàm nội bộ
-                string newID = TaoMaTuDong("KH", lastID);
-
-                var dialog = new ThemSuaKhachHangDialog(newID);
+                var dialog = new ThemSuaKhachHangDialog();
                 dialog.Owner = Application.Current.MainWindow;
                 if (dialog.ShowDialog() == true)
                 {
                     var kq = dialog.KetQua;
-                    var khMoi = new KhachHang
+                    using var db = DataProvider.Ins.GetContext();
+                    string maKHMoi = QL_LinhKien_PC_Context.fn_TaoMaKhachHangMoi();
+                    if (string.IsNullOrEmpty(maKHMoi))
                     {
-                        MaKh = kq.MaKh,
+                        maKHMoi = "KH001";
+                    }
+                    var newKh = new KhachHang
+                    {
+                        MaKh = maKHMoi,  
                         TenKh = kq.HoTen,
                         Sdt = kq.Sdt,
-                        Email = kq.Email,
                         Dchi = kq.DiaChi
                     };
 
-                    var dbSave = DataProvider.Ins.GetContext();
-                    dbSave.KhachHangs.Add(khMoi);
-                    dbSave.SaveChanges();
+                    db.KhachHangs.Add(newKh);
+                    db.SaveChanges();
+                    kq.MaKh = maKHMoi;
+                    _all.Add(kq);
+                    MessageBox.Show($"Thêm khách hàng thành công!\nMã KH: {maKHMoi}", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     TaiDuLieu();
-
-                    MessageBox.Show("Thêm khách hàng thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
@@ -168,7 +153,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 if (dialog.ShowDialog() == true)
                 {
                     var kq = dialog.KetQua;
-                    var db = DataProvider.Ins.GetContext();
+                    using var db = DataProvider.Ins.GetContext();
                     var entity = db.KhachHangs.Find(kq.MaKh);
                     if (entity != null)
                     {
@@ -207,7 +192,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         {
             try
             {
-                var db = DataProvider.Ins.GetContext();
+                using var db = DataProvider.Ins.GetContext();
                 var entity = db.KhachHangs.Find(kh.MaKh);
                 if (entity == null) return;
 

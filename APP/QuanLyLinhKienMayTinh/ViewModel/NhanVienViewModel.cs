@@ -148,46 +148,19 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             LamMoiCommand = new RelayCommand<object>(p => true, p => ThucHienLamMoi());
         }
 
-        // ── Hàm tạo mã tự động nội bộ ──────────────
-        private string TaoMaTuDong(string tienTo, string maCu)
-        {
-            if (string.IsNullOrEmpty(maCu)) return tienTo + "001";
-            string soCuStr = maCu.Substring(tienTo.Length);
-            if (int.TryParse(soCuStr, out int soCu))
-            {
-                return tienTo + (soCu + 1).ToString("D3");
-            }
-            return tienTo + "001";
-        }
-
         private void ThucHienThem()
         {
-            if (LuuTrangThai.QuyenDangNhap != "Quản lý toàn bộ")
-            {
-                MessageBox.Show("Chỉ tài khoản quản lý (machpv) mới được phép thêm nhân viên!", "Từ chối truy cập", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
             try
             {
-                using var db = DataProvider.Ins.GetContext();
-
-                var lastID = db.NhanViens
-                    .OrderByDescending(x => x.MaNv)
-                    .Select(x => x.MaNv).FirstOrDefault();
-
-                // Bỏ AutoIDService, xài hàm nội bộ
-                string newID = TaoMaTuDong("NV", lastID);
-
-                var dialog = new ThemSuaNhanVienDialog(newID);
+                var dialog = new ThemSuaNhanVienDialog();
                 dialog.Owner = Application.Current.MainWindow;
                 if (dialog.ShowDialog() == true)
                 {
                     string quyen = LayQuyenTuChucVu(dialog.ChucVu);
-
-                    var nvMoi = new NhanVien
+                    string maNvMoi = QL_LinhKien_PC_Context.fn_TaoMaNhanVienMoi();
+                    var nv = new NhanVien
                     {
-                        MaNv = dialog.MaNv,
+                        MaNv = maNvMoi,
                         TenNv = dialog.HoTen,
                         ChucVu = dialog.ChucVu,
                         Quyen = quyen,
@@ -198,16 +171,11 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         NgayVaoLam = dialog.NgayVaoLam,
                         DaNghiViec = false
                     };
-
-                    var tkMoi = new TaiKhoan { TenDn = dialog.MaNv, MatKhau = "123", MaNv = dialog.MaNv };
-
-                    db.NhanViens.Add(nvMoi);
-                    db.TaiKhoans.Add(tkMoi);
+                    using var db = DataProvider.Ins.GetContext();
+                    db.NhanViens.Add(nv);
                     db.SaveChanges();
-
+                    MessageBox.Show($"Thêm nhân viên thành công!\nMã NV: {maNvMoi}", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                     TaiDuLieu();
-                    MessageBox.Show($"Thêm nhân viên thành công!\nTài khoản mặc định: {dialog.MaNv} / 123",
-                        "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)

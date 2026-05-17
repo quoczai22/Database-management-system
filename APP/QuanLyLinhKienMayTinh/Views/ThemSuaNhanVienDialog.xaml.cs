@@ -20,25 +20,18 @@ namespace QuanLyLinhKienMayTinh.Views
         public DateOnly? NgaySinh { get; private set; }
         public DateOnly? NgayVaoLam { get; private set; }
 
-        /// <summary>Mở ở chế độ THÊM</summary>
-        public ThemSuaNhanVienDialog(string maNvMoi)
+        public ThemSuaNhanVienDialog()
         {
             InitializeComponent();
             TitleText.Text = "Thêm Nhân Viên";
-            TxtMaNv.Text = maNvMoi;
             DpNgayVaoLam.SelectedDate = DateTime.Now;
             TaiDanhSachChucVu();
         }
-
-        /// <summary>Mở ở chế độ SỬA</summary>
         public ThemSuaNhanVienDialog(NhanVienDisplay nv)
         {
             InitializeComponent();
             TitleText.Text = "Sửa Nhân Viên";
             BtnLuu.Content = "Cập nhật";
-            TxtMaNv.Text = nv.MaNv;
-            TxtMaNv.IsReadOnly = true;
-            TxtMaNv.Opacity = 0.6;
             TxtHoTen.Text = nv.HoTen;
             TxtSdt.Text = nv.Sdt;
             TxtEmail.Text = nv.Email;
@@ -82,7 +75,6 @@ namespace QuanLyLinhKienMayTinh.Views
 
         private void TaiDanhSachChucVu()
         {
-            // Lấy các chức vụ từ DB (distinct)
             var cacChucVuDb = DataProvider.Ins.GetContext().NhanViens
                 .AsNoTracking()
                 .Where(nv => nv.ChucVu != null && nv.ChucVu != "")
@@ -96,8 +88,7 @@ namespace QuanLyLinhKienMayTinh.Views
             {
                 "Quản lý",
                 "Nhân viên thu ngân",
-                "Nhân viên bán hàng",
-                "Nhân viên kỹ thuật",
+                "Nhân viên chăm sóc khách hàng",
                 "Nhân viên kho"
             };
 
@@ -127,7 +118,7 @@ namespace QuanLyLinhKienMayTinh.Views
                 return;
             }
 
-            MaNv = TxtMaNv.Text.Trim();
+            MaNv = null;
             HoTen = TxtHoTen.Text.Trim();
             ChucVu = ((ChucVuItem)CboChucVu.SelectedItem).TenChucVu;
             Sdt = TxtSdt.Text.Trim();

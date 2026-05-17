@@ -153,30 +153,11 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             ResetLocCommand = new RelayCommand<object>(p => true, p => ThucHienResetLoc());
         }
 
-        // ── HÀM TẠO MÃ TỰ ĐỘNG NỘI BỘ (THAY THẾ SERVICE) ─────────────────────
-        private string TaoMaTuDong(string tienTo, string maCu)
-        {
-            if (string.IsNullOrEmpty(maCu)) return tienTo + "001";
-            string soCuStr = maCu.Substring(tienTo.Length);
-            if (int.TryParse(soCuStr, out int soCu))
-            {
-                return tienTo + (soCu + 1).ToString("D3");
-            }
-            return tienTo + "001";
-        }
-
         private void ThucHienTaoHoaDon()
         {
             try
             {
-                var dbRead = DataProvider.Ins.GetContext();
-                var lastID = dbRead.HoaDons
-                    .OrderByDescending(x => x.MaHd)
-                    .Select(x => x.MaHd).FirstOrDefault();
-
-                string newID = TaoMaTuDong("HD", lastID);
-
-                var dialog = new ThemHoaDonDialog(newID);
+                var dialog = new ThemHoaDonDialog();
                 dialog.Owner = Application.Current.MainWindow;
                 if (dialog.ShowDialog() == true)
                 {
@@ -228,58 +209,37 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             }
         }
 
-        private void ThucHienThanhToan()
+        private async void ThucHienThanhToan()
         {
             var res = MessageBox.Show($"Xác nhận thanh toán TIỀN MẶT cho hóa đơn [{HoaDonChon.MaHoaDon}]?", "Thanh toán", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (res == MessageBoxResult.Yes)
             {
                 try
                 {
-                    var db = DataProvider.Ins.GetContext();
-                    var hd = db.HoaDons.Find(HoaDonChon.MaHoaDon);
-                    if (hd != null)
-                    {
-                        hd.TrangThai = "Đã thanh toán";
-                        hd.PhuongThucThanhToan = "Tiền mặt";
-                        hd.NgayThanhToan = DateOnly.FromDateTime(DateTime.Now);
-                        db.SaveChanges();
+                    using var db = DataProvider.Ins.GetContext();
+                    await db.Procedures.sp_ThanhToanHoaDonAsync(HoaDonChon.MaHoaDon);
 
-                        MessageBox.Show("Thanh toán thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-                        TaiDuLieu();
-                    }
+                    MessageBox.Show("Thanh toán thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    TaiDuLieu(); 
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Lỗi thanh toán: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Lỗi thanh toán từ CSDL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
-        private void ThucHienXoaHoaDon()
+        private async void ThucHienXoaHoaDon()
         {
             var res = MessageBox.Show($"Bạn có chắc muốn xóa hóa đơn [{HoaDonChon.MaHoaDon}]?\nHàng tồn kho sẽ được hoàn trả lại.", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (res == MessageBoxResult.Yes)
             {
                 try
                 {
-                    var db = DataProvider.Ins.GetContext();
-                    var entity = db.HoaDons.Include(h => h.ChiTietHds).FirstOrDefault(h => h.MaHd == HoaDonChon.MaHoaDon);
-                    if (entity == null) return;
+                    using var db = DataProvider.Ins.GetContext();
+                    await db.Procedures.sp_XoaHoaDonAsync(HoaDonChon.MaHoaDon);
 
-                    using (var giaoDich = db.Database.BeginTransaction())
-                    {
-                        foreach (var chiTiet in entity.ChiTietHds)
-                        {
-                            var linhKien = db.LinhKiens.Find(chiTiet.MaLk);
-                            if (linhKien != null) linhKien.SoLuongTon += chiTiet.SoLuong;
-                        }
-                        db.ChiTietHds.RemoveRange(entity.ChiTietHds);
-                        db.HoaDons.Remove(entity);
-                        db.SaveChanges();
-                        giaoDich.Commit();
-
-                        TaiDuLieu();
-                        MessageBox.Show("Xóa hóa đơn thành công! Đã hoàn trả hàng.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
+                    MessageBox.Show("Xóa hóa đơn thành công! Đã hoàn trả hàng.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    TaiDuLieu();
                 }
                 catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error); }
             }
@@ -301,7 +261,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         {
             try
             {
-                var db = DataProvider.Ins.GetContext();
+                using var db = DataProvider.Ins.GetContext();
                 var list = db.HoaDons.AsNoTracking().Include(hd => hd.MaKhNavigation).Include(hd => hd.MaNvNavigation)
                              .OrderByDescending(hd => hd.NgayHd).ToList().Select(hd => MapToDisplay(hd)).ToList();
 
@@ -317,7 +277,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             if (string.IsNullOrEmpty(maHoaDon)) { ChiTietSanPham = new ObservableCollection<ChiTietSanPhamDisplay>(); return; }
             try
             {
-                var db = DataProvider.Ins.GetContext();
+                using var db = DataProvider.Ins.GetContext();
                 var chiTiet = db.ChiTietHds.AsNoTracking().Include(ct => ct.MaLkNavigation).Where(ct => ct.MaHd == maHoaDon).ToList()
                     .Select(ct => new ChiTietSanPhamDisplay
                     {
@@ -391,33 +351,37 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             SoHoaDonDaThanhToan = ds.Count(hd => hd.TrangThai == "Đã thanh toán");
             SoHoaDonChoXuLy = ds.Count(hd => hd.TrangThai == "Chưa thanh toán");
         }
-        private async void LuuHoaDonAnToan(HoaDon hoaDonMoi, List<ChiTietHd> chiTietHds)
+        private async Task LuuHoaDonAnToan(HoaDon hoaDonMoi, List<ChiTietHd> dsSanPham)
         {
             try
             {
-                var db = DataProvider.Ins.GetContext();
-                DateOnly ngayLapHD = hoaDonMoi.NgayHd ?? DateOnly.FromDateTime(DateTime.Now);
-                foreach (var ct in chiTietHds)
+                using var db = DataProvider.Ins.GetContext();
+                var ngayLap = hoaDonMoi.NgayHd ?? DateOnly.FromDateTime(DateTime.Now);
+
+                string maHD = null;
+
+                foreach (var monHang in dsSanPham)
                 {
+                    var hopChuaMa = new OutputParameter<string> { _value = maHD };
+
                     await db.Procedures.sp_BanLinhKienAsync(
-                        hoaDonMoi.MaHd,
-                        ngayLapHD,
+                        ngayLap,
                         hoaDonMoi.MaKh,
                         hoaDonMoi.MaNv,
-                        ct.MaLk,
-                        ct.SoLuong 
+                        monHang.MaLk,
+                        monHang.SoLuong,
+                        hopChuaMa
                     );
+
+                    maHD = hopChuaMa.Value;
                 }
 
-                MessageBox.Show($"Tạo thành công hóa đơn [{hoaDonMoi.MaHd}] thông qua Stored Procedure!",
-                                "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
-
+                MessageBox.Show("Thành công! Mã hóa đơn: " + maHD, "Thông báo");
                 TaiDuLieu();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi hệ thống kho khi thực hiện bán hàng:\n" + ex.Message,
-                                "Lỗi SQL Server", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Lỗi: " + ex.Message, "Báo lỗi");
             }
         }
     }

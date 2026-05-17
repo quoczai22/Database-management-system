@@ -59,7 +59,8 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         {
             try
             {
-                var list = DataProvider.Ins.GetContext().LoaiLks
+                using var db = DataProvider.Ins.GetContext();
+                var list = db.LoaiLks
                     .AsNoTracking()
                     .Select(lk => new LoaiLkDisplay
                     {
@@ -77,6 +78,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 MessageBox.Show("Lỗi tải dữ liệu loại linh kiện: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private bool Filter(object obj)
         {
@@ -105,22 +107,30 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         {
             try
             {
-                // Bỏ luôn AutoIDService. Cho người dùng tự điền (VD: CPU, VGA...)
                 string newID = "";
-
                 var dialog = new ThemSuaLoaiLinhKienDialog(newID);
                 dialog.Owner = Application.Current.MainWindow;
+
                 if (dialog.ShowDialog() == true)
                 {
                     var kq = dialog.KetQua;
+                    using var dbSave = DataProvider.Ins.GetContext();
+
+                    string maLoaiMoi = kq.MaLoai?.Trim().ToUpper();
+
+                    if (dbSave.LoaiLks.Any(x => x.MaLoai == maLoaiMoi))
+                    {
+                        MessageBox.Show($"Mã loại '{maLoaiMoi}' đã tồn tại trong hệ thống. Vui lòng nhập mã khác!", "Cảnh báo trùng lặp", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
                     var loaiMoi = new LoaiLk
                     {
-                        MaLoai = kq.MaLoai,
-                        TenLoai = kq.TenLoai,
-                        MoTa = kq.MoTa
+                        MaLoai = maLoaiMoi,
+                        TenLoai = kq.TenLoai?.Trim(),
+                        MoTa = kq.MoTa?.Trim()
                     };
 
-                    var dbSave = DataProvider.Ins.GetContext();
                     dbSave.LoaiLks.Add(loaiMoi);
                     dbSave.SaveChanges();
                     TaiDuLieu();
@@ -140,15 +150,17 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             {
                 var dialog = new ThemSuaLoaiLinhKienDialog(loai);
                 dialog.Owner = Application.Current.MainWindow;
+
                 if (dialog.ShowDialog() == true)
                 {
                     var kq = dialog.KetQua;
-                    var db = DataProvider.Ins.GetContext();
+                    using var db = DataProvider.Ins.GetContext();
                     var entity = db.LoaiLks.Find(kq.MaLoai);
+
                     if (entity != null)
                     {
-                        entity.TenLoai = kq.TenLoai;
-                        entity.MoTa = kq.MoTa;
+                        entity.TenLoai = kq.TenLoai?.Trim();
+                        entity.MoTa = kq.MoTa?.Trim();
 
                         db.SaveChanges();
                         TaiDuLieu();
@@ -165,11 +177,26 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
         private void ThucHienXoaLoai(LoaiLkDisplay loai)
         {
-            var res = MessageBox.Show(
-                    $"Bạn có chắc chắn muốn xóa loại [{loai.TenLoai}] không?\n" +
-                    "Lưu ý: Không thể xóa nếu còn linh kiện thuộc loại này.",
-                    "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            if (res == MessageBoxResult.Yes) ThucHienXoa(loai);
+            try
+            {
+                using var db = DataProvider.Ins.GetContext();
+                var entity = db.LoaiLks.Find(loai.MaLoai);
+                if (entity == null) return;
+
+                db.LoaiLks.Remove(entity);
+                db.SaveChanges();
+
+                _all.Remove(loai);
+                MessageBox.Show("Xóa loại linh kiện thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (DbUpdateException)
+            {
+                MessageBox.Show($"Không thể xóa loại '{loai.TenLoai}' vì đang có linh kiện thuộc danh mục này trong kho.", "Lỗi dữ liệu ràng buộc", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi hệ thống khi xóa: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void ThucHienLamMoi()

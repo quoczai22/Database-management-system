@@ -155,8 +155,8 @@
             <Button HorizontalAlignment="Right" Content="＋  Tạo hóa đơn mới"
                     Style="{StaticResource SuccessBtnStyle}" Padding="16,10"
                     Command="{Binding TaoHoaDonCommand}"/>
-            <Button Content="Reset"
-                    Background="Red" Foreground="White" Padding="16,10"
+            <Button Content="↺  Làm mới"
+                    Style="{StaticResource PrimaryBtnStyle}" Padding="16,10"
                     Command="{Binding ResetLocCommand}" Margin="695,0,158,0"/>
         </Grid>
 

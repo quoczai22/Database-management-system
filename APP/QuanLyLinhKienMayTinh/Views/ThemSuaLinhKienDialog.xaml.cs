@@ -20,30 +20,20 @@ namespace QuanLyLinhKienMayTinh.Views
         public DateOnly? NgayNhap { get; private set; }
 
         private readonly bool _laMoiThem;
-
-        /// <summary>Mở ở chế độ THÊM</summary>
-        public ThemSuaLinhKienDialog(string maLkGoiY)
+        public ThemSuaLinhKienDialog()
         {
             InitializeComponent();
             _laMoiThem = true;
             TitleText.Text = "Thêm Linh Kiện";
-            TxtMaLk.Text = maLkGoiY;
-            TxtMaLkHint.Visibility = Visibility.Visible;
             DpNgayNhap.SelectedDate = DateTime.Now;
             TaiDanhSachComboBox();
         }
-
-        /// <summary>Mở ở chế độ SỬA</summary>
         public ThemSuaLinhKienDialog(LinhKienDisplay lk)
         {
             InitializeComponent();
             _laMoiThem = false;
             TitleText.Text = "Sửa Linh Kiện";
             BtnLuu.Content = "Cập nhật";
-            TxtMaLk.Text = lk.MaLk;
-            TxtMaLk.IsReadOnly = true;
-            TxtMaLk.Opacity = 0.6;
-            TxtMaLkHint.Visibility = Visibility.Collapsed;
             TxtTenLk.Text = lk.TenLk;
             TxtDvt.Text = lk.Dvt;
             TxtTgbh.Text = lk.Tgbh?.ToString();
@@ -82,16 +72,7 @@ namespace QuanLyLinhKienMayTinh.Views
 
         private void BtnLuu_Click(object sender, RoutedEventArgs e)
         {
-            // Validate MaLk
-            string maLk = TxtMaLk.Text.Trim().ToUpper();
-            if (string.IsNullOrWhiteSpace(maLk))
-            {
-                MessageBox.Show("Vui lòng nhập mã linh kiện!", "Thiếu thông tin",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                TxtMaLk.Focus();
-                return;
-            }
-
+            string maLk = null;
             if (string.IsNullOrWhiteSpace(TxtTenLk.Text))
             {
                 MessageBox.Show("Vui lòng nhập tên linh kiện!", "Thiếu thông tin",
@@ -112,7 +93,6 @@ namespace QuanLyLinhKienMayTinh.Views
                 return;
             }
 
-            // Validate số liệu
             if (!string.IsNullOrWhiteSpace(TxtDonGia.Text) && !int.TryParse(TxtDonGia.Text, out _))
             {
                 MessageBox.Show("Đơn giá bán phải là số nguyên!", "Dữ liệu không hợp lệ",
@@ -135,7 +115,6 @@ namespace QuanLyLinhKienMayTinh.Views
                 return;
             }
 
-            // Kiểm tra trùng mã khi thêm mới
             if (_laMoiThem)
             {
                 bool trung = DataProvider.Ins.GetContext().LinhKiens
@@ -145,7 +124,6 @@ namespace QuanLyLinhKienMayTinh.Views
                 {
                     MessageBox.Show($"Mã linh kiện '{maLk}' đã tồn tại! Vui lòng nhập mã khác.",
                         "Trùng mã", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    TxtMaLk.Focus();
                     return;
                 }
             }
