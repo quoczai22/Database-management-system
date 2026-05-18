@@ -8,13 +8,13 @@ namespace QuanLyLinhKienMayTinh.Models
 {
     public partial class sp_baocaotonkhoResult
     {
-        public string malk { get; set; }
-        [StringLength(200)]
-        public string tenlk { get; set; }
-        [StringLength(100)]
-        public string tenloai { get; set; }
-        [StringLength(100)]
-        public string tennsx { get; set; }
-        public int? soluongton { get; set; }
+        public string MaLK { get; set; }
+        [StringLength(50)]
+        public string TenLK { get; set; }
+        public int? SoLuongTon { get; set; }
+        [StringLength(10)]
+        public string DVT { get; set; }
+        [Column("DonGiaBan", TypeName = "money")]
+        public decimal? DonGiaBan { get; set; }
     }
 }
