@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,8 +40,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         // PROPERTIES
         // =============================================
 
-        private List<LinhKien> _allLinhKienGoc; // Bể chứa dữ liệu gốc để lọc
-
         private ObservableCollection<LinhKien> _dataUserA;
         public ObservableCollection<LinhKien> DataUserA
         {
@@ -66,11 +65,11 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         public int SelectedScenarioIndex
         {
             get => _selectedScenarioIndex;
-            set 
-            { 
-                _selectedScenarioIndex = value; 
-                OnPropertyChanged(nameof(SelectedScenarioIndex)); 
-                ThucHienLocDuLieuTheoKichBan(); 
+            set
+            {
+                _selectedScenarioIndex = value;
+                OnPropertyChanged(nameof(SelectedScenarioIndex));
+                _ = LoadDataAsync(); // Reload từ DB thực tế mỗi khi đổi kịch bản
             }
         }
 
@@ -93,7 +92,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 {
                     _selectedScenarioIndex = _kichBanChon.Id;
                     OnPropertyChanged(nameof(SelectedScenarioIndex));
-                    ThucHienLocDuLieuTheoKichBan();
+                    _ = LoadDataAsync(); // Reload từ DB thực tế mỗi khi đổi kịch bản
                 }
             }
         }
@@ -149,7 +148,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             RunUserACommand = new RelayCommand<object>(p => IsUserAIdle, p => RunUserAAsync());
             RunUserBCommand = new RelayCommand<object>(p => IsUserBIdle, p => RunUserBAsync());
             ResetDataCommand = new RelayCommand<object>(p => true, p => ResetDataAsync());
-            
+
             KhoiTaoDanhSachKichBan();
             _ = LoadDataAsync();
         }
@@ -188,50 +187,46 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             KichBanChon = DanhSachKichBan[0];
         }
 
+        /// <summary>
+        /// Load dữ liệu mới nhất từ DB và lọc theo kịch bản đang chọn.
+        /// Gọi lúc khởi động, sau khi đổi kịch bản, sau khi reset.
+        /// </summary>
         private async Task LoadDataAsync()
         {
             try
             {
                 using var context = CreateNewContext();
-                var data = await context.LinhKiens.AsNoTracking().ToListAsync();
-                _allLinhKienGoc = data;
+                var allData = await context.LinhKiens.AsNoTracking().ToListAsync();
 
-                App.Current.Dispatcher.Invoke(() => ThucHienLocDuLieuTheoKichBan());
+                List<LinhKien> filtered;
+                switch (SelectedScenarioIndex)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                        filtered = allData.Where(x => x.MaLk == "MOU001").ToList();
+                        break;
+                    case 3:
+                        filtered = allData.Where(x => x.MaLoai == "MOU").ToList();
+                        break;
+                    case 4:
+                        filtered = allData.Where(x => x.MaLk == "MOU001" || x.MaLk == "MOU002").ToList();
+                        break;
+                    default:
+                        filtered = allData;
+                        break;
+                }
+
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    DataUserA = new ObservableCollection<LinhKien>(filtered);
+                    DataUserB = new ObservableCollection<LinhKien>(filtered);
+                });
             }
             catch (Exception ex)
             {
                 WriteLog($"Lỗi tải dữ liệu: {ex.Message}", "HỆ THỐNG");
             }
-        }
-
-        private void ThucHienLocDuLieuTheoKichBan()
-        {
-            if (_allLinhKienGoc == null) return;
-
-            List<LinhKien> filtered;
-            switch (SelectedScenarioIndex)
-            {
-                case 0:
-                case 1:
-                case 2:
-                    filtered = _allLinhKienGoc.Where(x => x.MaLk == "MOU001").ToList();
-                    break;
-                case 3:
-                    filtered = _allLinhKienGoc.Where(x => x.MaLoai == "MOU").ToList();
-                    break;
-                case 4:
-                    filtered = _allLinhKienGoc.Where(x => x.MaLk == "MOU001" || x.MaLk == "MOU002").ToList();
-                    break;
-                default:
-                    filtered = _allLinhKienGoc.ToList();
-                    break;
-            }
-
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                DataUserA = new ObservableCollection<LinhKien>(filtered);
-                DataUserB = new ObservableCollection<LinhKien>(filtered);
-            });
         }
 
         // =============================================
@@ -268,58 +263,27 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             try
             {
                 using var context = CreateNewContext();
+                WriteLog($"Bắt đầu {KichBanChon.TenKichBan}...", "USER A");
 
                 switch (SelectedScenarioIndex)
                 {
                     case 0: // Lost Update
-                        WriteLog($"Bắt đầu {KichBanChon.TenKichBan}...", "USER A");
-                        using (var tran = await context.Database.BeginTransactionAsync(
-                            IsFixMode ? System.Data.IsolationLevel.RepeatableRead
-                                      : System.Data.IsolationLevel.ReadCommitted))
-                        {
-                            var lk = await context.LinhKiens.AsNoTracking()
-                                                  .FirstOrDefaultAsync(x => x.MaLk == "MOU001");
-                            WriteLog($"A đọc SoLuongTon = {lk.SoLuongTon}", "USER A");
-                            App.Current.Dispatcher.Invoke(() =>
-                                DataUserA = new ObservableCollection<LinhKien>(new[] { lk }));
-
-                            await Task.Delay(10000); // Chờ B ghi xong
-
-                            lk.SoLuongTon -= 10;
-                            var entity = await context.LinhKiens.FirstOrDefaultAsync(x => x.MaLk == "MOU001");
-                            entity.SoLuongTon = lk.SoLuongTon;
-                            await context.SaveChangesAsync();
-                            await tran.CommitAsync();
-
-                            WriteLog($"A ghi SoLuongTon = {lk.SoLuongTon}", "USER A");
-                            App.Current.Dispatcher.Invoke(() =>
-                                DataUserA = new ObservableCollection<LinhKien>(new[] { lk }));
-                        }
+                        await context.Procedures.sp_kichban1_giaotacaAsync(IsFixMode);
+                        WriteLog(IsFixMode ? "A dùng UPDLOCK, chờ B xong mới ghi"
+                                           : "A ghi đè lên B (mất cập nhật của B)", "USER A");
+                        var lk0 = await context.LinhKiens.AsNoTracking()
+                                               .FirstOrDefaultAsync(x => x.MaLk == "MOU001");
+                        App.Current.Dispatcher.Invoke(() =>
+                            DataUserA = new ObservableCollection<LinhKien>(new[] { lk0 }));
                         break;
 
                     case 1: // Dirty Read - A ghi rác rồi rollback
-                        WriteLog($"Bắt đầu {KichBanChon.TenKichBan}...", "USER A");
-                        using (var tran = await context.Database.BeginTransactionAsync(
-                            System.Data.IsolationLevel.ReadCommitted))
-                        {
-                            var entity = await context.LinhKiens.FirstOrDefaultAsync(x => x.MaLk == "MOU001");
-                            entity.SoLuongTon = 1000;
-                            await context.SaveChangesAsync();
-
-                            WriteLog("A ghi SoLuongTon = 1000 (chưa commit)", "USER A");
-                            App.Current.Dispatcher.Invoke(() =>
-                                DataUserA = new ObservableCollection<LinhKien>(new[] { entity }));
-
-                            await Task.Delay(10000); // Giữ dữ liệu rác 10s
-
-                            await tran.RollbackAsync();
-                            WriteLog("A rollback! SoLuongTon trở về giá trị cũ", "USER A");
-
-                            var rollback = await context.LinhKiens.AsNoTracking()
-                                                       .FirstOrDefaultAsync(x => x.MaLk == "MOU001");
-                            App.Current.Dispatcher.Invoke(() =>
-                                DataUserA = new ObservableCollection<LinhKien>(new[] { rollback }));
-                        }
+                        await context.Procedures.sp_kichban2_giaotacaAsync();
+                        WriteLog("A đã ghi SoLuongTon = 1000 rồi rollback", "USER A");
+                        var lk1 = await context.LinhKiens.AsNoTracking()
+                                               .FirstOrDefaultAsync(x => x.MaLk == "MOU001");
+                        App.Current.Dispatcher.Invoke(() =>
+                            DataUserA = new ObservableCollection<LinhKien>(new[] { lk1 }));
                         break;
 
                     case 2: // Unrepeatable Read - A đọc 2 lần
@@ -375,31 +339,13 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         break;
 
                     case 4: // Deadlock
-                        WriteLog($"Bắt đầu {KichBanChon.TenKichBan}...", "USER A");
-                        using (var tran = await context.Database.BeginTransactionAsync(
-                            System.Data.IsolationLevel.ReadCommitted))
-                        {
-                            // A khóa MOU001 trước
-                            var mou001 = await context.LinhKiens.FirstOrDefaultAsync(x => x.MaLk == "MOU001");
-                            mou001.DonGiaBan = 160000;
-                            await context.SaveChangesAsync();
-                            WriteLog("A đã khóa MOU001", "USER A");
-
-                            await Task.Delay(5000); // B khóa MOU002 trong lúc này
-
-                            // A đòi khóa MOU002
-                            WriteLog("A đang chờ MOU002...", "USER A");
-                            var mou002 = await context.LinhKiens.FirstOrDefaultAsync(x => x.MaLk == "MOU002");
-                            mou002.DonGiaBan = 460000;
-                            await context.SaveChangesAsync();
-                            await tran.CommitAsync();
-
-                            var result = await context.LinhKiens.AsNoTracking()
-                                                     .Where(x => x.MaLk == "MOU001" || x.MaLk == "MOU002")
-                                                     .ToListAsync();
-                            App.Current.Dispatcher.Invoke(() =>
-                                DataUserA = new ObservableCollection<LinhKien>(result));
-                        }
+                        await context.Procedures.sp_kichban5_giaotacaAsync();
+                        WriteLog("A đã khóa MOU001 → chờ MOU002", "USER A");
+                        var lk4 = await context.LinhKiens.AsNoTracking()
+                                               .Where(x => x.MaLk == "MOU001" || x.MaLk == "MOU002")
+                                               .ToListAsync();
+                        App.Current.Dispatcher.Invoke(() =>
+                            DataUserA = new ObservableCollection<LinhKien>(lk4));
                         break;
                 }
 
@@ -421,34 +367,20 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             try
             {
                 using var context = CreateNewContext();
+                WriteLog($"Bắt đầu {KichBanChon.TenKichBan}...", "USER B");
 
                 switch (SelectedScenarioIndex)
                 {
-                    case 0: // Lost Update - B ghi ngay lập tức
-                        WriteLog($"Bắt đầu {KichBanChon.TenKichBan}...", "USER B");
-                        using (var tran = await context.Database.BeginTransactionAsync(
-                            IsFixMode ? System.Data.IsolationLevel.RepeatableRead
-                                      : System.Data.IsolationLevel.ReadCommitted))
-                        {
-                            var lk = await context.LinhKiens.AsNoTracking()
-                                                  .FirstOrDefaultAsync(x => x.MaLk == "MOU001");
-                            WriteLog($"B đọc SoLuongTon = {lk.SoLuongTon}", "USER B");
-                            App.Current.Dispatcher.Invoke(() =>
-                                DataUserB = new ObservableCollection<LinhKien>(new[] { lk }));
-
-                            var entity = await context.LinhKiens.FirstOrDefaultAsync(x => x.MaLk == "MOU001");
-                            entity.SoLuongTon = lk.SoLuongTon - 20;
-                            await context.SaveChangesAsync();
-                            await tran.CommitAsync();
-
-                            WriteLog($"B ghi SoLuongTon = {entity.SoLuongTon}", "USER B");
-                            App.Current.Dispatcher.Invoke(() =>
-                                DataUserB = new ObservableCollection<LinhKien>(new[] { entity }));
-                        }
+                    case 0: // Lost Update
+                        await context.Procedures.sp_kichban1_giaotacbAsync(IsFixMode);
+                        WriteLog("B đã ghi xong SoLuongTon", "USER B");
+                        var lk0 = await context.LinhKiens.AsNoTracking()
+                                               .FirstOrDefaultAsync(x => x.MaLk == "MOU001");
+                        App.Current.Dispatcher.Invoke(() =>
+                            DataUserB = new ObservableCollection<LinhKien>(new[] { lk0 }));
                         break;
 
-                    case 1: // Dirty Read - B đọc dữ liệu của A
-                        WriteLog($"Bắt đầu {KichBanChon.TenKichBan}...", "USER B");
+                    case 1: // Dirty Read - B phải dùng LINQ để set isolation level ReadUncommitted
                         using (var tran = await context.Database.BeginTransactionAsync(
                             IsFixMode ? System.Data.IsolationLevel.ReadCommitted
                                       : System.Data.IsolationLevel.ReadUncommitted))
@@ -464,89 +396,33 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         }
                         break;
 
-                    case 2: // Unrepeatable Read - B sửa trong lúc A đang đọc
-                        WriteLog($"Bắt đầu {KichBanChon.TenKichBan}...", "USER B");
-                        using (var tran = await context.Database.BeginTransactionAsync(
-                            System.Data.IsolationLevel.ReadCommitted))
-                        {
-                            var entity = await context.LinhKiens.FirstOrDefaultAsync(x => x.MaLk == "MOU001");
-                            entity.SoLuongTon = 9999;
-                            await context.SaveChangesAsync();
-                            await tran.CommitAsync();
-
-                            WriteLog("B đã sửa SoLuongTon = 9999", "USER B");
-                            App.Current.Dispatcher.Invoke(() =>
-                                DataUserB = new ObservableCollection<LinhKien>(new[] { entity }));
-                        }
+                    case 2: // Unrepeatable Read - B sửa
+                        await context.Procedures.sp_kichban3_giaotacbAsync();
+                        WriteLog("B đã sửa SoLuongTon = 9999", "USER B");
+                        var lk2 = await context.LinhKiens.AsNoTracking()
+                                               .FirstOrDefaultAsync(x => x.MaLk == "MOU001");
+                        App.Current.Dispatcher.Invoke(() =>
+                            DataUserB = new ObservableCollection<LinhKien>(new[] { lk2 }));
                         break;
 
                     case 3: // Phantom Read - B chèn dòng mới
-                        WriteLog($"Bắt đầu {KichBanChon.TenKichBan}...", "USER B");
-                        using (var tran = await context.Database.BeginTransactionAsync(
-                            System.Data.IsolationLevel.ReadCommitted))
-                        {
-                            await context.Database.ExecuteSqlRawAsync(
-                                "DELETE FROM LinhKien WHERE MaLk = 'MOU099'");
-
-                            var newLk = new LinhKien
-                            {
-                                MaLk = "MOU099",
-                                TenLk = "Chuột mới",
-                                MaLoai = "MOU",
-                                MaNsx = context.LinhKiens.AsNoTracking()
-                                               .First(x => x.MaLoai == "MOU").MaNsx
-                            };
-                            context.LinhKiens.Add(newLk);
-                            await context.SaveChangesAsync();
-                            await tran.CommitAsync();
-
-                            WriteLog("B đã chèn MOU099 vào nhóm MOU", "USER B");
-                            var ds = await context.LinhKiens.AsNoTracking()
-                                                  .Where(x => x.MaLoai == "MOU").ToListAsync();
-                            App.Current.Dispatcher.Invoke(() =>
-                                DataUserB = new ObservableCollection<LinhKien>(ds));
-                        }
+                        await context.Procedures.sp_kichban4_giaotacbAsync();
+                        WriteLog("B đã chèn MOU099 vào nhóm MOU", "USER B");
+                        var ds3 = await context.LinhKiens.AsNoTracking()
+                                               .Where(x => x.MaLoai == "MOU").ToListAsync();
+                        App.Current.Dispatcher.Invoke(() =>
+                            DataUserB = new ObservableCollection<LinhKien>(ds3));
                         break;
 
-                    case 4: // Deadlock - B khóa ngược chiều
-                        WriteLog($"Bắt đầu {KichBanChon.TenKichBan}...", "USER B");
-                        using (var tran = await context.Database.BeginTransactionAsync(
-                            System.Data.IsolationLevel.ReadCommitted))
-                        {
-                            if (IsFixMode)
-                            {
-                                // Fix: B khóa cùng thứ tự với A (MOU001 trước)
-                                WriteLog("B chờ MOU001 (cùng thứ tự với A)...", "USER B");
-                                var mou001 = await context.LinhKiens.FirstOrDefaultAsync(x => x.MaLk == "MOU001");
-                                mou001.DonGiaBan = 999999;
-                                await context.SaveChangesAsync();
-                                await Task.Delay(5000);
-                                var mou002fix = await context.LinhKiens.FirstOrDefaultAsync(x => x.MaLk == "MOU002");
-                                mou002fix.DonGiaBan = 888888;
-                                await context.SaveChangesAsync();
-                            }
-                            else
-                            {
-                                // Lỗi: B khóa MOU002 trước → deadlock
-                                var mou002 = await context.LinhKiens.FirstOrDefaultAsync(x => x.MaLk == "MOU002");
-                                mou002.DonGiaBan = 888888;
-                                await context.SaveChangesAsync();
-                                WriteLog("B đã khóa MOU002", "USER B");
-                                await Task.Delay(5000);
-
-                                WriteLog("B đang chờ MOU001...", "USER B");
-                                var mou001 = await context.LinhKiens.FirstOrDefaultAsync(x => x.MaLk == "MOU001");
-                                mou001.DonGiaBan = 999999;
-                                await context.SaveChangesAsync();
-                            }
-
-                            await tran.CommitAsync();
-                            var result = await context.LinhKiens.AsNoTracking()
-                                                     .Where(x => x.MaLk == "MOU001" || x.MaLk == "MOU002")
-                                                     .ToListAsync();
-                            App.Current.Dispatcher.Invoke(() =>
-                                DataUserB = new ObservableCollection<LinhKien>(result));
-                        }
+                    case 4: // Deadlock
+                        await context.Procedures.sp_kichban5_giaotacbAsync(IsFixMode);
+                        WriteLog(IsFixMode ? "B chờ MOU001 cùng thứ tự A → không deadlock"
+                                           : "B khóa MOU002 → deadlock với A", "USER B");
+                        var lk4 = await context.LinhKiens.AsNoTracking()
+                                               .Where(x => x.MaLk == "MOU001" || x.MaLk == "MOU002")
+                                               .ToListAsync();
+                        App.Current.Dispatcher.Invoke(() =>
+                            DataUserB = new ObservableCollection<LinhKien>(lk4));
                         break;
                 }
 
