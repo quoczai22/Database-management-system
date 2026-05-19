@@ -42,7 +42,7 @@ namespace QuanLyLinhKienMayTinh.Views
 
             // Load nhân viên đang làm việc
             CboNhanVien.ItemsSource = db.NhanViens.AsNoTracking()
-                .Where(nv => nv.DaNghiViec == false)
+                .Where(nv => nv.DaNghiViec == false && (nv.ChucVu == "Nhân viên thu ngân" || nv.ChucVu == "Quản lý"))
                 .OrderBy(nv => nv.TenNv)
                 .ToList();
 
