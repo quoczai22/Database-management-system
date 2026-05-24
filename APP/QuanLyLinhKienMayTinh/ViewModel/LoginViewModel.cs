@@ -84,25 +84,8 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         public LoginViewModel()
         {
             ToggleThemeCommand = new RelayCommand<object>(p => true, p => ExecuteToggleTheme(p));
-            ShowLoginCommand = new RelayCommand<object>(p => true, p => ShowLogin());
-            ShowSignUpCommand = new RelayCommand<object>(p => true, p => ShowSignUp());
             LoginCommand = new RelayCommand<object>(p => true, p => ThucHienDangNhap());
         }
-
-        private void ShowLogin()
-        {
-            LoginVisibility = Visibility.Visible;
-            SignUpVisibility = Visibility.Collapsed;
-            Message = "Vui lòng đăng nhập để tiếp tục";
-        }
-
-        private void ShowSignUp()
-        {
-            LoginVisibility = Visibility.Collapsed;
-            SignUpVisibility = Visibility.Visible;
-            Message = "Vui lòng điền thông tin để đăng ký tài khoản mới";
-        }
-
         public void ThucHienDangNhap()
         {
             if (string.IsNullOrEmpty(LoginUsername) || string.IsNullOrEmpty(LoginPassword))
