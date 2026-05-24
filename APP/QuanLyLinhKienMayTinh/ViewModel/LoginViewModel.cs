@@ -55,28 +55,13 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             get { return _liPassVisible; }
             set { _liPassVisible = value; OnPropertyChanged(); }
         }
-
-        bool _suPassVisible = false;
-        public bool SuPassVisible
-        {
-            get { return _suPassVisible; }
-            set { _suPassVisible = value; OnPropertyChanged(); }
-        }
-
-        bool _suConfirmVisible = false;
-        public bool SuConfirmVisible
-        {
-            get { return _suConfirmVisible; }
-            set { _suConfirmVisible = value; OnPropertyChanged(); }
-        }
-
+  
         bool _isDark = false; // cờ để theo dõi trạng thái theme hiện tại, mặc định là light
 
         public ICommand ToggleThemeCommand { get; set; }
         public ICommand LoginCommand { get; set; }
 
         public ICommand ToggleLiPasswordCommand { get; set; }
-        public ICommand ToggleSuConfirmCommand { get; set; }
 
 
         public LoginViewModel()
@@ -85,7 +70,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             LoginCommand = new RelayCommand<object>(CanLogin, ThucHienDangNhap);
 
             ToggleLiPasswordCommand = new RelayCommand<object>(CanExecuteAlways, ToggleLiPasswordExecute);
-            ToggleSuConfirmCommand = new RelayCommand<object>(CanExecuteAlways, ToggleSuConfirmExecute);
         }
 
         bool CanToggleTheme(object p)
@@ -124,29 +108,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             }
             LiPassVisible = !LiPassVisible;
         }
-        private void ToggleSuConfirmExecute(object p)
-        {
-            object[] boxes = p as object[];// Nhận vào một mảng object chứa PasswordBox và TextBox tương ứng
-            if (boxes != null && boxes.Length == 2)
-            {
-                PasswordBox pwdBox = boxes[0] as PasswordBox;// chuyển đổi thành PasswordBox
-                TextBox txtBox = boxes[1] as TextBox;// chuyển đổi thành TextBox
-
-                if (pwdBox != null && txtBox != null)
-                {
-                    if (!SuConfirmVisible)
-                    {
-                        ConfirmPassword = pwdBox.Password;
-                    }
-                    else
-                    {
-                        pwdBox.Password = ConfirmPassword;
-                    }
-                }
-            }
-            SuConfirmVisible = !SuConfirmVisible;
-        }
-
 
         public void ThucHienDangNhap(object p)
         {
