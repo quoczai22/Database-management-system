@@ -1,26 +1,146 @@
 ﻿<Page x:Class="QuanLyLinhKienMayTinh.Views.TaiKhoanView"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:QuanLyLinhKienMayTinh.Views"
-        mc:Ignorable="d"
-        Title="TaiKhoanView" Height="450" Width="800" Loaded="Page_Loaded">
-    <StackPanel Margin="20" Width="400" HorizontalAlignment="Left">
-        <TextBlock Text="Chọn nhân viên (chưa có tài khoản):"/>
-        <ComboBox ItemsSource="{Binding DSNhanVienKhongTaiKhoan}" 
-          DisplayMemberPath="TenNv" 
-          SelectedItem="{Binding SelectedNhanVien, UpdateSourceTrigger=PropertyChanged}" />
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:local="clr-namespace:QuanLyLinhKienMayTinh.Views"
+      mc:Ignorable="d"
+      Title="TaiKhoanView"
+      Background="{DynamicResource BackgroundColor}"
+      Loaded="Page_Loaded">
 
-        <TextBlock Text="Chức vụ của nhân viên:"/>
-        <TextBox Text="{Binding ChucVuHienTai, Mode=OneWay}" IsReadOnly="True" Background="#eee" Foreground="#555" Margin="0,5,0,15"/>
+    <Page.Resources>
+        <Style x:Key="FormCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource BackgroundColor}"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="28,24"/>
+            <Setter Property="Margin" Value="6"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="14" ShadowDepth="0" Opacity="0.07" Color="#000000"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-        <TextBlock Text="Tên đăng nhập (Username):"/>
-        <TextBox Text="{Binding TenDangNhapMoi}" Margin="0,5,0,15"/>
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SubTextColor}"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
 
-        <TextBlock Text="Mật khẩu (Password):"/>
-        <TextBox Text="{Binding MatKhauMoi}" Margin="0,5,0,15"/>
+        <Style x:Key="InputBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{DynamicResource MainTextColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+        </Style>
 
-        <Button Content="TẠO TÀI KHOẢN VÀ CẤP QUYỀN" Command="{Binding TaoTaiKhoanCommand}" Height="40" Background="#43a047" Foreground="White" FontWeight="Bold"/>
-    </StackPanel>
+        <Style x:Key="ReadOnlyBoxStyle" TargetType="TextBox" BasedOn="{StaticResource InputBoxStyle}">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="Opacity" Value="0.6"/>
+        </Style>
+
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{DynamicResource MainTextColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="10,10,10,16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Margin="6,0,0,16">
+                <TextBlock Text="Quản lý tài khoản" FontSize="20" FontWeight="Bold"
+                           Foreground="{DynamicResource MainTextColor}"/>
+                <TextBlock Text="Tạo tài khoản và cấp quyền cho nhân viên"
+                           FontSize="13" Foreground="{DynamicResource SubTextColor}" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <Border Grid.Row="1" Style="{StaticResource FormCardStyle}" MaxWidth="520" HorizontalAlignment="Left">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,24">
+                        <Border Width="4" CornerRadius="2" Background="{DynamicResource ButtonColor}" Margin="0,2,10,2"/>
+                        <StackPanel>
+                            <TextBlock Text="Tạo tài khoản mới" FontSize="14"
+                                       FontWeight="SemiBold" Foreground="{DynamicResource MainTextColor}"/>
+                            <TextBlock Text="Chọn nhân viên chưa có tài khoản để tiến hành cấp quyền"
+                                       FontSize="11" Foreground="{DynamicResource SubTextColor}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1">
+
+                        <TextBlock Text="NHÂN VIÊN" Style="{StaticResource FieldLabelStyle}"/>
+                        <ComboBox Style="{StaticResource ComboBoxStyle}"
+                                  ItemsSource="{Binding DSNhanVienKhongTaiKhoan}"
+                                  DisplayMemberPath="TenNv"
+                                  SelectedItem="{Binding SelectedNhanVien, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <TextBlock Text="CHỨC VỤ" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox Style="{StaticResource ReadOnlyBoxStyle}"
+                                 Text="{Binding ChucVuHienTai, Mode=OneWay}"/>
+
+                        <Border Height="1" Background="{DynamicResource BorderColor}" Margin="0,4,0,20"/>
+
+                        <TextBlock Text="TÊN ĐĂNG NHẬP" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox Style="{StaticResource InputBoxStyle}"
+                                 Text="{Binding TenDangNhapMoi}"/>
+
+                        <TextBlock Text="MẬT KHẨU" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox Style="{StaticResource InputBoxStyle}"
+                                 Text="{Binding MatKhauMoi}"/>
+
+                        <!-- Submit Button -->
+                        <Button Command="{Binding TaoTaiKhoanCommand}"
+                                Height="42" Margin="0,8,0,0"
+                                Background="{DynamicResource ButtonColor}"
+                                Foreground="{DynamicResource ButtonTextColor}"
+                                FontSize="13" FontWeight="SemiBold"
+                                BorderThickness="0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="8"
+                                            Padding="16,0">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <StackPanel Orientation="Horizontal">
+                                <Icon:PackIconMaterial Kind="AccountPlusOutline"
+                                                       Width="16" Height="16"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,8,0"/>
+                                <TextBlock Text="TẠO TÀI KHOẢN VÀ CẤP QUYỀN" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </ScrollViewer>
 </Page>

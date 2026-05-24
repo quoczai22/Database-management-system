@@ -208,7 +208,9 @@
                                 </Button.CommandParameter>
                             </Button>
                         </Grid>
-                        <Button Content="Đăng nhập" Style="{StaticResource PrimaryBtn}" Command="{Binding LoginCommand}" CommandParameter="{Binding ElementName=liPassword}"/>                    </StackPanel>
+
+                        <Button Content="Đăng nhập" Style="{StaticResource PrimaryBtn}" Command="{Binding LoginCommand}" CommandParameter="{Binding ElementName=liPassword}"/>
+                    </StackPanel>
                 </Grid>
             </Border>
         </Grid>

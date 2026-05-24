@@ -2,6 +2,7 @@
 using QuanLyLinhKienMayTinh;
 using QuanLyLinhKienMayTinh.Models;
 using System;
+using System.Data.Common;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Reflection.Metadata;
@@ -75,7 +76,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         public ICommand LoginCommand { get; set; }
 
         public ICommand ToggleLiPasswordCommand { get; set; }
-        public ICommand ToggleSuPasswordCommand { get; set; }
         public ICommand ToggleSuConfirmCommand { get; set; }
 
 
@@ -124,7 +124,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             }
             LiPassVisible = !LiPassVisible;
         }
-
         private void ToggleSuConfirmExecute(object p)
         {
             object[] boxes = p as object[];// Nhận vào một mảng object chứa PasswordBox và TextBox tương ứng
@@ -151,6 +150,17 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
         public void ThucHienDangNhap(object p)
         {
+            if (p is object[] boxes && boxes.Length > 0)
+            {
+                if (boxes[0] is PasswordBox pb)
+                {
+                    LoginPassword = pb.Password;
+                }
+            }
+            else if (p is PasswordBox singlePb)
+            {
+                LoginPassword = singlePb.Password;
+            }
             if (string.IsNullOrEmpty(LoginUsername) || string.IsNullOrEmpty(LoginPassword))
             {
                 MessageBox.Show("Vui lòng nhập đầy đủ tài khoản và mật khẩu!");
@@ -159,13 +169,15 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
             try
             {
-                var db = DataProvider.Ins.GetContext();
+                using var db = DataProvider.Ins.GetContext();
 
-                var acc = db.TaiKhoans
-                            .Include(t => t.MaNvNavigation)
-                            .FirstOrDefault(t => t.TenDn == LoginUsername && t.MatKhau == LoginPassword); // lấy thông tin tài khoản cùng với thông tin nhân viên
+                var query = from t in db.TaiKhoans.Include("MaNvNavigation")
+                            where t.TenDn == LoginUsername && t.MatKhau == LoginPassword
+                            select t;// Truy vấn tài khoản với điều kiện tên đăng nhập và mật khẩu khớp, đồng thời include thông tin nhân viên liên quan để lấy quyền
 
-                if (acc != null) 
+                var acc = query.FirstOrDefault(); // lấy thông tin tài khoản cùng với thông tin nhân viên
+
+                if (acc != null)
                 {
                     LuuTrangThai.MaNVDangNhap = acc.MaNv;
                     LuuTrangThai.QuyenDangNhap = acc.MaNvNavigation.Quyen;
@@ -191,7 +203,9 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                // Ghi log lỗi nội bộ, không hiển thị thông tin kỹ thuật ra cho người dùng
+                System.Diagnostics.Debug.WriteLine(string.Format("[LoginError] {0}", ex));
+                MessageBox.Show("Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau.");
             }
         }
         void ExecuteToggleTheme(object p)
