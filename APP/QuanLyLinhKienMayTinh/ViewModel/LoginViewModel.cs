@@ -24,6 +24,12 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             get => _loginPassword;
             set { _loginPassword = value; OnPropertyChanged(); }
         }
+        string _signUpMaNV;
+        public string SignUpMaNV
+        {
+            get => _signUpMaNV;
+            set { _signUpMaNV = value; OnPropertyChanged(); }
+        }
 
         string _signUpUsername;
         public string SignUpUsername
@@ -81,20 +87,20 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             ShowLoginCommand = new RelayCommand<object>(p => true, p => ShowLogin());
             ShowSignUpCommand = new RelayCommand<object>(p => true, p => ShowSignUp());
             LoginCommand = new RelayCommand<object>(p => true, p => ThucHienDangNhap());
-            SignUpCommand = new RelayCommand<object>(p => true, p => ThucHienDangKy());
         }
 
         private void ShowLogin()
         {
+            LoginVisibility = Visibility.Visible;
+            SignUpVisibility = Visibility.Collapsed;
+            Message = "Vui lòng đăng nhập để tiếp tục";
+        }
+
+        private void ShowSignUp()
+        {
             LoginVisibility = Visibility.Collapsed;
             SignUpVisibility = Visibility.Visible;
             Message = "Vui lòng điền thông tin để đăng ký tài khoản mới";
-        }
-        private void ShowSignUp()
-        {
-            SignUpVisibility = Visibility.Collapsed;
-            LoginVisibility = Visibility.Visible;
-            Message = "Vui lòng đăng nhập để tiếp tục";
         }
 
         public void ThucHienDangNhap()
@@ -113,19 +119,12 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                             .Include(t => t.MaNvNavigation)
                             .FirstOrDefault(t => t.TenDn == LoginUsername && t.MatKhau == LoginPassword); // lấy thông tin tài khoản cùng với thông tin nhân viên
 
-                if (acc != null) // nếu tìm thấy tài khoản hợp lệ
+                if (acc != null) 
                 {
                     LuuTrangThai.MaNVDangNhap = acc.MaNv;
                     LuuTrangThai.QuyenDangNhap = acc.MaNvNavigation.Quyen;
 
-                    if (LuuTrangThai.QuyenDangNhap == "Quản lý toàn bộ")
-                    {
-                        DataProvider.Ins.ChangeToQuanLyConnection();
-                    }
-                    else
-                    {
-                        DataProvider.Ins.ChangeToNhanVienConnection();
-                    }
+                    DataProvider.Ins.ChangeConnectionByRole(LuuTrangThai.QuyenDangNhap);
 
                     MainWindow main = new MainWindow(LoginUsername);
                     main.Show();
@@ -143,58 +142,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 {
                     MessageBox.Show("Sai tài khoản hoặc mật khẩu");
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        public void ThucHienDangKy()
-        {
-            if (string.IsNullOrEmpty(SignUpUsername))
-            {
-                MessageBox.Show("Chưa nhập tên đăng nhập");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(SignUpPassword))
-            {
-                MessageBox.Show("Chưa nhập mật khẩu");
-                return;
-            }
-
-            if (SignUpPassword != ConfirmPassword)
-            {
-                MessageBox.Show("Mật khẩu xác nhận không đúng");
-                return;
-            }
-
-            try
-            {
-                var db = DataProvider.Ins.GetContext();
-
-                if (db.TaiKhoans.Any(t => t.TenDn == SignUpUsername))
-                {
-                    MessageBox.Show("Tài khoản đã tồn tại");
-                    return;
-                }
-
-                db.TaiKhoans.Add(new TaiKhoan
-                {
-                    TenDn = SignUpUsername,
-                    MatKhau = SignUpPassword
-                });
-
-                db.SaveChanges();
-
-                MessageBox.Show("Đăng ký thành công");
-
-                SignUpUsername = "";
-                SignUpPassword = "";
-                ConfirmPassword = "";
-
-                ShowLoginCommand.Execute(null);
             }
             catch (Exception ex)
             {

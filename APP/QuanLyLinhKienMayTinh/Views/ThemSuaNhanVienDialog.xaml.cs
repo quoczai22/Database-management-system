@@ -75,29 +75,19 @@ namespace QuanLyLinhKienMayTinh.Views
 
         private void TaiDanhSachChucVu()
         {
-            var cacChucVuDb = DataProvider.Ins.GetContext().NhanViens
-                .AsNoTracking()
-                .Where(nv => nv.ChucVu != null && nv.ChucVu != "")
-                .Select(nv => nv.ChucVu)
-                .Distinct()
-                .OrderBy(cv => cv)
-                .ToList();
-
-            // Đảm bảo luôn có các chức vụ cơ bản
-            var chucVuMacDinh = new List<string>
+            using (var db = DataProvider.Ins.GetContext())
             {
-                "Quản lý",
-                "Nhân viên thu ngân",
-                "Nhân viên chăm sóc khách hàng",
-                "Nhân viên kho"
-            };
+                var tatCaChucVu = db.NhanViens
+                    .AsNoTracking()
+                    .Where(nv => !string.IsNullOrEmpty(nv.ChucVu))
+                    .Select(nv => nv.ChucVu)
+                    .Distinct()
+                    .OrderBy(cv => cv)
+                    .Select(cv => new ChucVuItem { TenChucVu = cv })
+                    .ToList();
 
-            var tatCaChucVu = cacChucVuDb.Union(chucVuMacDinh)
-                .OrderBy(cv => cv)
-                .Select(cv => new ChucVuItem { TenChucVu = cv })
-                .ToList();
-
-            CboChucVu.ItemsSource = tatCaChucVu;
+                CboChucVu.ItemsSource = tatCaChucVu;
+            }
         }
 
         private void BtnLuu_Click(object sender, RoutedEventArgs e)

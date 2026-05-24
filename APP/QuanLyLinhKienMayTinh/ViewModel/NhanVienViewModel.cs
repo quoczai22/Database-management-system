@@ -232,22 +232,26 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 return;
             }
 
-            var res = MessageBox.Show($"Bạn có chắc chắn muốn xóa nhân viên [{nv.HoTen}] không?", "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            var res = MessageBox.Show($"Bạn có chắc chắn muốn xóa nhân viên [{nv.HoTen}] không? \nTài khoản đăng nhập của nhân viên này cũng sẽ bị xóa!", "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (res != MessageBoxResult.Yes) return;
 
             try
             {
                 using var db = DataProvider.Ins.GetContext();
+                var taiKhoan = db.TaiKhoans.FirstOrDefault(t => t.MaNv == nv.MaNv);
+                if (taiKhoan != null)
+                {
+                    db.TaiKhoans.Remove(taiKhoan);
+                }
                 var entity = db.NhanViens.Find(nv.MaNv);
                 if (entity == null) return;
 
                 entity.DaNghiViec = true;
                 db.SaveChanges();
-
                 _all.Remove(nv);
 
-                MessageBox.Show("Xóa nhân viên thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Xóa nhân viên và tài khoản liên quan thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {

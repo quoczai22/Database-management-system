@@ -5,6 +5,9 @@
     <Compile Update="Views\BaoMatView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\TaiKhoanView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\ThongBaoKhachHangWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

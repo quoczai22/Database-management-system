@@ -173,49 +173,10 @@
                             <Button Grid.Column="1" Content="👁" Style="{StaticResource EyeButtonStyle}" Click="ToggleLiPassword_Click" Margin="0,4,0,14"/>
                         </Grid>
                         <Button Content="Đăng nhập" Style="{StaticResource PrimaryBtn}" Command="{Binding LoginCommand}"/>
-                        <TextBlock HorizontalAlignment="Center" FontSize="13">
-                            <Run Text="Chưa có tài khoản? " Foreground="{DynamicResource SubTextColor}"/>
-                            <Hyperlink Command="{Binding ShowSignUpCommand}" Foreground="{DynamicResource AccentColor}"><Run Text="Đăng ký ngay"/></Hyperlink>
-                        </TextBlock>
-                    </StackPanel>
-
-                    <StackPanel x:Name="SignUpPanel" Visibility="{Binding SignUpVisibility}">
-                        <TextBlock Text="Tạo tài khoản mới" FontSize="11" FontWeight="SemiBold" Foreground="#43a047" Margin="0,0,0,6"/>
-                        <TextBlock Text="Đăng ký" FontSize="26" FontWeight="Bold" Foreground="#1a202c" Margin="0,0,0,4"/>
-                        <TextBlock Text="Điền thông tin bên dưới để tạo tài khoản" FontSize="13" Foreground="#718096" Margin="0,0,0,28"/>
-                        <TextBlock Text="Tên đăng nhập" Style="{StaticResource LabelStyle}"/>
-                        <TextBox Text="{Binding SignUpUsername, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputStyle}"/>
-                        <TextBlock Text="Mật khẩu" Style="{StaticResource LabelStyle}"/>
-                        <Grid Margin="0,4,0,14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition Width="44"/>
-                            </Grid.ColumnDefinitions>
-                            <PasswordBox x:Name="suPassword" Style="{StaticResource PwdStyle}" Margin="0" PasswordChanged="SuPassword_PasswordChanged"/>
-                            <TextBox x:Name="suPasswordVisible" Style="{StaticResource InputStyle}" Margin="0" Visibility="Collapsed"/>
-                            <Button Grid.Column="1" Content="👁" Style="{StaticResource EyeButtonStyle}" Click="ToggleSuPassword_Click" Margin="0,4,0,14"/>
-                        </Grid>
-                        <TextBlock Text="Xác nhận mật khẩu" Style="{StaticResource LabelStyle}"/>
-                        <Grid Margin="0,4,0,14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="3*"/>
-                                <ColumnDefinition Width="143*"/>
-                                <ColumnDefinition Width="44"/>
-                            </Grid.ColumnDefinitions>
-                            <PasswordBox x:Name="suConfirmPassword" Style="{StaticResource PwdStyle}" Margin="0,0,44,0" PasswordChanged="SuConfirmPassword_PasswordChanged" Grid.ColumnSpan="3"/>
-                            <TextBox x:Name="suConfirmPasswordVisible" Style="{StaticResource InputStyle}" Margin="0,0,44,0" Visibility="Collapsed" Grid.ColumnSpan="3"/>
-                            <Button Grid.Column="2" Content="👁" Style="{StaticResource EyeButtonStyle}" Click="ToggleSuConfirmPassword_Click" Margin="0,4,0,14"/>
-                        </Grid>
-                        <Button Content="Tạo tài khoản" Style="{StaticResource GreenBtn}" Command="{Binding SignUpCommand}"/>
-                        <TextBlock HorizontalAlignment="Center" FontSize="13">
-                            <Run Text="Đã có tài khoản? " Foreground="{DynamicResource SubTextColor}"/>
-                            <Hyperlink Command="{Binding ShowLoginCommand}" Foreground="{DynamicResource AccentColor}"><Run Text="Đăng nhập"/></Hyperlink>
-                        </TextBlock>
                     </StackPanel>
                 </Grid>
             </Border>
         </Grid>
-
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Left" 
                     Margin="20" 
                     Background="Transparent">

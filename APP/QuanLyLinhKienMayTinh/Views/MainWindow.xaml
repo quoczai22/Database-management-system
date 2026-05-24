@@ -222,6 +222,12 @@
                             <TextBlock Text="Bảo Mật" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
+                    <Button Style="{StaticResource menuButton}" Click="btnTaiKhoan_Click" Visibility="{Binding MenuTaiKhoanVisibility}">
+                        <StackPanel Orientation="Horizontal">
+                            <Icon:PackIconMaterial Kind="AccountKeyOutline" Style="{StaticResource menuButtonIcon}"/>
+                            <TextBlock Text="Cấp Tài Khoản" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </DockPanel>
         </Border>

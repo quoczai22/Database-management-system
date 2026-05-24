@@ -510,7 +510,7 @@ begin
             NgayThanhToan = cast(getdate() as date)
         where MaHD = @MaHD;
     end try
-    begin catch
+    begin catch     
         throw;
     end catch
 end;
@@ -623,23 +623,210 @@ begin
 go
 
 -- quản trị người dùng
-if exists (select * from sys.server_principals where name = 'QuanLyLogin') drop login QuanLyLogin;
-if exists (select * from sys.server_principals where name = 'NhanVienBanHangLogin') drop login NhanVienBanHangLogin;
+--dọn dẹp trước khi tạo để ko bị lỗi
+use QL_LinhKien_PC;
 go
 
-create login QuanLyLogin with password = '123';
-create login NhanVienBanHangLogin with password = '123';
+begin try exec sp_droprolemember 'role_quanLy', 'quanLyUser'; end try begin catch end catch;
+begin try exec sp_droprolemember 'role_thuNgan', 'nhanVienThuNganUser'; end try begin catch end catch;
+begin try exec sp_droprolemember 'role_Cskh', 'nhanVienCskhUser'; end try begin catch end catch;
+begin try exec sp_droprolemember 'role_kho', 'nhanVienKhoUser'; end try begin catch end catch;
+
+if exists (select * from sys.database_principals where name = 'quanLyUser') exec sp_dropuser 'quanLyUser';
+if exists (select * from sys.database_principals where name = 'nhanVienThuNganUser') exec sp_dropuser 'nhanVienThuNganUser';
+if exists (select * from sys.database_principals where name = 'nhanVienCskhUser') exec sp_dropuser 'nhanVienCskhUser';
+if exists (select * from sys.database_principals where name = 'nhanVienKhoUser') exec sp_dropuser 'nhanVienKhoUser';
 go
 
-create user QuanLyUser for login QuanLyLogin;
-create user NhanVienBanHangUser for login NhanVienBanHangLogin;
+if exists (select * from sys.database_principals where name = 'role_quanLy') exec sp_droprole 'role_quanLy';
+if exists (select * from sys.database_principals where name = 'role_thuNgan') exec sp_droprole 'role_thuNgan';
+if exists (select * from sys.database_principals where name = 'role_Cskh') exec sp_droprole 'role_Cskh';
+if exists (select * from sys.database_principals where name = 'role_kho') exec sp_droprole 'role_kho';
 go
 
-alter role db_owner add member QuanLyUser;
-grant select on schema::dbo to NhanVienBanHangUser;
-grant insert on HoaDon to NhanVienBanHangUser;
-grant insert on ChiTietHD to NhanVienBanHangUser;
-deny update, delete on NhanVien to NhanVienBanHangUser;
+use master;
+go
+if exists (select * from sys.server_principals where name = 'quanLyLogin') exec sp_droplogin 'quanLyLogin';
+if exists (select * from sys.server_principals where name = 'nhanVienThuNganLogin') exec sp_droplogin 'nhanVienThuNganLogin';
+if exists (select * from sys.server_principals where name = 'nhanVienCskhLogin') exec sp_droplogin 'nhanVienCskhLogin';
+if exists (select * from sys.server_principals where name = 'nhanVienKhoLogin') exec sp_droplogin 'nhanVienKhoLogin';
+go
+--tạo login
+use master
+go
+
+exec sp_addlogin 'quanLyLogin', '123';
+exec sp_addlogin 'nhanVienThuNganLogin', '123';
+exec sp_addlogin 'nhanVienCskhLogin', '123';
+exec sp_addlogin 'nhanVienKhoLogin', '123';
+go
+--tạo user
+use QL_LinhKien_PC
+go
+
+exec sp_adduser 'quanLyLogin', 'quanLyUser';
+exec sp_adduser 'nhanVienThuNganLogin', 'nhanVienThuNganUser';
+exec sp_adduser 'nhanVienCskhLogin', 'nhanVienCskhUser';
+exec sp_adduser 'nhanVienKhoLogin', 'nhanVienKhoUser';
+go
+--tạo nhóm quyền
+exec sp_addrole 'role_quanLy';
+exec sp_addrole 'role_thuNgan';
+exec sp_addrole 'role_Cskh';
+exec sp_addrole 'role_kho';
+exec sp_addrole 'role_kyThuat';
+go
+--thêm user vào nhóm quyền
+exec sp_addrolemember 'role_quanLy', 'quanLyUser';
+exec sp_addrolemember 'role_thuNgan', 'nhanVienThuNganUser';
+exec sp_addrolemember 'role_Cskh', 'nhanVienCskhUser';
+exec sp_addrolemember 'role_kho', 'nhanVienKhoUser';
+go
+--phân quyền cho quản lý 
+grant control
+to role_quanLy
+go
+--phân quyền cho nhân viên thu ngân
+grant select, insert, update, delete
+on KhachHang
+to role_thuNgan
+grant select, insert, update, delete
+on HoaDon
+to role_thuNgan
+grant select, insert, update, delete
+on ChiTietHD
+to role_thuNgan
+grant select 
+on NhanVien
+to role_thuNgan
+grant select
+on LoaiLK
+to role_thuNgan
+grant select
+on LinhKien
+to role_thuNgan
+
+grant execute 
+on sp_ThanhToanHoaDon
+to role_thungan
+grant execute
+on sp_BanLinhKien 
+to role_thungan
+grant execute 
+on sp_XoaHoaDon
+to role_thungan
+grant execute 
+on sp_DanhSacKhachHangChuaTT 
+to role_thungan
+grant execute 
+on fn_TaoMaHoaDonMoi 
+to role_thuNgan
+grant execute 
+on fn_TaoMaKhachHangMoi 
+to role_thuNgan
+grant execute
+on fn_DoanhThuTheoThang
+to role_thuNgan
+
+grant select
+on TaiKhoan
+to role_thungan
+grant select 
+on NhanVien 
+to role_thungan
+deny insert, update, delete 
+on TaiKhoan
+to role_thungan
+deny insert, update, delete 
+on NhanVien
+to role_thungan
+go
+--phân quyền cho nhân viên cskh
+grant select, insert, update, delete
+on KhachHang
+to role_Cskh
+grant select 
+on LoaiLK
+to role_Cskh
+grant select 
+on LinhKien 
+to role_Cskh
+grant select
+on HoaDon
+to role_Cskh
+grant execute 
+on fn_TaoMaKhachHangMoi 
+to role_Cskh
+grant execute
+on fn_DoanhThuTheoThang
+to role_Cskh
+
+grant select
+on TaiKhoan
+to role_Cskh
+grant select 
+on NhanVien 
+to role_Cskh
+deny insert, update, delete 
+on TaiKhoan
+to role_Cskh
+deny insert, update, delete 
+on NhanVien
+to role_Cskh
+go
+--phân quyên cho nhân viên kho 
+grant select, insert, update, delete 
+on LoaiLK
+to role_kho
+grant select, insert, update, delete
+on LinhKien
+to role_kho
+grant select, insert, update, delete 
+on PhieuNhap
+to role_kho
+grant select, insert, update, delete
+on ChiTietPN
+to role_kho
+grant select
+on HoaDon
+to role_kho
+grant select
+on KhachHang
+to role_kho
+grant select
+on NhaSanXuat
+to role_kho
+grant execute
+on sp_baocaotonkho  
+to role_kho
+grant execute 
+on fn_TaoMaLinhKienMoi
+to role_kho
+grant execute
+on fn_DoanhThuTheoThang
+to role_kho
+
+grant select
+on TaiKhoan
+to role_kho
+grant select 
+on NhanVien 
+to role_kho
+deny insert, update, delete 
+on TaiKhoan
+to role_kho
+deny insert, update, delete 
+on NhanVien
+to role_kho
+go 
+--sửa bảng
+alter table TaiKhoan drop constraint FK_TaiKhoan_NhanVien;
+go
+
+alter table TaiKhoan 
+add constraint FK_TaiKhoan_NhanVien 
+foreign key (MaNV) references NhanVien(MaNV) 
+on delete cascade;
 go
 
 alter table HoaDon add PhuongThucThanhToan nvarchar(50) default N'Tiền mặt';
@@ -659,6 +846,46 @@ go
 alter table NhanVien add DaNghiViec bit default 0 not null;
 alter table LinhKien add NgungKinhDoanh bit default 0 not null;
 go
+
+-- sao lưu và backup nếu muốn sử dụng bỏ comment
+----tạo file backup
+--alter database QL_LinhKien_PC set recovery full
+--go
+--backup database QL_LinhKien_PC
+--to disk = 'D:\BaiTap\QL_LinhKien_PC_Full.bak'
+--with init
+--go
+--backup database QL_LinhKien_PC
+--to disk = 'D:\BaiTap\QL_LinhKien_PC_Diff.bak'
+--with differential, init
+--go
+--backup log QL_LinhKien_PC
+--to disk = 'D:\BaiTap\QL_LinhKien_PC_Log.trn'
+--with init
+--go
+----kịch bản 
+--delete from ChiTietHD; 
+--delete from HoaDon;    
+--delete from KhachHang; 
+--go
+----phục hồi
+--use master;
+--go
+--alter database QL_LinhKien_PC set single_user with rollback immediate
+--go
+--restore database QL_LinhKien_PC
+--from disk = 'D:\BaiTap\QL_LinhKien_PC_Full.bak'
+--with replace, norecovery;
+--go
+--restore database QL_LinhKien_PC
+--from disk = 'D:\BaiTap\QL_LinhKien_PC_Diff.bak'
+--with norecovery;
+--go
+--restore log QL_LinhKien_PC
+--from disk = 'D:\BaiTap\QL_LinhKien_PC_Log.trn'
+--with recovery
+--go
+--alter database QL_LinhKien_PC set multi_user
 
 --1. kịch bản 1 mức cô lập read uncommited( lỗi mất dữ liệu cập nhật) 
 -- giao tác a:
@@ -978,21 +1205,6 @@ go
 --    -- Sau khi A commit và nhả khóa, B mới được đi tiếp xuống đây để khóa MOU002
 --    update linhkien with (xlock) set dongiaban = 888888 where malk = 'MOU002';
 --commit tran;
-
--- sao lưu và backup khi cần và khi chạy phải comment backup với restore
-
--- backup database QL_LinhKien_PC
--- to disk = 'C:\SQLData\QL_LinhKien_PC_Full.bak'
--- with format, name = 'Full Backup';
--- go
-
--- use master;
--- go
-
--- restore database QL_LinhKien_PC
--- from disk = 'C:\SQLData\QL_LinhKien_PC_Full.bak'
--- with replace;
--- go
 
 
 

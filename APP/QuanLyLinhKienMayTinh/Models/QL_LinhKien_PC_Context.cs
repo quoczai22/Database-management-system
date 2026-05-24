@@ -319,7 +319,7 @@ public partial class QL_LinhKien_PC_Context : DbContext
 
             entity.HasOne(d => d.MaNvNavigation).WithOne(p => p.TaiKhoan)
                 .HasForeignKey<TaiKhoan>(d => d.MaNv)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_TaiKhoan_NhanVien");
         });
 
