@@ -21,38 +21,10 @@ namespace QuanLyLinhKienMayTinh.Views
     /// </summary>
     public partial class LoginView : Window
     {
-        // Xóa hết suPassVisible và suConfirmVisible, chỉ giữ lại của Login
-        bool liPassVisible = false;
-
         public LoginView()
         {
             InitializeComponent();
             this.DataContext = new LoginViewModel();
-        }
-
-        void ToggleLiPassword_Click(object sender, RoutedEventArgs e)
-        {
-            if (liPassVisible)
-            {
-                liPassword.Password = liPasswordVisible.Text;
-                liPassword.Visibility = Visibility.Visible;
-                liPasswordVisible.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                liPasswordVisible.Text = liPassword.Password;
-                liPassword.Visibility = Visibility.Collapsed;
-                liPasswordVisible.Visibility = Visibility.Visible;
-            }
-            liPassVisible = !liPassVisible;
-        }
-
-        void LiPassword_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is LoginViewModel vm)
-            {
-                vm.LoginPassword = liPassword.Password;
-            }
         }
     }
 }

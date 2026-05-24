@@ -1,12 +1,14 @@
 <Window x:Class="QuanLyLinhKienMayTinh.Views.LoginView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:QuanLyLinhKienMayTinh.Helpers"
         Title="Quản Lý Linh Kiện Máy Tính"
         Height="620" Width="980"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Background="{DynamicResource ButtonColor}">
     <Window.Resources>
+        <local:Multipasswordconverter x:Key="MultiPasswordConverter"/>
         <Style x:Key="EyeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{DynamicResource SubTextColor}"/>
@@ -168,12 +170,45 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition Width="44"/>
                             </Grid.ColumnDefinitions>
-                            <PasswordBox x:Name="liPassword" Style="{StaticResource PwdStyle}" Margin="0" PasswordChanged="LiPassword_PasswordChanged"/>
-                            <TextBox x:Name="liPasswordVisible" Style="{StaticResource InputStyle}" Margin="0" Visibility="Collapsed"/>
-                            <Button Grid.Column="1" Content="👁" Style="{StaticResource EyeButtonStyle}" Click="ToggleLiPassword_Click" Margin="0,4,0,14"/>
+                            <PasswordBox x:Name="liPassword" Margin="0">
+                                <PasswordBox.Style>
+                                    <Style TargetType="PasswordBox" BasedOn="{StaticResource PwdStyle}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding LiPassVisible}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </PasswordBox.Style>
+                            </PasswordBox>
+
+                            <TextBox x:Name="liPasswordVisible" Margin="0" Text="{Binding LoginPassword, UpdateSourceTrigger=PropertyChanged}">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox" BasedOn="{StaticResource InputStyle}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding LiPassVisible}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+
+                            <Button Grid.Column="1" Content="👁" Style="{StaticResource EyeButtonStyle}">
+                                <Button.Command>
+                                    <Binding Path="ToggleLiPasswordCommand"/>
+                                </Button.Command>
+                                <Button.CommandParameter>
+                                    <MultiBinding Converter="{StaticResource MultiPasswordConverter}">
+                                        <Binding ElementName="liPassword"/>
+                                        <Binding ElementName="liPasswordVisible"/>
+                                    </MultiBinding>
+                                </Button.CommandParameter>
+                            </Button>
                         </Grid>
-                        <Button Content="Đăng nhập" Style="{StaticResource PrimaryBtn}" Command="{Binding LoginCommand}"/>
-                    </StackPanel>
+                        <Button Content="Đăng nhập" Style="{StaticResource PrimaryBtn}" Command="{Binding LoginCommand}" CommandParameter="{Binding ElementName=liPassword}"/>                    </StackPanel>
                 </Grid>
             </Border>
         </Grid>

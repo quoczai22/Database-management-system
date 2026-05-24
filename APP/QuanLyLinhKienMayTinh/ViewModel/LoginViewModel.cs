@@ -1,10 +1,12 @@
-﻿using QuanLyLinhKienMayTinh.Models;
+﻿using Microsoft.EntityFrameworkCore;
 using QuanLyLinhKienMayTinh;
+using QuanLyLinhKienMayTinh.Models;
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using System.Net.NetworkInformation;
+using System.Reflection.Metadata;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace QuanLyLinhKienMayTinh.ViewModels
@@ -24,26 +26,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             get => _loginPassword;
             set { _loginPassword = value; OnPropertyChanged(); }
         }
-        string _signUpMaNV;
-        public string SignUpMaNV
-        {
-            get => _signUpMaNV;
-            set { _signUpMaNV = value; OnPropertyChanged(); }
-        }
-
-        string _signUpUsername;
-        public string SignUpUsername
-        {
-            get => _signUpUsername;
-            set { _signUpUsername = value; OnPropertyChanged(); }
-        }
-
-        string _signUpPassword;
-        public string SignUpPassword
-        {
-            get => _signUpPassword;
-            set { _signUpPassword = value; OnPropertyChanged(); }
-        }
 
         string _confirmPassword;
         public string ConfirmPassword
@@ -59,13 +41,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             set { _loginVisibility = value; OnPropertyChanged(); }
         }
 
-        Visibility _signUpVisibility = Visibility.Collapsed;
-        public Visibility SignUpVisibility
-        {
-            get => _signUpVisibility;
-            set { _signUpVisibility = value; OnPropertyChanged(); }
-        }
-
         string _message = "Vui lòng đăng nhập để tiếp tục";
         public string Message
         {
@@ -73,20 +48,108 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             set { _message = value; OnPropertyChanged(); }
         }
 
+        bool _liPassVisible = false;
+        public bool LiPassVisible
+        {
+            get { return _liPassVisible; }
+            set { _liPassVisible = value; OnPropertyChanged(); }
+        }
+
+        bool _suPassVisible = false;
+        public bool SuPassVisible
+        {
+            get { return _suPassVisible; }
+            set { _suPassVisible = value; OnPropertyChanged(); }
+        }
+
+        bool _suConfirmVisible = false;
+        public bool SuConfirmVisible
+        {
+            get { return _suConfirmVisible; }
+            set { _suConfirmVisible = value; OnPropertyChanged(); }
+        }
+
         bool _isDark = false; // cờ để theo dõi trạng thái theme hiện tại, mặc định là light
 
-        public ICommand ToggleThemeCommand { get; }
-        public ICommand ShowLoginCommand { get; set; }
-        public ICommand ShowSignUpCommand { get; set; }
+        public ICommand ToggleThemeCommand { get; set; }
         public ICommand LoginCommand { get; set; }
-        public ICommand SignUpCommand { get; set; }
+
+        public ICommand ToggleLiPasswordCommand { get; set; }
+        public ICommand ToggleSuPasswordCommand { get; set; }
+        public ICommand ToggleSuConfirmCommand { get; set; }
+
 
         public LoginViewModel()
         {
-            ToggleThemeCommand = new RelayCommand<object>(p => true, p => ExecuteToggleTheme(p));
-            LoginCommand = new RelayCommand<object>(p => true, p => ThucHienDangNhap());
+            ToggleThemeCommand = new RelayCommand<object>(CanToggleTheme, ExecuteToggleTheme);
+            LoginCommand = new RelayCommand<object>(CanLogin, ThucHienDangNhap);
+
+            ToggleLiPasswordCommand = new RelayCommand<object>(CanExecuteAlways, ToggleLiPasswordExecute);
+            ToggleSuConfirmCommand = new RelayCommand<object>(CanExecuteAlways, ToggleSuConfirmExecute);
         }
-        public void ThucHienDangNhap()
+
+        bool CanToggleTheme(object p)
+        {
+            return true; 
+        }
+
+        bool CanLogin(object p)
+        {
+            return true;
+        }
+        bool CanExecuteAlways(object p)
+        {
+            return true;
+        }
+
+        private void ToggleLiPasswordExecute(object p)
+        {
+            object[] boxes = p as object[];// Nhận vào một mảng object chứa PasswordBox và TextBox tương ứng
+            if (boxes != null && boxes.Length == 2)
+            {
+                PasswordBox pwdBox = boxes[0] as PasswordBox; // chuyển đổi thành PasswordBox
+                TextBox txtBox = boxes[1] as TextBox; // chuyển đổi thành TextBox
+
+                if (pwdBox != null && txtBox != null)
+                {
+                    if (!LiPassVisible) // Nếu đang ẩn (dấu chấm) chuẩn bị bật sang hiện chữ
+                    {
+                        LoginPassword = pwdBox.Password; // Đồng bộ text từ PasswordBox vào thuộc tính ViewModel
+                    }
+                    else // Nếu đang hiện chữ chuẩn bị quay về ẩn
+                    {
+                        pwdBox.Password = LoginPassword; // Gán ngược text lại cho PasswordBox trước khi đổi view
+                    }
+                }
+            }
+            LiPassVisible = !LiPassVisible;
+        }
+
+        private void ToggleSuConfirmExecute(object p)
+        {
+            object[] boxes = p as object[];// Nhận vào một mảng object chứa PasswordBox và TextBox tương ứng
+            if (boxes != null && boxes.Length == 2)
+            {
+                PasswordBox pwdBox = boxes[0] as PasswordBox;// chuyển đổi thành PasswordBox
+                TextBox txtBox = boxes[1] as TextBox;// chuyển đổi thành TextBox
+
+                if (pwdBox != null && txtBox != null)
+                {
+                    if (!SuConfirmVisible)
+                    {
+                        ConfirmPassword = pwdBox.Password;
+                    }
+                    else
+                    {
+                        pwdBox.Password = ConfirmPassword;
+                    }
+                }
+            }
+            SuConfirmVisible = !SuConfirmVisible;
+        }
+
+
+        public void ThucHienDangNhap(object p)
         {
             if (string.IsNullOrEmpty(LoginUsername) || string.IsNullOrEmpty(LoginPassword))
             {
@@ -131,7 +194,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 MessageBox.Show(ex.Message);
             }
         }
-        void ExecuteToggleTheme(object obj)
+        void ExecuteToggleTheme(object p)
         {
 
             _isDark = !_isDark;

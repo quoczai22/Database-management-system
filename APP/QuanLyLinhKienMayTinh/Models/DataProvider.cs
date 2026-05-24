@@ -12,7 +12,7 @@ namespace QuanLyLinhKienMayTinh.Models
 
         private DataProvider()
         {
-            _currentConnStr = "Data Source=localhost;Initial Catalog=QL_LinhKien_PC;Integrated Security=True;TrustServerCertificate=True;Encrypt=False";
+            _currentConnStr = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=QL_LinhKien_PC;Integrated Security=True;TrustServerCertificate=True;Encrypt=False";
         }
 
         public QL_LinhKien_PC_Context GetContext()
@@ -39,7 +39,7 @@ namespace QuanLyLinhKienMayTinh.Models
                 default: dbUser = "nhanviencskhlogin"; break;
             }
 
-            _currentConnStr = $"Data Source=localhost;Initial Catalog=QL_LinhKien_PC;User Id={dbUser};Password={dbPass};TrustServerCertificate=True;Encrypt=False";
+            _currentConnStr = $"Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=QL_LinhKien_PC;User Id={dbUser};Password={dbPass};TrustServerCertificate=True;Encrypt=False";
         }
     }
 }
