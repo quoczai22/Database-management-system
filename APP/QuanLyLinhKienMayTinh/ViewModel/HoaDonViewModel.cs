@@ -138,7 +138,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 "--Tất cả--", "Đã thanh toán", "Chưa thanh toán"
             };
             TrangThaiChon = "--Tất cả--";
-            TaiDuLieu();
+            LocHoaDon();
             KhoiTaoCommands();
         }
 
@@ -220,7 +220,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                     await db.Procedures.sp_ThanhToanHoaDonAsync(HoaDonChon.MaHoaDon);
 
                     MessageBox.Show("Thanh toán thành công!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-                    TaiDuLieu(); 
+                    TaiDuLieu();
                 }
                 catch (Exception ex)
                 {
@@ -259,84 +259,78 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         // ── LOAD DỮ LIỆU & ÉP KIỂU DECIMAL ──────────────────────
         public void TaiDuLieu()
         {
-            try
-            {
-                using var db = DataProvider.Ins.GetContext();
-                var list = db.HoaDons.AsNoTracking().Include(hd => hd.MaKhNavigation).Include(hd => hd.MaNvNavigation)
-                             .OrderByDescending(hd => hd.NgayHd).ToList().Select(hd => MapToDisplay(hd)).ToList();
-
-                _all = new ObservableCollection<HoaDonDisplay>(list);
-                DanhSachHoaDon = new ObservableCollection<HoaDonDisplay>(list);
-                CapNhatThongKe(_all);
-            }
-            catch (Exception ex) { MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error); }
+            LocHoaDon();
         }
 
-        private void TaiChiTietSanPham(string maHoaDon)
+        private async void TaiChiTietSanPham(string maHoaDon)
         {
-            if (string.IsNullOrEmpty(maHoaDon)) { ChiTietSanPham = new ObservableCollection<ChiTietSanPhamDisplay>(); return; }
+            if (string.IsNullOrEmpty(maHoaDon))
+            {
+                ChiTietSanPham = new ObservableCollection<ChiTietSanPhamDisplay>();
+                return;
+            }
             try
             {
                 using var db = DataProvider.Ins.GetContext();
-                var chiTiet = db.ChiTietHds.AsNoTracking().Include(ct => ct.MaLkNavigation).Where(ct => ct.MaHd == maHoaDon).ToList()
-                    .Select(ct => new ChiTietSanPhamDisplay
-                    {
-                        TenSanPham = ct.MaLkNavigation?.TenLk ?? "Linh kiện ẩn",
-                        SoLuong = ct.SoLuong,
-                        DonGia = (decimal?)ct.DonGia,
-                        HanBaoHanhHienThi = (ct.MaLkNavigation?.Tgbh != null) ? "Có" : "Không có"
-                    }).ToList();
+
+                var result = await db.Procedures.sp_TaiChiTietSPAsync(maHoaDon);
+
+                var chiTiet = result.Select(ct => new ChiTietSanPhamDisplay
+                {
+                    TenSanPham = ct.TenSanPham ?? "Linh kiện ẩn",
+                    SoLuong = ct.SoLuong,
+                    DonGia = (decimal?)ct.DonGia,
+                    HanBaoHanhHienThi = (ct.HanBaoHanh != null) ? "Có" : "Không có"
+                }).ToList();
+
                 ChiTietSanPham = new ObservableCollection<ChiTietSanPhamDisplay>(chiTiet);
             }
-            catch { }
-        }
-
-        private static HoaDonDisplay MapToDisplay(HoaDon hd)
-        {
-            string trangThai = hd.TrangThai ?? "Chưa thanh toán";
-            return new HoaDonDisplay
+            catch (Exception ex)
             {
-                MaHoaDon = hd.MaHd,
-                TenKhachHang = hd.MaKhNavigation?.TenKh ?? hd.MaKh,
-                TenNhanVien = hd.MaNvNavigation?.TenNv ?? hd.MaNv,
-                NgayTao = hd.NgayHd.HasValue ? hd.NgayHd.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
-                TongTien = (decimal?)hd.TongTien,
-                TamTinh = (decimal?)hd.TongTien,
-                GiamGia = 0,
-                TrangThai = trangThai,
-                TrangThaiMauNen = trangThai == "Đã thanh toán" ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e8f5e9")) : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#fff3e0")),
-                TrangThaiMauChu = trangThai == "Đã thanh toán" ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2e7d32")) : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e65100")),
-                SoDienThoai = hd.MaKhNavigation?.Sdt ?? "",
-                PhuongThucThanhToan = hd.PhuongThucThanhToan ?? "Tiền mặt"
-            };
-        }
-
-        private void LocHoaDon()
-        {
-            if (_all == null) return;
-
-            var filtered = _all.AsEnumerable();
-
-            if (!string.IsNullOrWhiteSpace(TuKhoanTimKiem))
-            {
-                string kw = TuKhoanTimKiem.ToLower();
-                filtered = filtered.Where(hd =>
-                    (hd.MaHoaDon?.ToLower().Contains(kw) ?? false) ||
-                    (hd.TenKhachHang?.ToLower().Contains(kw) ?? false) ||
-                    (hd.TenNhanVien?.ToLower().Contains(kw) ?? false));
+                MessageBox.Show("Lỗi tải chi tiết sản phẩm: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            if (!string.IsNullOrEmpty(TrangThaiChon) && TrangThaiChon != "--Tất cả--")
-                filtered = filtered.Where(hd => hd.TrangThai == TrangThaiChon);
+        }
 
-            if (TuNgay.HasValue)
-                filtered = filtered.Where(hd => hd.NgayTao >= TuNgay.Value);
-            if (DenNgay.HasValue)
-                filtered = filtered.Where(hd => hd.NgayTao <= DenNgay.Value.AddDays(1));
+        private async void LocHoaDon()
+        {
+            try
+            {
+                using var db = DataProvider.Ins.GetContext();
 
-            var result = filtered.ToList();
-            DanhSachHoaDon = new ObservableCollection<HoaDonDisplay>(result);
-            CapNhatThongKe(DanhSachHoaDon);
-            HoaDonChon = null;
+                string tuKhoa = string.IsNullOrWhiteSpace(TuKhoanTimKiem) ? "" : TuKhoanTimKiem.Trim();
+                string trangThai = (TrangThaiChon == "--Tất cả--" || string.IsNullOrEmpty(TrangThaiChon)) ? "" : TrangThaiChon;
+
+                DateOnly? tuNgayParam = TuNgay.HasValue ? DateOnly.FromDateTime(TuNgay.Value) : null;
+                DateOnly? denNgayParam = DenNgay.HasValue ? DateOnly.FromDateTime(DenNgay.Value) : null;
+
+                var resultList = await db.Procedures.sp_locdanhsachhoadonAsync(tuKhoa, trangThai, tuNgayParam, denNgayParam);
+
+
+                var listDisplay = resultList.Select(hd => new HoaDonDisplay
+                {
+                    MaHoaDon = hd.mahd,
+                    TenKhachHang = hd.tenkh,
+                    TenNhanVien = hd.tennv,
+                    NgayTao = hd.ngayhd.HasValue ? hd.ngayhd.Value.ToDateTime(TimeOnly.MinValue) : null,
+                    TongTien = (decimal?)hd.tongtien,
+                    TamTinh = (decimal?)hd.tongtien,
+                    PhuongThucThanhToan = hd.phuongthucthanhtoan ?? "Tiền mặt",
+                    TrangThai = hd.trangthai ?? "Chưa thanh toán",
+
+                    TrangThaiMauNen = hd.trangthai == "Đã thanh toán" ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e8f5e9")) : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#fff3e0")),
+                    TrangThaiMauChu = hd.trangthai == "Đã thanh toán" ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2e7d32")) : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e65100"))
+                }).ToList();
+
+                DanhSachHoaDon = new ObservableCollection<HoaDonDisplay>(listDisplay);
+
+                await CapNhatThongKe();
+
+                HoaDonChon = null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi lọc dữ liệu từ SQL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         public void ApplySearch(string keyword)
         {
@@ -344,12 +338,28 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             LocHoaDon();
         }
 
-        private void CapNhatThongKe(IEnumerable<HoaDonDisplay> ds)
+        private async Task CapNhatThongKe()
         {
-            TongSoHoaDon = ds.Count();
-            TongDoanhThu = (long)ds.Where(hd => hd.TrangThai == "Đã thanh toán").Sum(hd => hd.TongTien ?? 0);
-            SoHoaDonDaThanhToan = ds.Count(hd => hd.TrangThai == "Đã thanh toán");
-            SoHoaDonChoXuLy = ds.Count(hd => hd.TrangThai == "Chưa thanh toán");
+            try
+            {
+                using var db = DataProvider.Ins.GetContext();
+
+                var TongHD = new OutputParameter<int?>();
+                var TongDT = new OutputParameter<decimal?>();
+                var DaTT = new OutputParameter<int?>();
+                var ChuaTT = new OutputParameter<int?>();
+
+                await db.Procedures.sp_ThongKeAsync(TongHD, TongDT, DaTT, ChuaTT);
+
+                TongSoHoaDon = TongHD.Value ?? 0;
+                TongDoanhThu = (long)(TongDT.Value ?? 0);
+                SoHoaDonDaThanhToan = DaTT.Value ?? 0;
+                SoHoaDonChoXuLy = ChuaTT.Value ?? 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải thống kê từ SQL: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         private async Task LuuHoaDonAnToan(HoaDon hoaDonMoi, List<ChiTietHd> dsSanPham)
         {
@@ -362,7 +372,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
                 foreach (var monHang in dsSanPham)
                 {
-                    var hopChuaMa = new OutputParameter<string> { _value = maHD };
+                    var MaSP = new OutputParameter<string> { _value = maHD };
 
                     await db.Procedures.sp_BanLinhKienAsync(
                         ngayLap,
@@ -370,10 +380,10 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         hoaDonMoi.MaNv,
                         monHang.MaLk,
                         monHang.SoLuong,
-                        hopChuaMa
+                        MaSP
                     );
 
-                    maHD = hopChuaMa.Value;
+                    maHD = MaSP.Value;
                 }
 
                 MessageBox.Show("Thành công! Mã hóa đơn: " + maHD, "Thông báo");

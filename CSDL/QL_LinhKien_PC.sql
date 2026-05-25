@@ -580,7 +580,70 @@ begin
 end;
 go
 
--- tạo cursor báo cáo danh sách khách hàng chưa thanh toán
+create procedure sp_ThongKe
+    @TongHoaDon int output,
+    @TongDoanhThu money output,
+    @DaThanhToan int output,
+    @ChuaThanhToan int output
+as
+begin
+    select @TongHoaDon = count(*)  
+    from HoaDon
+
+    select @TongDoanhThu = isnull(sum(TongTien), 0)
+    from HoaDon
+    where TrangThai = N'Đã thanh toán'
+
+    select @DaThanhToan = count(*)
+    from HoaDon
+    where TrangThai = N'Đã thanh toán'
+
+    select @ChuaThanhToan = count(*)
+    from HoaDon
+    where TrangThai = N'Chưa thanh toán'
+end
+go
+
+create proc sp_TaiChiTietSP
+    @MaHD char(5)
+as
+begin
+    select lk.TenLK as TenSanPham, ct.SoLuong, ct.DonGia, case when lk.TGBH is not null then N'Có' else N'Không có' end as HanBaoHanh
+    from ChiTietHD ct, LinhKien lk
+    where ct.MaLK = lk.MaLK and ct.MaHD = @MaHD
+end
+go
+
+create procedure sp_locdanhsachhoadon
+    @tukhoan nvarchar(100),
+    @trangthai nvarchar(30),
+    @tungay date = null,  
+    @denngay date = null  
+as
+begin
+    select 
+        hd.mahd, 
+        kh.tenkh, 
+        nv.tennv, 
+        hd.ngayhd, 
+        hd.tongtien, 
+        hd.phuongthucthanhtoan,
+        hd.trangthai
+    from hoadon hd, khachhang kh, nhanvien nv
+    where hd.makh = kh.makh 
+        and hd.manv = nv.manv
+
+        and (@trangthai = '' or hd.trangthai = @trangthai)
+        and (@tukhoan = '' or hd.mahd like '%' + @tukhoan + '%' or kh.tenkh like N'%' + @tukhoan + '%')
+
+        and (@tungay is null or hd.ngayhd >= @tungay)
+        and (@denngay is null or hd.ngayhd <= @denngay)
+        
+    order by hd.ngayhd desc;
+end
+go 
+
+
 create procedure sp_DanhSacKhachHangChuaTT
 as
 begin

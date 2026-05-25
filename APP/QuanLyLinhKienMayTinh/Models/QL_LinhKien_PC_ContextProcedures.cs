@@ -382,6 +382,79 @@ namespace QuanLyLinhKienMayTinh.Models
             return _;
         }
 
+        public virtual async Task<List<sp_locdanhsachhoadonResult>> sp_locdanhsachhoadonAsync(string tukhoan, string trangthai, DateOnly? tungay, DateOnly? denngay, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "tukhoan",
+                    Size = 200,
+                    Value = tukhoan ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.NVarChar,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "trangthai",
+                    Size = 60,
+                    Value = trangthai ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.NVarChar,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "tungay",
+                    Value = tungay ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Date,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "denngay",
+                    Value = denngay ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Date,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryAsync<sp_locdanhsachhoadonResult>("EXEC @returnValue = [dbo].[sp_locdanhsachhoadon] @tukhoan = @tukhoan, @trangthai = @trangthai, @tungay = @tungay, @denngay = @denngay", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
+        public virtual async Task<List<sp_TaiChiTietSPResult>> sp_TaiChiTietSPAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "MaHD",
+                    Size = 5,
+                    Value = maHD ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Char,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryAsync<sp_TaiChiTietSPResult>("EXEC @returnValue = [dbo].[sp_TaiChiTietSP] @MaHD = @MaHD", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
         public virtual async Task<int> sp_ThanhToanHoaDonAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
@@ -404,6 +477,64 @@ namespace QuanLyLinhKienMayTinh.Models
             };
             var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[sp_ThanhToanHoaDon] @MaHD = @MaHD", sqlParameters, cancellationToken);
 
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
+        public virtual async Task<int> sp_ThongKeAsync(OutputParameter<int?> tongHoaDon, OutputParameter<decimal?> tongDoanhThu, OutputParameter<int?> daThanhToan, OutputParameter<int?> chuaThanhToan, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterTongHoaDon = new SqlParameter
+            {
+                ParameterName = "TongHoaDon",
+                Direction = System.Data.ParameterDirection.InputOutput,
+                Value = tongHoaDon?._value ?? Convert.DBNull,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+            var parameterTongDoanhThu = new SqlParameter
+            {
+                ParameterName = "TongDoanhThu",
+                Precision = 19,
+                Scale = 4,
+                Direction = System.Data.ParameterDirection.InputOutput,
+                Value = tongDoanhThu?._value ?? Convert.DBNull,
+                SqlDbType = System.Data.SqlDbType.Money,
+            };
+            var parameterDaThanhToan = new SqlParameter
+            {
+                ParameterName = "DaThanhToan",
+                Direction = System.Data.ParameterDirection.InputOutput,
+                Value = daThanhToan?._value ?? Convert.DBNull,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+            var parameterChuaThanhToan = new SqlParameter
+            {
+                ParameterName = "ChuaThanhToan",
+                Direction = System.Data.ParameterDirection.InputOutput,
+                Value = chuaThanhToan?._value ?? Convert.DBNull,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                parameterTongHoaDon,
+                parameterTongDoanhThu,
+                parameterDaThanhToan,
+                parameterChuaThanhToan,
+                parameterreturnValue,
+            };
+            var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[sp_ThongKe] @TongHoaDon = @TongHoaDon OUTPUT, @TongDoanhThu = @TongDoanhThu OUTPUT, @DaThanhToan = @DaThanhToan OUTPUT, @ChuaThanhToan = @ChuaThanhToan OUTPUT", sqlParameters, cancellationToken);
+
+            tongHoaDon?.SetValue(parameterTongHoaDon.Value);
+            tongDoanhThu?.SetValue(parameterTongDoanhThu.Value);
+            daThanhToan?.SetValue(parameterDaThanhToan.Value);
+            chuaThanhToan?.SetValue(parameterChuaThanhToan.Value);
             returnValue?.SetValue(parameterreturnValue.Value);
 
             return _;

@@ -26,7 +26,10 @@ namespace QuanLyLinhKienMayTinh.Models
         Task<int> sp_kichban4_giaotacbAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_kichban5_giaotacaAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_kichban5_giaotacbAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<List<sp_locdanhsachhoadonResult>> sp_locdanhsachhoadonAsync(string tukhoan, string trangthai, DateOnly? tungay, DateOnly? denngay, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<List<sp_TaiChiTietSPResult>> sp_TaiChiTietSPAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_ThanhToanHoaDonAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> sp_ThongKeAsync(OutputParameter<int?> tongHoaDon, OutputParameter<decimal?> tongDoanhThu, OutputParameter<int?> daThanhToan, OutputParameter<int?> chuaThanhToan, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_XoaHoaDonAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
     }
 }

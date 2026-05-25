@@ -111,7 +111,19 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[sp_locdanhsachhoadon]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_TaiChiTietSP]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[sp_ThanhToanHoaDon]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_ThongKe]",
          "ObjectType": 1
       },
       {

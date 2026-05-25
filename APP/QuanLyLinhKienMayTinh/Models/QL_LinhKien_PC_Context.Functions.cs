@@ -12,7 +12,7 @@ namespace QuanLyLinhKienMayTinh.Models
     {
 
         [DbFunction("fn_DoanhThuTheoThang", "dbo")]
-        public static int? fn_DoanhThuTheoThang(int? Thang, int? Nam)
+        public static decimal? fn_DoanhThuTheoThang(int? Thang, int? Nam)
         {
             using (var db = DataProvider.Ins.GetContext())
             {
@@ -21,6 +21,7 @@ namespace QuanLyLinhKienMayTinh.Models
                     .AsEnumerable()
                     .FirstOrDefault() ?? 0;
             }
+
         }
 
         [DbFunction("fn_TaoMaHoaDonMoi", "dbo")]
@@ -41,7 +42,7 @@ namespace QuanLyLinhKienMayTinh.Models
         [DbFunction("fn_TaoMaKhachHangMoi", "dbo")]
         public static string fn_TaoMaKhachHangMoi()
         {
-            using (var db = DataProvider.Ins.GetContext())
+           using (var db = DataProvider.Ins.GetContext())
             {
                 return db.Database
                     .SqlQueryRaw<string>("SELECT dbo.fn_TaoMaKhachHangMoi() AS Value")
@@ -58,9 +59,8 @@ namespace QuanLyLinhKienMayTinh.Models
         {
             using (var db = DataProvider.Ins.GetContext())
             {
-                var paramMaLoai = new Microsoft.Data.SqlClient.SqlParameter("@MaLoai", MaLoai ?? (object)DBNull.Value);
                 return db.Database
-                    .SqlQueryRaw<string>("SELECT dbo.fn_TaoMaLinhKienMoi(@MaLoai) AS Value", paramMaLoai)
+                    .SqlQueryRaw<string>($"SELECT dbo.fn_TaoMaLinhKienMoi('{MaLoai}') AS Value")
                     .AsEnumerable()
                     .FirstOrDefault();
             }
