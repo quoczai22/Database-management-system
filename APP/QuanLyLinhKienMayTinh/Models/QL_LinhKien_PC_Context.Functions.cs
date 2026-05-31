@@ -12,28 +12,15 @@ namespace QuanLyLinhKienMayTinh.Models
     {
 
         [DbFunction("fn_DoanhThuTheoThang", "dbo")]
-        public static decimal? fn_DoanhThuTheoThang(int? Thang, int? Nam)
+        public static int? fn_DoanhThuTheoThang(int? Thang, int? Nam)
         {
-            using (var db = DataProvider.Ins.GetContext())
-            {
-                return db.Database
-                    .SqlQuery<int?>($"SELECT dbo.fn_DoanhThuTheoThang({Thang}, {Nam}) AS Value")
-                    .AsEnumerable()
-                    .FirstOrDefault() ?? 0;
-            }
-
+            throw new NotSupportedException("This method can only be called from Entity Framework Core queries");
         }
 
         [DbFunction("fn_TaoMaHoaDonMoi", "dbo")]
         public static string fn_TaoMaHoaDonMoi()
         {
-            using (var db = DataProvider.Ins.GetContext())
-            {
-                return db.Database
-                    .SqlQueryRaw<string>("SELECT dbo.fn_TaoMaHoaDonMoi() AS Value")
-                    .AsEnumerable()
-                    .FirstOrDefault();
-            }
+            throw new NotSupportedException("This method can only be called from Entity Framework Core queries");
         }
 
         public async Task<string> fn_TaoMaHoaDonMoiAsync()
@@ -42,13 +29,7 @@ namespace QuanLyLinhKienMayTinh.Models
         [DbFunction("fn_TaoMaKhachHangMoi", "dbo")]
         public static string fn_TaoMaKhachHangMoi()
         {
-           using (var db = DataProvider.Ins.GetContext())
-            {
-                return db.Database
-                    .SqlQueryRaw<string>("SELECT dbo.fn_TaoMaKhachHangMoi() AS Value")
-                    .AsEnumerable()
-                    .FirstOrDefault();
-            }
+            throw new NotSupportedException("This method can only be called from Entity Framework Core queries");
         }
 
         public async Task<string> fn_TaoMaKhachHangMoiAsync()
@@ -57,29 +38,26 @@ namespace QuanLyLinhKienMayTinh.Models
         [DbFunction("fn_TaoMaLinhKienMoi", "dbo")]
         public static string fn_TaoMaLinhKienMoi(string MaLoai)
         {
-            using (var db = DataProvider.Ins.GetContext())
-            {
-                return db.Database
-                    .SqlQueryRaw<string>($"SELECT dbo.fn_TaoMaLinhKienMoi('{MaLoai}') AS Value")
-                    .AsEnumerable()
-                    .FirstOrDefault();
-            }
+            throw new NotSupportedException("This method can only be called from Entity Framework Core queries");
         }
 
         [DbFunction("fn_TaoMaNhanVienMoi", "dbo")]
         public static string fn_TaoMaNhanVienMoi()
         {
-            using (var db = DataProvider.Ins.GetContext())
-            {
-                return db.Database
-                    .SqlQueryRaw<string>("SELECT dbo.fn_TaoMaNhanVienMoi() AS Value")
-                    .AsEnumerable()
-                    .FirstOrDefault();
-            }
+            throw new NotSupportedException("This method can only be called from Entity Framework Core queries");
         }
 
         public async Task<string> fn_TaoMaNhanVienMoiAsync()
             => await Database.SqlQueryRaw<string>("select Value = [dbo].[fn_TaoMaNhanVienMoi]()").SingleAsync();
+
+        [DbFunction("fn_TaoMaPhieuNhapMoi", "dbo")]
+        public static string fn_TaoMaPhieuNhapMoi()
+        {
+            throw new NotSupportedException("This method can only be called from Entity Framework Core queries");
+        }
+
+        public async Task<string> fn_TaoMaPhieuNhapMoiAsync()
+            => await Database.SqlQueryRaw<string>("select Value = [dbo].[fn_TaoMaPhieuNhapMoi]()").SingleAsync();
 
         protected void OnModelCreatingGeneratedFunctions(ModelBuilder modelBuilder)
         {

@@ -55,7 +55,6 @@ public partial class QL_LinhKien_PC_Context : DbContext
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("MaLK");
-            entity.Property(e => e.DonGia).HasColumnType("money");
 
             entity.HasOne(d => d.MaHdNavigation).WithMany(p => p.ChiTietHds)
                 .HasForeignKey(d => d.MaHd)
@@ -72,7 +71,11 @@ public partial class QL_LinhKien_PC_Context : DbContext
         {
             entity.HasKey(e => new { e.MaPn, e.MaLk }).HasName("PK_CTPN");
 
-            entity.ToTable("ChiTietPN", tb => tb.HasTrigger("trg_CongTonKhoKhiNhap"));
+            entity.ToTable("ChiTietPN", tb =>
+                {
+                    tb.HasTrigger("trg_CongTonKhoKhiNhap");
+                    tb.HasTrigger("trg_TruTonKhoKhiXoaPhieuNhap");
+                });
 
             entity.Property(e => e.MaPn)
                 .HasMaxLength(5)
@@ -84,7 +87,6 @@ public partial class QL_LinhKien_PC_Context : DbContext
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("MaLK");
-            entity.Property(e => e.DonGiaNhap).HasColumnType("money");
 
             entity.HasOne(d => d.MaLkNavigation).WithMany(p => p.ChiTietPns)
                 .HasForeignKey(d => d.MaLk)
@@ -124,9 +126,7 @@ public partial class QL_LinhKien_PC_Context : DbContext
             entity.Property(e => e.PhuongThucThanhToan)
                 .HasMaxLength(50)
                 .HasDefaultValue("Tiền mặt");
-            entity.Property(e => e.TongTien)
-                .HasDefaultValue(0m)
-                .HasColumnType("money");
+            entity.Property(e => e.TongTien).HasDefaultValue(0);
             entity.Property(e => e.TrangThai)
                 .HasMaxLength(30)
                 .HasDefaultValue("Chưa thanh toán");
@@ -162,7 +162,6 @@ public partial class QL_LinhKien_PC_Context : DbContext
             entity.Property(e => e.Sdt)
                 .HasMaxLength(10)
                 .IsUnicode(false)
-                .IsFixedLength()
                 .HasColumnName("SDT");
             entity.Property(e => e.TenKh)
                 .HasMaxLength(30)
@@ -180,7 +179,6 @@ public partial class QL_LinhKien_PC_Context : DbContext
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("MaLK");
-            entity.Property(e => e.DonGiaBan).HasColumnType("money");
             entity.Property(e => e.Dvt)
                 .HasMaxLength(10)
                 .HasColumnName("DVT");
@@ -238,6 +236,10 @@ public partial class QL_LinhKien_PC_Context : DbContext
                 .IsFixedLength()
                 .HasColumnName("MaNSX");
             entity.Property(e => e.QuocGia).HasMaxLength(50);
+            entity.Property(e => e.Sdt)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("SDT");
             entity.Property(e => e.TenNsx)
                 .HasMaxLength(50)
                 .HasColumnName("TenNSX");
@@ -263,7 +265,6 @@ public partial class QL_LinhKien_PC_Context : DbContext
             entity.Property(e => e.Sdt)
                 .HasMaxLength(10)
                 .IsUnicode(false)
-                .IsFixedLength()
                 .HasColumnName("SDT");
             entity.Property(e => e.TenNv)
                 .HasMaxLength(40)
@@ -281,12 +282,23 @@ public partial class QL_LinhKien_PC_Context : DbContext
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("MaPN");
+            entity.Property(e => e.MaNsx)
+                .IsRequired()
+                .HasMaxLength(5)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("MaNSX");
             entity.Property(e => e.MaNv)
                 .IsRequired()
                 .HasMaxLength(6)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("MaNV");
+
+            entity.HasOne(d => d.MaNsxNavigation).WithMany(p => p.PhieuNhaps)
+                .HasForeignKey(d => d.MaNsx)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PhieuNhap_NhaSanXuat");
 
             entity.HasOne(d => d.MaNvNavigation).WithMany(p => p.PhieuNhaps)
                 .HasForeignKey(d => d.MaNv)
@@ -319,7 +331,6 @@ public partial class QL_LinhKien_PC_Context : DbContext
 
             entity.HasOne(d => d.MaNvNavigation).WithOne(p => p.TaiKhoan)
                 .HasForeignKey<TaiKhoan>(d => d.MaNv)
-                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_TaiKhoan_NhanVien");
         });
 

@@ -14,8 +14,7 @@ namespace QuanLyLinhKienMayTinh.Models
         [StringLength(40)]
         public string tennv { get; set; }
         public DateOnly? ngayhd { get; set; }
-        [Column("tongtien", TypeName = "money")]
-        public decimal? tongtien { get; set; }
+        public int? tongtien { get; set; }
         [StringLength(50)]
         public string phuongthucthanhtoan { get; set; }
         [StringLength(30)]

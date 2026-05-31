@@ -13,7 +13,7 @@ public partial class ChiTietPn
 
     public int? SoLuongNhap { get; set; }
 
-    public decimal? DonGiaNhap { get; set; }
+    public int? DonGiaNhap { get; set; }
 
     public virtual LinhKien MaLkNavigation { get; set; }
 

@@ -15,7 +15,7 @@ public partial class HoaDon
 
     public string MaNv { get; set; }
 
-    public decimal? TongTien { get; set; }
+    public int? TongTien { get; set; }
 
     public string TrangThai { get; set; }
 

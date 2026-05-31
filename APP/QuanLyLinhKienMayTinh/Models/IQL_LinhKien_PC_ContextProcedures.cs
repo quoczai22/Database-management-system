@@ -31,5 +31,6 @@ namespace QuanLyLinhKienMayTinh.Models
         Task<int> sp_ThanhToanHoaDonAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_ThongKeAsync(OutputParameter<int?> tongHoaDon, OutputParameter<decimal?> tongDoanhThu, OutputParameter<int?> daThanhToan, OutputParameter<int?> chuaThanhToan, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_XoaHoaDonAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> sp_XoaPhieuNhapAsync(string maPN, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
     }
 }

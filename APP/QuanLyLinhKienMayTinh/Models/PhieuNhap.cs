@@ -13,7 +13,11 @@ public partial class PhieuNhap
 
     public string MaNv { get; set; }
 
+    public string MaNsx { get; set; }
+
     public virtual ICollection<ChiTietPn> ChiTietPns { get; set; } = new List<ChiTietPn>();
+
+    public virtual NhaSanXuat MaNsxNavigation { get; set; }
 
     public virtual NhanVien MaNvNavigation { get; set; }
 }

@@ -14,7 +14,6 @@ namespace QuanLyLinhKienMayTinh.Models
         public int? SoLuongTon { get; set; }
         [StringLength(10)]
         public string DVT { get; set; }
-        [Column("DonGiaBan", TypeName = "money")]
-        public decimal? DonGiaBan { get; set; }
+        public int? DonGiaBan { get; set; }
     }
 }

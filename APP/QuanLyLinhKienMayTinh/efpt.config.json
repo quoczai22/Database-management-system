@@ -131,6 +131,10 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[sp_XoaPhieuNhap]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[fn_DoanhThuTheoThang]",
          "ObjectType": 2
       },
@@ -148,6 +152,10 @@
       },
       {
          "Name": "[dbo].[fn_TaoMaNhanVienMoi]",
+         "ObjectType": 2
+      },
+      {
+         "Name": "[dbo].[fn_TaoMaPhieuNhapMoi]",
          "ObjectType": 2
       }
    ],

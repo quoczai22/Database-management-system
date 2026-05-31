@@ -13,5 +13,9 @@ public partial class NhaSanXuat
 
     public string QuocGia { get; set; }
 
+    public string Sdt { get; set; }
+
     public virtual ICollection<LinhKien> LinhKiens { get; set; } = new List<LinhKien>();
+
+    public virtual ICollection<PhieuNhap> PhieuNhaps { get; set; } = new List<PhieuNhap>();
 }

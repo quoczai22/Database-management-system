@@ -11,8 +11,7 @@ namespace QuanLyLinhKienMayTinh.Models
         [StringLength(50)]
         public string TenSanPham { get; set; }
         public byte? SoLuong { get; set; }
-        [Column("DonGia", TypeName = "money")]
-        public decimal? DonGia { get; set; }
+        public int? DonGia { get; set; }
         [StringLength(8)]
         public string HanBaoHanh { get; set; }
     }

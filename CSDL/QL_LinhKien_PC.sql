@@ -150,18 +150,18 @@ create table TaiKhoan (
 );
 go
 
--- thêm dữ liệu
-insert into NhaSanXuat values
-('NSX01', 'Genius', 'Taiwan'), 
-('NSX02', 'Logitech', 'Switzerland'),
-('NSX03', 'Kingston', 'USA'), 
-('NSX04', 'Intel', 'USA'),
-('NSX05', 'AMD', 'USA'), 
-('NSX06', 'ASUS', 'Taiwan'),
-('NSX07', 'Samsung', 'South Korea'), 
-('NSX08', 'Gigabyte', 'Taiwan'),
-('NSX09', 'Keychron', 'China'), 
-('NSX10', 'H hành', 'Vietnam');
+-- THÊM DỮ LIỆU
+insert into NhaSanXuat (MaNSX, TenNSX, QuocGia, SDT) values
+('NSX01', N'Genius', N'Taiwan', '0283925101'), 
+('NSX02', N'Logitech', N'Switzerland', '0218635401'),
+('NSX03', N'Kingston', N'USA', '1800555581'), 
+('NSX04', N'Intel', N'USA', '0283825201'),
+('NSX05', N'AMD', N'USA', '0283910122'), 
+('NSX06', N'ASUS', N'Taiwan', '18006588  '),
+('NSX07', N'Samsung', N'South Korea', '1800588881'), 
+('NSX08', N'Gigabyte', N'Taiwan', '0283911881'),
+('NSX09', N'Keychron', N'China', '0207321556'), 
+('NSX10', N'H hành', N'Vietnam', '0901234567');
 go
 
 insert into LoaiLK values
@@ -235,8 +235,7 @@ insert into NhanVien (MaNV, TenNV, GioiTinh, NgaySinh, SDT, ChucVu, Quyen, Email
 ('NV007', N'Bùi Văn Quốc', N'Nam', '30-04-1994', '0907234567', N'Nhân viên chăm sóc khách hàng', N'Chăm sóc khách hàng', 'quoc1994@gmail.com', '18-09-2019'),
 ('NV008', N'Đặng Thị Hà Anh', N'Nữ', '14-02-1999', '0906234567', N'Nhân viên kho', N'Kho', 'anh1999@gmail.com', '25-05-2022'),
 ('NV009', N'Đỗ Thị Ngọc Huyền', N'Nữ', '02-09-1996', '0908234567', N'Nhân viên kho', N'Kho', 'huyen1996@gmail.com', '03-07-2020'),
-('NV010', N'Võ Văn An', N'Nam', '22-12-1993', '0909234567', N'Nhân viên kho', N'Kho', 'an1993@gmail.com', '11-10-2018'),
-('NV011', N'Đỗ Tấn Thành',N'Nam','24-03-2000', '091799019', N'Nhân viên kĩ thuật', N'Bảo mật', 'dtt2000@gmail.com', '11-10-2020');
+('NV010', N'Võ Văn An', N'Nam', '22-12-1993', '0909234567', N'Nhân viên kho', N'Kho', 'an1993@gmail.com', '11-10-2018');
 go
 
 insert into HoaDon (MaHD, NgayHD, MaKH, MaNV, TrangThai) values
@@ -262,7 +261,7 @@ insert into HoaDon (MaHD, NgayHD, MaKH, MaNV, TrangThai) values
 ('HD020', '12-04-2026', 'KH010', 'NV007', N'Đã thanh toán');
 go
 
-insert into ChiTietHD (MaHD, MaLK, SoLuong, DonGia) values
+insert into ChiTietHD values
 ('HD001', 'MOU001', 2, 150000), 
 ('HD002', 'MOU002', 1, 450000),
 ('HD003', 'RAM001', 2, 850000), 
@@ -273,30 +272,20 @@ insert into ChiTietHD (MaHD, MaLK, SoLuong, DonGia) values
 ('HD007', 'VGA001', 1, 8900000),
 ('HD008', 'KEY001', 1, 1650000), 
 ('HD009', 'PCX001', 1, 10500000),
-('HD010', 'MOU001', 5, 140000),
-('HD011', 'MOU001', 2, 150000),
-('HD012', 'RAM002', 1, 1200000),
-('HD013', 'CPU003', 1, 9500000),
-('HD014', 'VGA002', 1, 8500000),
-('HD015', 'LAP001', 1, 16500000),
-('HD016', 'SSD002', 1, 2100000),
-('HD017', 'KEY003', 2, 1850000),
-('HD018', 'PCX002', 1, 6500000),
-('HD019', 'MOU003', 3, 250000),
-('HD020', 'RAM004', 1, 4800000);
+('HD010', 'MOU001', 5, 140000);
 go
 
-insert into PhieuNhap (MaPN, NgayNhap, MaNV) values 
-('PN001', '10-01-2023', 'NV008'), 
-('PN002', '15-02-2023', 'NV009'),
-('PN003', '20-03-2023', 'NV008'), 
-('PN004', '05-04-2023', 'NV009'),
-('PN005', '12-05-2023', 'NV008'), 
-('PN006', '18-06-2023', 'NV009'),
-('PN007', '22-07-2023', 'NV008'), 
-('PN008', '08-08-2023', 'NV009'),
-('PN009', '30-09-2023', 'NV008'), 
-('PN010', '14-10-2023', 'NV009');
+insert into PhieuNhap (MaPN, NgayNhap, MaNV, MaNSX) values 
+('PN001', '10-01-2023', 'NV008', 'NSX01'), 
+('PN002', '15-02-2023', 'NV009', 'NSX02'),
+('PN003', '20-03-2023', 'NV008', 'NSX03'), 
+('PN004', '05-04-2023', 'NV009', 'NSX04'),
+('PN005', '12-05-2023', 'NV008', 'NSX05'), 
+('PN006', '18-06-2023', 'NV009', 'NSX06'),
+('PN007', '22-07-2023', 'NV008', 'NSX07'), 
+('PN008', '08-08-2023', 'NV009', 'NSX08'),
+('PN009', '30-09-2023', 'NV008', 'NSX09'), 
+('PN010', '14-10-2023', 'NV009', 'NSX10');
 go
 
 insert into ChiTietPN (MaPN, MaLK, SoLuongNhap, DonGiaNhap) values 
@@ -322,8 +311,20 @@ insert into TaiKhoan (TenDN, MatKhau, MaNV) values
 ('quocbv', '123456', 'NV007'), 
 ('anhdth', '123456', 'NV008'),
 ('huyendtn', '123456', 'NV009'), 
-('anvv', '123456', 'NV010'),
-('thanhdt','123456','NV011');
+('anvv', '123456', 'NV010');
+go
+
+insert into ChiTietHD (MaHD, MaLK, SoLuong, DonGia) values
+('HD011', 'MOU001', 2, 150000),
+('HD012', 'RAM002', 1, 1200000),
+('HD013', 'CPU003', 1, 9500000),
+('HD014', 'VGA002', 1, 8500000),
+('HD015', 'LAP001', 1, 16500000),
+('HD016', 'SSD002', 1, 2100000),
+('HD017', 'KEY003', 2, 1850000),
+('HD018', 'PCX002', 1, 6500000),
+('HD019', 'MOU003', 3, 250000),
+('HD020', 'RAM004', 1, 4800000);
 go
 
 --sửa bảng

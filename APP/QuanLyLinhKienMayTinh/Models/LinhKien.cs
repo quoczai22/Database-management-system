@@ -23,7 +23,7 @@ public partial class LinhKien
 
     public int? SoLuongTon { get; set; }
 
-    public decimal? DonGiaBan { get; set; }
+    public int? DonGiaBan { get; set; }
 
     public bool NgungKinhDoanh { get; set; }
 

@@ -13,7 +13,7 @@ public partial class ChiTietHd
 
     public byte? SoLuong { get; set; }
 
-    public decimal? DonGia { get; set; }
+    public int? DonGia { get; set; }
 
     public virtual HoaDon MaHdNavigation { get; set; }
 
