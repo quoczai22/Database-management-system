@@ -398,6 +398,33 @@ begin
 end;
 go
 
+-- trigger mới xử lý trừ tồn kho khi xóa phiếu nhập
+create trigger trg_TruTonKhoKhiXoaPhieuNhap
+on ChiTietPN
+after delete
+as
+begin
+    -- Kiểm tra nếu tồn kho sau khi trừ bị âm
+    if exists (
+        select 1 
+        from LinhKien lk
+        join deleted d on lk.MaLK = d.MaLK
+        where (isnull(lk.SoLuongTon, 0) - isnull(d.SoLuongNhap, 0)) < 0
+    )
+    begin
+        raiserror(N'Không thể xóa chi tiết phiếu nhập này. Tồn kho hiện tại không đủ để hoàn trả.', 16, 1);
+        rollback transaction;
+        return;
+    end
+
+    -- Cập nhật lại kho
+    update lk
+    set lk.SoLuongTon = lk.SoLuongTon - d.SoLuongNhap
+    from LinhKien lk
+    join deleted d on lk.MaLK = d.MaLK;
+end;
+go
+
 create trigger trg_CapNhatTongTien
 on ChiTietHD
 after insert, update, delete
@@ -523,6 +550,31 @@ begin
 end;
 go
 
+-- Hàm tạo mã phiếu nhập mới
+create function fn_TaoMaPhieuNhapMoi()
+returns varchar(10)
+as
+begin
+    declare @MaCu varchar(10);
+    declare @MaMoi varchar(10);
+    declare @So int;
+
+    select top 1 @MaCu = MaPN 
+    from PhieuNhap 
+    order by MaPN desc;
+
+    if @MaCu is null
+        set @MaMoi = 'PN001';
+    else
+    begin
+        set @So = cast(right(@MaCu, len(@MaCu) - 2) as int) + 1;
+        set @MaMoi = 'PN' + right('000' + cast(@So as varchar), 3);
+    end
+
+    return @MaMoi;
+end;
+go
+
 create procedure sp_ThanhToanHoaDon
     @MaHD varchar(10)
 as
@@ -556,6 +608,28 @@ begin
     end try
     begin catch
         if @@trancount > 0
+            rollback transaction;
+        throw;
+    end catch
+end;
+go
+
+-- Stored Procedure mới xử lý xóa Phiếu Nhập
+create procedure sp_XoaPhieuNhap
+    @MaPN varchar(10)
+as
+begin
+    begin try
+        begin transaction;
+        -- Xóa chi tiết trước (sẽ kích hoạt trigger trg_TruTonKhoKhiXoaPhieuNhap ở trên)
+        delete from ChiTietPN where MaPN = @MaPN;
+        
+        -- Sau đó xóa phiếu nhập
+        delete from PhieuNhap where MaPN = @MaPN;
+        commit transaction;
+    end try
+    begin catch
+        if @@trancount > 0 
             rollback transaction;
         throw;
     end catch
@@ -896,6 +970,12 @@ to role_kho
 grant execute
 on fn_DoanhThuTheoThang
 to role_kho
+grant execute
+on fn_TaoMaPhieuNhapMoi
+to role_kho
+grant execute
+on sp_XoaPhieuNhap
+to role_kho
 
 grant select
 on TaiKhoan
@@ -930,7 +1010,7 @@ go
 --go
 ----kịch bản 
 --delete from ChiTietHD; 
---delete from HoaDon;    
+--delete from HoaDon;   
 --delete from KhachHang; 
 --go
 ----phục hồi
@@ -1270,6 +1350,3 @@ go
 --    -- Sau khi A commit và nhả khóa, B mới được đi tiếp xuống đây để khóa MOU002
 --    update linhkien with (xlock) set dongiaban = 888888 where malk = 'MOU002';
 --commit tran;
-
-
-
