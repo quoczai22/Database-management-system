@@ -1,4 +1,5 @@
 using QuanLyLinhKienMayTinh.Models;
+using QuanLyLinhKienMayTinh.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -227,13 +228,54 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             }
         }
 
-        private void TaoPhieuNhapMoi()
+        private async void TaoPhieuNhapMoi()
         {
-            MessageBox.Show(
-                "SQL đã có sp_NhapLinhKien để xử lý tạo phiếu nhập. Cần thêm dialog nhập liệu giống ThemHoaDonDialog để chọn NSX, linh kiện, số lượng và đơn giá nhập.",
-                "Thiếu màn hình nhập liệu",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            try
+            {
+                var dialog = new ThemPhieuNhapDialog();
+                dialog.Owner = Application.Current.MainWindow;
+
+                if (dialog.ShowDialog() == true)
+                {
+                    await LuuPhieuNhapBangSql(dialog.NgayNhap, dialog.MaNv, dialog.MaNsx, dialog.ChiTietNhap);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tạo phiếu nhập: " + LayThongDiepLoi(ex), "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task LuuPhieuNhapBangSql(DateOnly ngayNhap, string maNv, string maNsx, List<PhieuNhapTamItem> chiTietNhap)
+        {
+            try
+            {
+                using var db = DataProvider.Ins.GetContext();
+                string maPN = null;
+
+                foreach (var item in chiTietNhap)
+                {
+                    var maPNParam = new OutputParameter<string> { _value = maPN };
+
+                    await db.Procedures.sp_NhapLinhKienAsync(
+                        ngayNhap,
+                        maNv,
+                        maNsx,
+                        item.MaLk,
+                        item.SoLuongNhap,
+                        item.DonGiaNhap,
+                        maPNParam);
+
+                    maPN = maPNParam.Value;
+                }
+
+                MessageBox.Show("Tạo phiếu nhập thành công! Mã phiếu nhập: " + maPN, "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                TaiDuLieu();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tạo phiếu nhập từ SQL: " + LayThongDiepLoi(ex), "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void InPhieuNhap()
