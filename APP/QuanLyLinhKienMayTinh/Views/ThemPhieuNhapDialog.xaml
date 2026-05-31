@@ -128,6 +128,11 @@
                        Foreground="{DynamicResource SubTextColor}" Margin="0,0,0,8"/>
 
             <Grid Grid.Row="1" Margin="0,0,0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="12"/>
@@ -138,17 +143,28 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <ComboBox x:Name="CboLinhKien" Grid.Column="0" Padding="10,8" FontSize="13"
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Linh kiện *" Style="{StaticResource LabelStyle}"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="Số lượng *" Style="{StaticResource LabelStyle}"/>
+                <TextBlock Grid.Row="0" Grid.Column="4" Text="Đơn giá nhập *" Style="{StaticResource LabelStyle}"/>
+
+                <ComboBox x:Name="CboLinhKien" Grid.Row="1" Grid.Column="0" Padding="10,8" FontSize="13"
                           Background="{DynamicResource BackgroundColor2}"
                           Foreground="{DynamicResource MainTextColor}"
                           BorderBrush="{DynamicResource BorderColor}"
-                          DisplayMemberPath="TenLk"/>
-                <TextBox x:Name="TxtSoLuong" Grid.Column="2" Style="{StaticResource InputStyle}"
+                          DisplayMemberPath="TenLk"
+                          IsEnabled="False"
+                          IsTextSearchEnabled="True"
+                          MaxDropDownHeight="220"/>
+                <TextBox x:Name="TxtSoLuong" Grid.Row="1" Grid.Column="2" Style="{StaticResource InputStyle}"
                          Text="1" TextAlignment="Center"/>
-                <TextBox x:Name="TxtDonGiaNhap" Grid.Column="4" Style="{StaticResource InputStyle}"
+                <TextBox x:Name="TxtDonGiaNhap" Grid.Row="1" Grid.Column="4" Style="{StaticResource InputStyle}"
                          Text="0" TextAlignment="Right"/>
-                <Button Grid.Column="6" Content="Thêm" Style="{StaticResource PrimaryBtnStyle}"
+                <Button Grid.Row="1" Grid.Column="6" Content="Thêm" Style="{StaticResource PrimaryBtnStyle}"
                         Padding="14,8" Click="BtnThemVaoPhieu_Click"/>
+
+                <TextBlock x:Name="TxtGoiYLinhKien" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="7"
+                           Text="Chọn nhà sản xuất trước để tải danh sách linh kiện."
+                           FontSize="12" Foreground="{DynamicResource SubTextColor}" Margin="0,6,0,0"/>
             </Grid>
 
             <Border Grid.Row="2" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="8">

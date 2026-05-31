@@ -60,6 +60,8 @@ namespace QuanLyLinhKienMayTinh.Views
             if (CboNhaSanXuat.SelectedItem is not NhaSanXuat nsx)
             {
                 CboLinhKien.ItemsSource = null;
+                CboLinhKien.IsEnabled = false;
+                TxtGoiYLinhKien.Text = "Chọn nhà sản xuất trước để tải danh sách linh kiện.";
                 return;
             }
 
@@ -87,8 +89,14 @@ namespace QuanLyLinhKienMayTinh.Views
             }
 
             _maNsxDangNhap = nsx.MaNsx;
-            CboLinhKien.ItemsSource = _linhKiens.Where(lk => lk.MaNsx == nsx.MaNsx).ToList();
-            CboLinhKien.SelectedIndex = CboLinhKien.Items.Count > 0 ? 0 : -1;
+            var linhKienTheoNsx = _linhKiens.Where(lk => lk.MaNsx == nsx.MaNsx).ToList();
+
+            CboLinhKien.ItemsSource = linhKienTheoNsx;
+            CboLinhKien.IsEnabled = linhKienTheoNsx.Count > 0;
+            CboLinhKien.SelectedIndex = linhKienTheoNsx.Count > 0 ? 0 : -1;
+            TxtGoiYLinhKien.Text = linhKienTheoNsx.Count > 0
+                ? $"Đang hiển thị {linhKienTheoNsx.Count} linh kiện của {nsx.TenNsx}."
+                : "Nhà sản xuất này chưa có linh kiện đang kinh doanh.";
         }
 
         private void BtnThemVaoPhieu_Click(object sender, RoutedEventArgs e)
