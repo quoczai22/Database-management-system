@@ -428,6 +428,114 @@ namespace QuanLyLinhKienMayTinh.Models
             return _;
         }
 
+        public virtual async Task<List<sp_locdanhsachphieunhapResult>> sp_locdanhsachphieunhapAsync(string tukhoan, DateOnly? tungay, DateOnly? denngay, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "tukhoan",
+                    Size = 200,
+                    Value = tukhoan ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.NVarChar,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "tungay",
+                    Value = tungay ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Date,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "denngay",
+                    Value = denngay ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Date,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryAsync<sp_locdanhsachphieunhapResult>("EXEC @returnValue = [dbo].[sp_locdanhsachphieunhap] @tukhoan = @tukhoan, @tungay = @tungay, @denngay = @denngay", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
+        public virtual async Task<int> sp_NhapLinhKienAsync(DateOnly? ngayNhap, string maNV, string maNSX, string maLK, int? soLuongNhap, int? donGiaNhap, OutputParameter<string> maPN, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterMaPN = new SqlParameter
+            {
+                ParameterName = "MaPN",
+                Size = 5,
+                Direction = System.Data.ParameterDirection.InputOutput,
+                Value = maPN?._value ?? Convert.DBNull,
+                SqlDbType = System.Data.SqlDbType.Char,
+            };
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                parameterMaPN,
+                new SqlParameter
+                {
+                    ParameterName = "NgayNhap",
+                    Value = ngayNhap ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Date,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "MaNV",
+                    Size = 6,
+                    Value = maNV ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Char,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "MaNSX",
+                    Size = 5,
+                    Value = maNSX ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Char,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "MaLK",
+                    Size = 6,
+                    Value = maLK ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Char,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "SoLuongNhap",
+                    Value = soLuongNhap ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Int,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "DonGiaNhap",
+                    Value = donGiaNhap ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Int,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[sp_NhapLinhKien] @MaPN = @MaPN OUTPUT, @NgayNhap = @NgayNhap, @MaNV = @MaNV, @MaNSX = @MaNSX, @MaLK = @MaLK, @SoLuongNhap = @SoLuongNhap, @DonGiaNhap = @DonGiaNhap", sqlParameters, cancellationToken);
+
+            maPN?.SetValue(parameterMaPN.Value);
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
         public virtual async Task<List<sp_TaiChiTietSPResult>> sp_TaiChiTietSPAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
@@ -449,6 +557,33 @@ namespace QuanLyLinhKienMayTinh.Models
                 parameterreturnValue,
             };
             var _ = await _context.SqlQueryAsync<sp_TaiChiTietSPResult>("EXEC @returnValue = [dbo].[sp_TaiChiTietSP] @MaHD = @MaHD", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
+        public virtual async Task<List<sp_TaiChiTietPNResult>> sp_TaiChiTietPNAsync(string maPN, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "MaPN",
+                    Size = 5,
+                    Value = maPN ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Char,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryAsync<sp_TaiChiTietPNResult>("EXEC @returnValue = [dbo].[sp_TaiChiTietPN] @MaPN = @MaPN", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -535,6 +670,64 @@ namespace QuanLyLinhKienMayTinh.Models
             tongDoanhThu?.SetValue(parameterTongDoanhThu.Value);
             daThanhToan?.SetValue(parameterDaThanhToan.Value);
             chuaThanhToan?.SetValue(parameterChuaThanhToan.Value);
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
+        public virtual async Task<int> sp_ThongKePhieuNhapAsync(OutputParameter<int?> tongPhieuNhap, OutputParameter<decimal?> tongChiPhiNhap, OutputParameter<int?> tongSoLuongNhap, OutputParameter<int?> soPhieuNhapThangNay, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterTongPhieuNhap = new SqlParameter
+            {
+                ParameterName = "TongPhieuNhap",
+                Direction = System.Data.ParameterDirection.InputOutput,
+                Value = tongPhieuNhap?._value ?? Convert.DBNull,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+            var parameterTongChiPhiNhap = new SqlParameter
+            {
+                ParameterName = "TongChiPhiNhap",
+                Precision = 19,
+                Scale = 4,
+                Direction = System.Data.ParameterDirection.InputOutput,
+                Value = tongChiPhiNhap?._value ?? Convert.DBNull,
+                SqlDbType = System.Data.SqlDbType.Money,
+            };
+            var parameterTongSoLuongNhap = new SqlParameter
+            {
+                ParameterName = "TongSoLuongNhap",
+                Direction = System.Data.ParameterDirection.InputOutput,
+                Value = tongSoLuongNhap?._value ?? Convert.DBNull,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+            var parameterSoPhieuNhapThangNay = new SqlParameter
+            {
+                ParameterName = "SoPhieuNhapThangNay",
+                Direction = System.Data.ParameterDirection.InputOutput,
+                Value = soPhieuNhapThangNay?._value ?? Convert.DBNull,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                parameterTongPhieuNhap,
+                parameterTongChiPhiNhap,
+                parameterTongSoLuongNhap,
+                parameterSoPhieuNhapThangNay,
+                parameterreturnValue,
+            };
+            var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[sp_ThongKePhieuNhap] @TongPhieuNhap = @TongPhieuNhap OUTPUT, @TongChiPhiNhap = @TongChiPhiNhap OUTPUT, @TongSoLuongNhap = @TongSoLuongNhap OUTPUT, @SoPhieuNhapThangNay = @SoPhieuNhapThangNay OUTPUT", sqlParameters, cancellationToken);
+
+            tongPhieuNhap?.SetValue(parameterTongPhieuNhap.Value);
+            tongChiPhiNhap?.SetValue(parameterTongChiPhiNhap.Value);
+            tongSoLuongNhap?.SetValue(parameterTongSoLuongNhap.Value);
+            soPhieuNhapThangNay?.SetValue(parameterSoPhieuNhapThangNay.Value);
             returnValue?.SetValue(parameterreturnValue.Value);
 
             return _;

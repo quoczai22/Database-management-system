@@ -61,6 +61,12 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             get => _menuHoaDonVisibility;
             set { _menuHoaDonVisibility = value; OnPropertyChanged(); }
         }
+        private Visibility _menuPhieuNhapVisibility = Visibility.Collapsed;
+        public Visibility MenuPhieuNhapVisibility
+        {
+            get => _menuPhieuNhapVisibility;
+            set { _menuPhieuNhapVisibility = value; OnPropertyChanged(); }
+        }
         private Visibility _menuBaoMatVisibility = Visibility.Collapsed;
         public Visibility MenuBaoMatVisibility
         {
@@ -101,6 +107,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 MenuNhanVienVisibility = Visibility.Visible;
                 MenuKhachHangVisibility = Visibility.Visible;
                 MenuHoaDonVisibility = Visibility.Visible;
+                MenuPhieuNhapVisibility = Visibility.Visible;
                 MenuBaoMatVisibility = Visibility.Visible;
                 MenuTaiKhoanVisibility = Visibility.Visible;
             }
@@ -112,6 +119,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 MenuNhanVienVisibility = Visibility.Collapsed;
                 MenuKhachHangVisibility = Visibility.Visible;
                 MenuHoaDonVisibility = Visibility.Visible;
+                MenuPhieuNhapVisibility = Visibility.Collapsed;
                 MenuBaoMatVisibility = Visibility.Collapsed;
                 MenuTaiKhoanVisibility = Visibility.Collapsed;
             }
@@ -123,10 +131,11 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 MenuNhanVienVisibility = Visibility.Collapsed;
                 MenuKhachHangVisibility = Visibility.Visible;
                 MenuHoaDonVisibility = Visibility.Collapsed;
+                MenuPhieuNhapVisibility = Visibility.Collapsed;
                 MenuBaoMatVisibility = Visibility.Collapsed;
                 MenuTaiKhoanVisibility = Visibility.Collapsed;
             }
-            else if (quyen == "Quản lý kho")
+            else if (quyen == "Kho")
             {
                 MenuDashboardVisibility = Visibility.Visible;
                 MenuLinhKienVisibility = Visibility.Visible;
@@ -134,6 +143,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 MenuNhanVienVisibility = Visibility.Collapsed;
                 MenuKhachHangVisibility = Visibility.Collapsed;
                 MenuHoaDonVisibility = Visibility.Collapsed;
+                MenuPhieuNhapVisibility = Visibility.Visible;
                 MenuBaoMatVisibility = Visibility.Collapsed;
                 MenuTaiKhoanVisibility = Visibility.Collapsed;
             }
@@ -145,6 +155,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 MenuNhanVienVisibility = Visibility.Collapsed;
                 MenuKhachHangVisibility = Visibility.Collapsed;
                 MenuHoaDonVisibility = Visibility.Collapsed;
+                MenuPhieuNhapVisibility = Visibility.Collapsed;
                 MenuBaoMatVisibility = Visibility.Visible;
                 MenuTaiKhoanVisibility = Visibility.Collapsed;
             }

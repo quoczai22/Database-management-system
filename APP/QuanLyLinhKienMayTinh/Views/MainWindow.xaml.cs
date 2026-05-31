@@ -46,6 +46,11 @@ namespace QuanLyLinhKienMayTinh
             MainFrame.Navigate(new HoaDonView());
         }
 
+        private void btnPhieuNhap_Click(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Navigate(new PhieuNhapView());
+        }
+
         private void btnNhanVien_Click(object sender, RoutedEventArgs e)
         {
             MainFrame.Navigate(new NhanVienView());

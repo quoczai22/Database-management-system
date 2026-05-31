@@ -199,7 +199,7 @@ namespace QuanLyLinhKienMayTinh.Views
                 // Cập nhật thông tin hóa đơn
                 entity.MaKh = kh.MaKh;
                 entity.MaNv = nv.MaNv;
-                entity.TongTien = _gioHang.Sum(g => g.ThanhTien);
+                entity.TongTien = (int)_gioHang.Sum(g => g.ThanhTien);
 
                 // Thêm chi tiết mới + trừ kho
                 foreach (var item in _gioHang)
@@ -215,7 +215,7 @@ namespace QuanLyLinhKienMayTinh.Views
                         MaHd = _maHd,
                         MaLk = item.MaLk,
                         SoLuong = (byte)item.SoLuong,
-                        DonGia = item.DonGia
+                        DonGia = (int)item.DonGia
                     });
                 }
 

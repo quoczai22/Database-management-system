@@ -140,7 +140,7 @@ namespace QuanLyLinhKienMayTinh.Views
                 return;
             }
 
-            decimal tongTien = _gioHang.Sum(g => g.ThanhTien);
+            int tongTien = (int)_gioHang.Sum(g => g.ThanhTien);
 
             string phuongThuc = "Tiền mặt";
             if (CboPhuongThuc.SelectedItem is System.Windows.Controls.ComboBoxItem selectedItem)
@@ -164,7 +164,7 @@ namespace QuanLyLinhKienMayTinh.Views
                 MaHd = null,
                 MaLk = g.MaLk,
                 SoLuong = (byte)g.SoLuong,
-                DonGia = g.DonGia
+                DonGia = (int)g.DonGia
             }).ToList();
 
             DialogResult = true;

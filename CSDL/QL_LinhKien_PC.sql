@@ -640,6 +640,155 @@ begin
 end;
 go
 
+create procedure sp_NhapLinhKien
+    @MaPN char(5) output,
+    @NgayNhap date,
+    @MaNV char(6),
+    @MaNSX char(5),
+    @MaLK char(6),
+    @SoLuongNhap int,
+    @DonGiaNhap int
+as
+begin
+    begin tran;
+    begin try
+        if (@MaPN is null or ltrim(rtrim(@MaPN)) = '')
+        begin
+            set @MaPN = dbo.fn_TaoMaPhieuNhapMoi();
+        end
+
+        if not exists (select 1 from NhanVien where MaNV = @MaNV and DaNghiViec = 0)
+        begin
+            rollback tran;
+            throw 50010, N'Nhân viên nhập kho không hợp lệ!', 1;
+            return;
+        end
+
+        if not exists (select 1 from NhaSanXuat where MaNSX = @MaNSX)
+        begin
+            rollback tran;
+            throw 50011, N'Nhà sản xuất không tồn tại!', 1;
+            return;
+        end
+
+        if not exists (select 1 from LinhKien where MaLK = @MaLK and MaNSX = @MaNSX and NgungKinhDoanh = 0)
+        begin
+            rollback tran;
+            throw 50012, N'Linh kiện không thuộc nhà sản xuất đã chọn hoặc đã ngừng kinh doanh!', 1;
+            return;
+        end
+
+        if (@SoLuongNhap is null or @SoLuongNhap <= 0)
+        begin
+            rollback tran;
+            throw 50013, N'Số lượng nhập phải lớn hơn 0!', 1;
+            return;
+        end
+
+        if (@DonGiaNhap is null or @DonGiaNhap <= 0)
+        begin
+            rollback tran;
+            throw 50014, N'Đơn giá nhập phải lớn hơn 0!', 1;
+            return;
+        end
+
+        if not exists (select 1 from PhieuNhap where MaPN = @MaPN)
+        begin
+            insert into PhieuNhap (MaPN, NgayNhap, MaNV, MaNSX)
+            values (@MaPN, @NgayNhap, @MaNV, @MaNSX);
+        end
+        else if exists (select 1 from PhieuNhap where MaPN = @MaPN and MaNSX <> @MaNSX)
+        begin
+            rollback tran;
+            throw 50015, N'Phiếu nhập đã tồn tại với nhà sản xuất khác!', 1;
+            return;
+        end
+
+        if exists (select 1 from ChiTietPN where MaPN = @MaPN and MaLK = @MaLK)
+        begin
+            rollback tran;
+            throw 50016, N'Linh kiện này đã có trong phiếu nhập!', 1;
+            return;
+        end
+
+        insert into ChiTietPN (MaPN, MaLK, SoLuongNhap, DonGiaNhap)
+        values (@MaPN, @MaLK, @SoLuongNhap, @DonGiaNhap);
+
+        commit tran;
+    end try
+    begin catch
+        if @@trancount > 0 rollback tran;
+        throw;
+    end catch
+end;
+go
+
+create procedure sp_locdanhsachphieunhap
+    @tukhoan nvarchar(100),
+    @tungay date = null,
+    @denngay date = null
+as
+begin
+    select
+        pn.MaPN as mapn,
+        nv.TenNV as tennv,
+        pn.NgayNhap as ngaynhap,
+        nsx.TenNSX as tennsx,
+        nsx.SDT as sdtnsx,
+        isnull(sum(isnull(ct.SoLuongNhap, 0)), 0) as tongsoluong,
+        cast(isnull(sum(isnull(ct.SoLuongNhap, 0) * isnull(ct.DonGiaNhap, 0)), 0) as money) as tongtien
+    from PhieuNhap pn
+    join NhanVien nv on pn.MaNV = nv.MaNV
+    join NhaSanXuat nsx on pn.MaNSX = nsx.MaNSX
+    left join ChiTietPN ct on pn.MaPN = ct.MaPN
+    where (@tukhoan = ''
+           or pn.MaPN like '%' + @tukhoan + '%'
+           or nv.TenNV like N'%' + @tukhoan + '%'
+           or nsx.TenNSX like N'%' + @tukhoan + '%')
+      and (@tungay is null or pn.NgayNhap >= @tungay)
+      and (@denngay is null or pn.NgayNhap <= @denngay)
+    group by pn.MaPN, nv.TenNV, pn.NgayNhap, nsx.TenNSX, nsx.SDT
+    order by pn.NgayNhap desc;
+end;
+go
+
+create procedure sp_TaiChiTietPN
+    @MaPN char(5)
+as
+begin
+    select
+        lk.MaLK as MaLinhKien,
+        lk.TenLK as TenLinhKien,
+        ct.SoLuongNhap,
+        cast(ct.DonGiaNhap as money) as DonGiaNhap,
+        cast(isnull(ct.SoLuongNhap, 0) * isnull(ct.DonGiaNhap, 0) as money) as ThanhTien
+    from ChiTietPN ct
+    join LinhKien lk on ct.MaLK = lk.MaLK
+    where ct.MaPN = @MaPN;
+end;
+go
+
+create procedure sp_ThongKePhieuNhap
+    @TongPhieuNhap int output,
+    @TongChiPhiNhap money output,
+    @TongSoLuongNhap int output,
+    @SoPhieuNhapThangNay int output
+as
+begin
+    select @TongPhieuNhap = count(*)
+    from PhieuNhap;
+
+    select
+        @TongChiPhiNhap = cast(isnull(sum(isnull(SoLuongNhap, 0) * isnull(DonGiaNhap, 0)), 0) as money),
+        @TongSoLuongNhap = isnull(sum(isnull(SoLuongNhap, 0)), 0)
+    from ChiTietPN;
+
+    select @SoPhieuNhapThangNay = count(*)
+    from PhieuNhap
+    where month(NgayNhap) = month(getdate()) and year(NgayNhap) = year(getdate());
+end;
+go
+
 create procedure sp_BanLinhKien 
     @MaHD char(5) OUTPUT, 
     @NgayHD date, 
@@ -696,7 +845,7 @@ begin
     select @TongHoaDon = count(*)  
     from HoaDon
 
-    select @TongDoanhThu = isnull(sum(TongTien), 0)
+    select @TongDoanhThu = isnull(sum(TongTien), cast(0 as money))
     from HoaDon
     where TrangThai = N'Đã thanh toán'
 
@@ -732,7 +881,7 @@ begin
         kh.tenkh, 
         nv.tennv, 
         hd.ngayhd, 
-        hd.tongtien, 
+        isnull(hd.tongtien, 0) as tongtien, 
         hd.phuongthucthanhtoan,
         hd.trangthai
     from hoadon hd, khachhang kh, nhanvien nv
@@ -979,6 +1128,18 @@ on fn_TaoMaPhieuNhapMoi
 to role_kho
 grant execute
 on sp_XoaPhieuNhap
+to role_kho
+grant execute
+on sp_NhapLinhKien
+to role_kho
+grant execute
+on sp_locdanhsachphieunhap
+to role_kho
+grant execute
+on sp_TaiChiTietPN
+to role_kho
+grant execute
+on sp_ThongKePhieuNhap
 to role_kho
 
 grant select

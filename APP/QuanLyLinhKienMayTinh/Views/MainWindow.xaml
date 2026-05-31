@@ -216,6 +216,13 @@
                         </StackPanel>
                     </Button>
 
+                    <Button Style="{StaticResource menuButton}" Click="btnPhieuNhap_Click" Visibility="{Binding MenuPhieuNhapVisibility}">
+                        <StackPanel Orientation="Horizontal">
+                            <Icon:PackIconMaterial Kind="PackageVariantClosed" Style="{StaticResource menuButtonIcon}"/>
+                            <TextBlock Text="Phiếu Nhập" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
                     <Button Style="{StaticResource menuButton}" Click="btnBaoMat_Click" Visibility="{Binding MenuBaoMatVisibility}">
                         <StackPanel Orientation="Horizontal">
                             <Icon:PackIconMaterial Kind="Tools" Style="{StaticResource menuButtonIcon}"/>

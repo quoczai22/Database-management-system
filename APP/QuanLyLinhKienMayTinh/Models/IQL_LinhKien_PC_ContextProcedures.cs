@@ -27,9 +27,13 @@ namespace QuanLyLinhKienMayTinh.Models
         Task<int> sp_kichban5_giaotacaAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_kichban5_giaotacbAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<sp_locdanhsachhoadonResult>> sp_locdanhsachhoadonAsync(string tukhoan, string trangthai, DateOnly? tungay, DateOnly? denngay, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<List<sp_locdanhsachphieunhapResult>> sp_locdanhsachphieunhapAsync(string tukhoan, DateOnly? tungay, DateOnly? denngay, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> sp_NhapLinhKienAsync(DateOnly? ngayNhap, string maNV, string maNSX, string maLK, int? soLuongNhap, int? donGiaNhap, OutputParameter<string> maPN, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<sp_TaiChiTietSPResult>> sp_TaiChiTietSPAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<List<sp_TaiChiTietPNResult>> sp_TaiChiTietPNAsync(string maPN, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_ThanhToanHoaDonAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_ThongKeAsync(OutputParameter<int?> tongHoaDon, OutputParameter<decimal?> tongDoanhThu, OutputParameter<int?> daThanhToan, OutputParameter<int?> chuaThanhToan, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<int> sp_ThongKePhieuNhapAsync(OutputParameter<int?> tongPhieuNhap, OutputParameter<decimal?> tongChiPhiNhap, OutputParameter<int?> tongSoLuongNhap, OutputParameter<int?> soPhieuNhapThangNay, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_XoaHoaDonAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_XoaPhieuNhapAsync(string maPN, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
     }
