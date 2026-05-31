@@ -41,6 +41,7 @@ create table NhaSanXuat (
     MaNSX char(5) not null,
     TenNSX nvarchar(50),
     QuocGia nvarchar(50),
+    SDT varchar(10),
     constraint PK_NhaSanXuat primary key (MaNSX)
 );
 go
@@ -62,7 +63,7 @@ create table LinhKien (
     MaNSX char(5) not null,
     DVT nvarchar(10),
     SoLuongTon int default 0,
-    DonGiaBan money,
+    DonGiaBan int,
     constraint PK_LinhKien primary key (MaLK),
     constraint FK_LK_LoaiLK foreign key (MaLoai) references LoaiLK(MaLoai),
     constraint FK_LK_NhaSanXuat foreign key (MaNSX) references NhaSanXuat(MaNSX)
@@ -73,7 +74,7 @@ create table KhachHang (
     MaKH char(6) not null,
     TenKH nvarchar(30),
     DChi nvarchar(50),
-    SDT char(10),
+    SDT varchar(10), -- Đã đồng bộ thành varchar(10)
     Email varchar(50) null,
     constraint PK_KhachHang primary key (MaKH)
 );
@@ -84,7 +85,7 @@ create table NhanVien (
     TenNV nvarchar(40),
     GioiTinh nvarchar(5),
     NgaySinh date,
-    SDT char(10),
+    SDT varchar(10), 
     ChucVu nvarchar(30),
     Quyen nvarchar(20),
     Email varchar(50) null,      
@@ -98,7 +99,7 @@ create table HoaDon (
     NgayHD date,
     MaKH char(6) not null,
     MaNV char(6) not null,
-    TongTien money null default 0,
+    TongTien int null default 0,
     TrangThai nvarchar(30) default N'Chưa thanh toán',
     constraint PK_HoaDon primary key (MaHD),
     constraint FK_HoaDon_KhachHang foreign key (MaKH) references KhachHang(MaKH),
@@ -110,7 +111,7 @@ create table ChiTietHD (
     MaHD char(5) not null,
     MaLK char(6) not null,
     SoLuong tinyint, 
-    DonGia money,
+    DonGia int,
     constraint PK_CTHD primary key (MaHD, MaLK),
     constraint FK_CTHD_HoaDon foreign key (MaHD) references HoaDon(MaHD),
     constraint FK_CTHD_LinhKien foreign key (MaLK) references LinhKien(MaLK) 
@@ -121,8 +122,10 @@ create table PhieuNhap (
     MaPN char(5) not null,
     NgayNhap date,
     MaNV char(6) not null,
+    MaNSX char(5) not null, -- Đã sửa lỗi thiếu dấu phẩy tại đây
     constraint PK_PhieuNhap primary key (MaPN),
-    constraint FK_PhieuNhap_NhanVien foreign key (MaNV) references NhanVien(MaNV)
+    constraint FK_PhieuNhap_NhanVien foreign key (MaNV) references NhanVien(MaNV),
+    constraint FK_PhieuNhap_NhaSanXuat foreign key (MaNSX) references NhaSanXuat(MaNSX)
 );
 go
 
@@ -130,7 +133,7 @@ create table ChiTietPN (
     MaPN char(5) not null,
     MaLK char(6) not null,
     SoLuongNhap int,
-    DonGiaNhap money,
+    DonGiaNhap int,
     constraint PK_CTPN primary key (MaPN, MaLK),
     constraint FK_CTPN_PhieuNhap foreign key (MaPN) references PhieuNhap(MaPN),
     constraint FK_CTPN_LinhKien foreign key (MaLK) references LinhKien(MaLK)
