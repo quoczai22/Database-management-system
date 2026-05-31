@@ -323,6 +323,34 @@ insert into TaiKhoan (TenDN, MatKhau, MaNV) values
 ('thanhdt','123456','NV011');
 go
 
+--sửa bảng
+alter table TaiKhoan drop constraint FK_TaiKhoan_NhanVien;
+go
+
+alter table TaiKhoan 
+add constraint FK_TaiKhoan_NhanVien 
+foreign key (MaNV) references NhanVien(MaNV) 
+on delete cascade;
+go
+
+alter table HoaDon add PhuongThucThanhToan nvarchar(50) default N'Tiền mặt';
+alter table HoaDon add NgayThanhToan date null;
+go
+
+update HoaDon
+set PhuongThucThanhToan = N'Tiền mặt'
+where PhuongThucThanhToan is null;
+go
+
+update HoaDon
+set NgayThanhToan = NgayHD
+where TrangThai = N'Đã thanh toán' and NgayThanhToan is null;
+go
+
+alter table NhanVien add DaNghiViec bit default 0 not null;
+alter table LinhKien add NgungKinhDoanh bit default 0 not null;
+go
+
 -- tổng tiền hóa đơn
 update HoaDon
 set TongTien = isnull((
@@ -882,33 +910,7 @@ deny insert, update, delete
 on NhanVien
 to role_kho
 go 
---sửa bảng
-alter table TaiKhoan drop constraint FK_TaiKhoan_NhanVien;
-go
 
-alter table TaiKhoan 
-add constraint FK_TaiKhoan_NhanVien 
-foreign key (MaNV) references NhanVien(MaNV) 
-on delete cascade;
-go
-
-alter table HoaDon add PhuongThucThanhToan nvarchar(50) default N'Tiền mặt';
-alter table HoaDon add NgayThanhToan date null;
-go
-
-update HoaDon
-set PhuongThucThanhToan = N'Tiền mặt'
-where PhuongThucThanhToan is null;
-go
-
-update HoaDon
-set NgayThanhToan = NgayHD
-where TrangThai = N'Đã thanh toán' and NgayThanhToan is null;
-go
-
-alter table NhanVien add DaNghiViec bit default 0 not null;
-alter table LinhKien add NgungKinhDoanh bit default 0 not null;
-go
 
 -- sao lưu và backup nếu muốn sử dụng bỏ comment
 ----tạo file backup
