@@ -1042,6 +1042,9 @@ to role_thuNgan
 grant execute
 on fn_DoanhThuTheoThang
 to role_thuNgan
+grant execute
+on sp_baocaotonkho
+to role_thuNgan
 
 grant select
 on TaiKhoan
@@ -1074,6 +1077,12 @@ on fn_TaoMaKhachHangMoi
 to role_Cskh
 grant execute
 on fn_DoanhThuTheoThang
+to role_Cskh
+grant execute
+on sp_baocaotonkho
+to role_Cskh
+grant execute 
+on sp_DanhSacKhachHangChuaTT 
 to role_Cskh
 
 grant select
@@ -1137,6 +1146,9 @@ on sp_TaiChiTietPN
 to role_kho
 grant execute
 on sp_ThongKePhieuNhap
+to role_kho
+grant execute 
+on sp_DanhSacKhachHangChuaTT 
 to role_kho
 
 grant select
