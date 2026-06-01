@@ -942,9 +942,6 @@ go
 
 -- quản trị người dùng
 --dọn dẹp trước khi tạo để ko bị lỗi
-use QL_LinhKien_PC;
-go
-
 begin try exec sp_droprolemember 'role_quanLy', 'quanLyUser'; end try begin catch end catch;
 begin try exec sp_droprolemember 'role_thuNgan', 'nhanVienThuNganUser'; end try begin catch end catch;
 begin try exec sp_droprolemember 'role_Cskh', 'nhanVienCskhUser'; end try begin catch end catch;
