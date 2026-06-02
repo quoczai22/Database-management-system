@@ -941,33 +941,65 @@ begin
 go
 
 -- quản trị người dùng
---dọn dẹp trước khi tạo để ko bị lỗi
-begin try exec sp_droprolemember 'role_quanLy', 'quanLyUser'; end try begin catch end catch;
-begin try exec sp_droprolemember 'role_thuNgan', 'nhanVienThuNganUser'; end try begin catch end catch;
-begin try exec sp_droprolemember 'role_Cskh', 'nhanVienCskhUser'; end try begin catch end catch;
-begin try exec sp_droprolemember 'role_kho', 'nhanVienKhoUser'; end try begin catch end catch;
+-- dọn dẹp trước khi tạo để không bị lỗi khi chạy lại script
+-- quản trị người dùng
+-- dọn dẹp trước khi tạo để không bị lỗi khi chạy lại script
 
-if exists (select * from sys.database_principals where name = 'quanLyUser') exec sp_dropuser 'quanLyUser';
-if exists (select * from sys.database_principals where name = 'nhanVienThuNganUser') exec sp_dropuser 'nhanVienThuNganUser';
-if exists (select * from sys.database_principals where name = 'nhanVienCskhUser') exec sp_dropuser 'nhanVienCskhUser';
-if exists (select * from sys.database_principals where name = 'nhanVienKhoUser') exec sp_dropuser 'nhanVienKhoUser';
+use QL_LinhKien_PC;
 go
 
-if exists (select * from sys.database_principals where name = 'role_quanLy') exec sp_droprole 'role_quanLy';
-if exists (select * from sys.database_principals where name = 'role_thuNgan') exec sp_droprole 'role_thuNgan';
-if exists (select * from sys.database_principals where name = 'role_Cskh') exec sp_droprole 'role_Cskh';
-if exists (select * from sys.database_principals where name = 'role_kho') exec sp_droprole 'role_kho';
+if exists (select * from sys.database_principals where name = 'quanLyUser')
+    drop user quanLyUser;
+go
+
+if exists (select * from sys.database_principals where name = 'nhanVienThuNganUser')
+    drop user nhanVienThuNganUser;
+go
+
+if exists (select * from sys.database_principals where name = 'nhanVienCskhUser')
+    drop user nhanVienCskhUser;
+go
+
+if exists (select * from sys.database_principals where name = 'nhanVienKhoUser')
+    drop user nhanVienKhoUser;
+go
+
+if exists (select * from sys.database_principals where name = 'role_quanLy')
+    drop role role_quanLy;
+go
+
+if exists (select * from sys.database_principals where name = 'role_thuNgan')
+    drop role role_thuNgan;
+go
+
+if exists (select * from sys.database_principals where name = 'role_Cskh')
+    drop role role_Cskh;
+go
+
+if exists (select * from sys.database_principals where name = 'role_kho')
+    drop role role_kho;
 go
 
 use master;
 go
-if exists (select * from sys.server_principals where name = 'quanLyLogin') exec sp_droplogin 'quanLyLogin';
-if exists (select * from sys.server_principals where name = 'nhanVienThuNganLogin') exec sp_droplogin 'nhanVienThuNganLogin';
-if exists (select * from sys.server_principals where name = 'nhanVienCskhLogin') exec sp_droplogin 'nhanVienCskhLogin';
-if exists (select * from sys.server_principals where name = 'nhanVienKhoLogin') exec sp_droplogin 'nhanVienKhoLogin';
+
+if exists (select * from sys.server_principals where name = 'quanLyLogin')
+    drop login quanLyLogin;
 go
---tạo login
-use master
+
+if exists (select * from sys.server_principals where name = 'nhanVienThuNganLogin')
+    drop login nhanVienThuNganLogin;
+go
+
+if exists (select * from sys.server_principals where name = 'nhanVienCskhLogin')
+    drop login nhanVienCskhLogin;
+go
+
+if exists (select * from sys.server_principals where name = 'nhanVienKhoLogin')
+    drop login nhanVienKhoLogin;
+go
+-- tạo login
+use master;
 go
 
 exec sp_addlogin 'quanLyLogin', '123';
@@ -975,8 +1007,9 @@ exec sp_addlogin 'nhanVienThuNganLogin', '123';
 exec sp_addlogin 'nhanVienCskhLogin', '123';
 exec sp_addlogin 'nhanVienKhoLogin', '123';
 go
---tạo user
-use QL_LinhKien_PC
+
+-- tạo user
+use QL_LinhKien_PC;
 go
 
 exec sp_adduser 'quanLyLogin', 'quanLyUser';
@@ -984,186 +1017,83 @@ exec sp_adduser 'nhanVienThuNganLogin', 'nhanVienThuNganUser';
 exec sp_adduser 'nhanVienCskhLogin', 'nhanVienCskhUser';
 exec sp_adduser 'nhanVienKhoLogin', 'nhanVienKhoUser';
 go
---tạo nhóm quyền
+
+-- tạo nhóm quyền
 exec sp_addrole 'role_quanLy';
 exec sp_addrole 'role_thuNgan';
 exec sp_addrole 'role_Cskh';
 exec sp_addrole 'role_kho';
-exec sp_addrole 'role_kyThuat';
 go
---thêm user vào nhóm quyền
+
+-- thêm user vào nhóm quyền
 exec sp_addrolemember 'role_quanLy', 'quanLyUser';
 exec sp_addrolemember 'role_thuNgan', 'nhanVienThuNganUser';
 exec sp_addrolemember 'role_Cskh', 'nhanVienCskhUser';
 exec sp_addrolemember 'role_kho', 'nhanVienKhoUser';
 go
---phân quyền cho quản lý 
+
+-- phân quyền cho quản lý
 grant control
-to role_quanLy
+to role_quanLy;
 go
---phân quyền cho nhân viên thu ngân
-grant select, insert, update, delete
-on KhachHang
-to role_thuNgan
-grant select, insert, update, delete
-on HoaDon
-to role_thuNgan
-grant select, insert, update, delete
-on ChiTietHD
-to role_thuNgan
-grant select 
-on NhanVien
-to role_thuNgan
-grant select
-on LoaiLK
-to role_thuNgan
-grant select
-on LinhKien
-to role_thuNgan
+-- phân quyền cho nhân viên thu ngân
+grant all on KhachHang to role_thuNgan;
+grant all on HoaDon to role_thuNgan;
+grant all on ChiTietHD to role_thuNgan;
 
-grant execute 
-on sp_ThanhToanHoaDon
-to role_thungan
-grant execute
-on sp_BanLinhKien 
-to role_thungan
-grant execute 
-on sp_XoaHoaDon
-to role_thungan
-grant execute 
-on sp_DanhSacKhachHangChuaTT 
-to role_thungan
-grant execute 
-on fn_TaoMaHoaDonMoi 
-to role_thuNgan
-grant execute 
-on fn_TaoMaKhachHangMoi 
-to role_thuNgan
-grant execute
-on fn_DoanhThuTheoThang
-to role_thuNgan
-grant execute
-on sp_baocaotonkho
-to role_thuNgan
+grant select on NhanVien to role_thuNgan;
+grant select on TaiKhoan to role_thuNgan;
+grant select on LoaiLK to role_thuNgan;
+grant select on LinhKien to role_thuNgan;
 
-grant select
-on TaiKhoan
-to role_thungan
-grant select 
-on NhanVien 
-to role_thungan
-deny insert, update, delete 
-on TaiKhoan
-to role_thungan
-deny insert, update, delete 
-on NhanVien
-to role_thungan
+grant execute on sp_ThanhToanHoaDon to role_thuNgan;
+grant execute on sp_BanLinhKien to role_thuNgan;
+grant execute on sp_XoaHoaDon to role_thuNgan;
+grant execute on sp_DanhSacKhachHangChuaTT to role_thuNgan;
+grant execute on fn_TaoMaHoaDonMoi to role_thuNgan;
+grant execute on fn_TaoMaKhachHangMoi to role_thuNgan;
+grant execute on fn_DoanhThuTheoThang to role_thuNgan;
+grant execute on sp_baocaotonkho to role_thuNgan;
 go
---phân quyền cho nhân viên cskh
-grant select, insert, update, delete
-on KhachHang
-to role_Cskh
-grant select 
-on LoaiLK
-to role_Cskh
-grant select 
-on LinhKien 
-to role_Cskh
-grant select
-on HoaDon
-to role_Cskh
-grant execute 
-on fn_TaoMaKhachHangMoi 
-to role_Cskh
-grant execute
-on fn_DoanhThuTheoThang
-to role_Cskh
-grant execute
-on sp_baocaotonkho
-to role_Cskh
-grant execute 
-on sp_DanhSacKhachHangChuaTT 
-to role_Cskh
 
-grant select
-on TaiKhoan
-to role_Cskh
-grant select 
-on NhanVien 
-to role_Cskh
-deny insert, update, delete 
-on TaiKhoan
-to role_Cskh
-deny insert, update, delete 
-on NhanVien
-to role_Cskh
+-- phân quyền cho nhân viên chăm sóc khách hàng
+grant all on KhachHang to role_Cskh;
+
+grant select on LoaiLK to role_Cskh;
+grant select on LinhKien to role_Cskh;
+grant select on HoaDon to role_Cskh;
+grant select on TaiKhoan to role_Cskh;
+grant select on NhanVien to role_Cskh;
+
+grant execute on fn_TaoMaKhachHangMoi to role_Cskh;
+grant execute on fn_DoanhThuTheoThang to role_Cskh;
+grant execute on sp_baocaotonkho to role_Cskh;
+grant execute on sp_DanhSacKhachHangChuaTT to role_Cskh;
 go
---phân quyên cho nhân viên kho 
-grant select, insert, update, delete 
-on LoaiLK
-to role_kho
-grant select, insert, update, delete
-on LinhKien
-to role_kho
-grant select, insert, update, delete 
-on PhieuNhap
-to role_kho
-grant select, insert, update, delete
-on ChiTietPN
-to role_kho
-grant select
-on HoaDon
-to role_kho
-grant select
-on KhachHang
-to role_kho
-grant select
-on NhaSanXuat
-to role_kho
-grant execute
-on sp_baocaotonkho  
-to role_kho
-grant execute 
-on fn_TaoMaLinhKienMoi
-to role_kho
-grant execute
-on fn_DoanhThuTheoThang
-to role_kho
-grant execute
-on fn_TaoMaPhieuNhapMoi
-to role_kho
-grant execute
-on sp_XoaPhieuNhap
-to role_kho
-grant execute
-on sp_NhapLinhKien
-to role_kho
-grant execute
-on sp_locdanhsachphieunhap
-to role_kho
-grant execute
-on sp_TaiChiTietPN
-to role_kho
-grant execute
-on sp_ThongKePhieuNhap
-to role_kho
-grant execute 
-on sp_DanhSacKhachHangChuaTT 
-to role_kho
 
-grant select
-on TaiKhoan
-to role_kho
-grant select 
-on NhanVien 
-to role_kho
-deny insert, update, delete 
-on TaiKhoan
-to role_kho
-deny insert, update, delete 
-on NhanVien
-to role_kho
-go 
+--phân quyền cho nhân viên kho
+grant all on LoaiLK to role_kho;
+grant all on LinhKien to role_kho;
+grant all on PhieuNhap to role_kho;
+grant all on ChiTietPN to role_kho;
+
+grant select on HoaDon to role_kho;
+grant select on KhachHang to role_kho;
+grant select on NhaSanXuat to role_kho;
+grant select on TaiKhoan to role_kho;
+grant select on NhanVien to role_kho;
+
+grant execute on sp_baocaotonkho to role_kho;
+grant execute on fn_TaoMaLinhKienMoi to role_kho;
+grant execute on fn_DoanhThuTheoThang to role_kho;
+grant execute on fn_TaoMaPhieuNhapMoi to role_kho;
+grant execute on sp_XoaPhieuNhap to role_kho;
+grant execute on sp_NhapLinhKien to role_kho;
+grant execute on sp_locdanhsachphieunhap to role_kho;
+grant execute on sp_TaiChiTietPN to role_kho;
+grant execute on sp_ThongKePhieuNhap to role_kho;
+grant execute on sp_DanhSacKhachHangChuaTT to role_kho;
+go
 
 
 -- sao lưu và backup nếu muốn sử dụng bỏ comment
