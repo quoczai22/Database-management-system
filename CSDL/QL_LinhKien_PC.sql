@@ -416,9 +416,8 @@ begin
         where (isnull(lk.SoLuongTon, 0) - isnull(d.SoLuongNhap, 0)) < 0
     )
     begin
-        raiserror(N'Không thể xóa chi tiết phiếu nhập này. Tồn kho hiện tại không đủ để hoàn trả.', 16, 1);
         rollback transaction;
-        return;
+        throw 50003, N'Không thể xóa chi tiết phiếu nhập này. Tồn kho hiện tại không đủ để hoàn trả.', 1;
     end
 
     -- Cập nhật lại kho
@@ -1046,6 +1045,8 @@ grant select on TaiKhoan to role_thuNgan;
 grant select on LoaiLK to role_thuNgan;
 grant select on LinhKien to role_thuNgan;
 
+grant execute on sp_locdanhsachhoadon  to role_thuNgan;
+grant execute on sp_ThongKe to role_thuNgan;
 grant execute on sp_ThanhToanHoaDon to role_thuNgan;
 grant execute on sp_BanLinhKien to role_thuNgan;
 grant execute on sp_XoaHoaDon to role_thuNgan;
