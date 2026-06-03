@@ -25,10 +25,10 @@ namespace QuanLyLinhKienMayTinh.ViewModels
     }
     public class LinhKienViewModel : BaseViewModel, ISearchable
     {
-        // ── Backing collection ──────────────────────────────────────────────
+        // collection gốc
         private ObservableCollection<LinhKienDisplay> _all;
 
-        // ── Bound to DataGrid ────────────────────────────────────────────────
+        // binding lên datagrid
         private ICollectionView _danhSachLinhKienView;
         public ICollectionView DanhSachLinhKienView
         {
@@ -43,7 +43,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             set { _linhKienChon = value; OnPropertyChanged(); }
         }
 
-        // ── ComboBox lọc loại ────────────────────────────────────────────────
+        // combobox lọc loại
         private ObservableCollection<LoaiLk> _danhSachLoai;
         public ObservableCollection<LoaiLk> DanhSachLoai
         {
@@ -58,14 +58,14 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             set { _loaiChon = value; OnPropertyChanged(); DanhSachLinhKienView?.Refresh(); }
         }
 
-        // ── Search box (XAML bind đến TimKiem) ──────────────────────────────
+        // ô tìm kiếm bind đến TimKiem
         private string _timKiem = string.Empty;
         public string TimKiem
         {
             get => _timKiem;
             set { _timKiem = value; OnPropertyChanged(); DanhSachLinhKienView?.Refresh(); }
         }
-        // ── Commands ─────────────────────────────────────────────────────────
+        // commands
         public ICommand ThemLinhKienCommand { get; private set; }
         public ICommand SuaLinhKienCommand { get; private set; }
         public ICommand XoaLinhKienCommand { get; private set; }
@@ -77,7 +77,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             KhoiTaoCommands();
         }
 
-        // ── Tải dữ liệu ─────────────────────────────────────────────────────
+        // tải dữ liệu
         public void TaiDuLieu()
         {
             try
@@ -116,7 +116,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             }
         }
 
-        // ── Filter ───────────────────────────────────────────────────────────
+        // lọc dữ liệu
         private bool Filter(object obj)
         {
             if (obj is not LinhKienDisplay item) return false;
@@ -139,13 +139,13 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             return matchSearch && matchLoai;
         }
 
-        // ── ISearchable ──────────────────────────────────────────────────────
+        // xử lý tìm kiếm chung
         public void ApplySearch(string keyword)
         {
             TimKiem = keyword?.Trim() ?? string.Empty;
         }
 
-        // ── Khởi tạo Commands ────────────────────────────────────────────────
+        // khởi tạo commands
         private void KhoiTaoCommands()
         {
             ThemLinhKienCommand = new RelayCommand<object>(p => true, p => ThucHienThemLinhKien());
@@ -248,7 +248,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             DanhSachLinhKienView.Refresh();
         }
 
-        // ── Xóa linh kiện ────────────────────────────────────────────────────
+        // xóa linh kiện
         private void ThucHienXoa(LinhKienDisplay lk)
         {
             try

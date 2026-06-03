@@ -36,9 +36,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
     public class BaoMatViewModel : BaseViewModel
     {
-        // =============================================
-        // PROPERTIES
-        // =============================================
+        // các thuộc tính
 
         private ObservableCollection<LinhKien> _dataUserA;
         public ObservableCollection<LinhKien> DataUserA
@@ -131,17 +129,13 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         public bool IsUserAIdle => !_isUserABusy;
         public bool IsUserBIdle => !_isUserBBusy;
 
-        // =============================================
-        // COMMANDS
-        // =============================================
+        // commands
 
         public ICommand RunUserACommand { get; }
         public ICommand RunUserBCommand { get; }
         public ICommand ResetDataCommand { get; }
 
-        // =============================================
-        // CONSTRUCTOR
-        // =============================================
+        // constructor
 
         public BaoMatViewModel()
         {
@@ -153,9 +147,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             _ = LoadDataAsync();
         }
 
-        // =============================================
-        // LOGIC HỖ TRỢ
-        // =============================================
+        // logic hỗ trợ
 
         private QL_LinhKien_PC_Context CreateNewContext()
         {
@@ -229,9 +221,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             }
         }
 
-        // =============================================
-        // THỰC THI GIAO TÁC & RESET
-        // =============================================
+        // thực thi giao tác và reset
 
         private async Task ResetDataAsync()
         {
