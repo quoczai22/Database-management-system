@@ -1199,6 +1199,8 @@ go
 
 --1. kịch bản 1 mức cô lập read uncommited( lỗi mất dữ liệu cập nhật) 
 -- giao tác a:
+
+--Trịnh Hữu Kiến Quốc--
 create procedure sp_kichban1_giaotaca
     @isfixmode bit
 as
@@ -1383,6 +1385,37 @@ begin
     commit tran;
 end
 go
+
+-- Hàm tính tổng giá trị tồn kho theo loại linh kiện
+create function fn_GiaTriTonKhoTheoLoai(@MaLoai char(3))
+returns money
+as
+begin
+    declare @TongGiaTri money;
+
+    select @TongGiaTri = sum(isnull(SoLuongTon, 0) * isnull(DonGiaBan, 0))
+    from LinhKien
+    where MaLoai = @MaLoai;
+
+    return isnull(@TongGiaTri, 0);
+end;
+go
+
+-- Hàm tính tổng số lượng đã nhập của một linh kiện
+create function fn_TongSoLuongNhapTheoLinhKien(@MaLK char(6))
+returns int
+as
+begin
+    declare @TongSoLuongNhap int;
+
+    select @TongSoLuongNhap = sum(isnull(SoLuongNhap, 0))
+    from ChiTietPN
+    where MaLK = @MaLK;
+
+    return isnull(@TongSoLuongNhap, 0);
+end;
+go
+
 
 --/* 1.Kịch bản 1 mức cô lập READ UNCOMMITED( lỗi mất dữ liệu cập nhật)
 --Vì lỗi mất dữ liệu cập nhật( Updated Lost) được SQL Sever đều tự động xin khóa độc quyền (X-Lock) và giữ đến cuối giao tác, bất kể mức cô lập nào các thao tác CRUD*/
