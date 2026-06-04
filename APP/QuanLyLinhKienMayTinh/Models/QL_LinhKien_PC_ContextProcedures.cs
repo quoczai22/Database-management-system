@@ -382,6 +382,46 @@ namespace QuanLyLinhKienMayTinh.Models
             return _;
         }
 
+        public virtual async Task<List<sp_kichban6_giaotaca_rollbackResult>> sp_kichban6_giaotaca_rollbackAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryAsync<sp_kichban6_giaotaca_rollbackResult>("EXEC @returnValue = [dbo].[sp_kichban6_giaotaca_rollback]", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
+        public virtual async Task<List<sp_kichban6_giaotacb_docsaorollbackResult>> sp_kichban6_giaotacb_docsaorollbackAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryAsync<sp_kichban6_giaotacb_docsaorollbackResult>("EXEC @returnValue = [dbo].[sp_kichban6_giaotacb_docsaorollback]", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
         public virtual async Task<List<sp_locdanhsachhoadonResult>> sp_locdanhsachhoadonAsync(string tukhoan, string trangthai, DateOnly? tungay, DateOnly? denngay, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
@@ -536,33 +576,6 @@ namespace QuanLyLinhKienMayTinh.Models
             return _;
         }
 
-        public virtual async Task<List<sp_TaiChiTietSPResult>> sp_TaiChiTietSPAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
-        {
-            var parameterreturnValue = new SqlParameter
-            {
-                ParameterName = "returnValue",
-                Direction = System.Data.ParameterDirection.Output,
-                SqlDbType = System.Data.SqlDbType.Int,
-            };
-
-            var sqlParameters = new []
-            {
-                new SqlParameter
-                {
-                    ParameterName = "MaHD",
-                    Size = 5,
-                    Value = maHD ?? Convert.DBNull,
-                    SqlDbType = System.Data.SqlDbType.Char,
-                },
-                parameterreturnValue,
-            };
-            var _ = await _context.SqlQueryAsync<sp_TaiChiTietSPResult>("EXEC @returnValue = [dbo].[sp_TaiChiTietSP] @MaHD = @MaHD", sqlParameters, cancellationToken);
-
-            returnValue?.SetValue(parameterreturnValue.Value);
-
-            return _;
-        }
-
         public virtual async Task<List<sp_TaiChiTietPNResult>> sp_TaiChiTietPNAsync(string maPN, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
@@ -584,6 +597,33 @@ namespace QuanLyLinhKienMayTinh.Models
                 parameterreturnValue,
             };
             var _ = await _context.SqlQueryAsync<sp_TaiChiTietPNResult>("EXEC @returnValue = [dbo].[sp_TaiChiTietPN] @MaPN = @MaPN", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
+        public virtual async Task<List<sp_TaiChiTietSPResult>> sp_TaiChiTietSPAsync(string maHD, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "MaHD",
+                    Size = 5,
+                    Value = maHD ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Char,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryAsync<sp_TaiChiTietSPResult>("EXEC @returnValue = [dbo].[sp_TaiChiTietSP] @MaHD = @MaHD", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 

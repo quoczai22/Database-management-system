@@ -111,7 +111,27 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[sp_kichban6_giaotaca_rollback]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_kichban6_giaotacb_docsaorollback]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[sp_locdanhsachhoadon]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_locdanhsachphieunhap]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_NhapLinhKien]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_TaiChiTietPN]",
          "ObjectType": 1
       },
       {
@@ -127,6 +147,10 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[sp_ThongKePhieuNhap]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[sp_XoaHoaDon]",
          "ObjectType": 1
       },
@@ -136,6 +160,10 @@
       },
       {
          "Name": "[dbo].[fn_DoanhThuTheoThang]",
+         "ObjectType": 2
+      },
+      {
+         "Name": "[dbo].[fn_GiaTriTonKhoTheoLoai]",
          "ObjectType": 2
       },
       {
@@ -156,6 +184,10 @@
       },
       {
          "Name": "[dbo].[fn_TaoMaPhieuNhapMoi]",
+         "ObjectType": 2
+      },
+      {
+         "Name": "[dbo].[fn_TongSoLuongNhapTheoLinhKien]",
          "ObjectType": 2
       }
    ],

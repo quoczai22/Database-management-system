@@ -1,11 +1,10 @@
 using QuanLyLinhKienMayTinh.Models;
+using QuanLyLinhKienMayTinh.Helpers;
 using QuanLyLinhKienMayTinh.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -112,6 +111,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         public ICommand TaoPhieuNhapMoiCommand { get; private set; }
         public ICommand LocPhieuNhapCommand { get; private set; }
         public ICommand InPhieuNhapCommand { get; private set; }
+        public ICommand LuuPhieuNhapCommand { get; private set; }
         public ICommand XoaPhieuNhapCommand { get; private set; }
 
         public PhieuNhapViewModel()
@@ -127,6 +127,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             TaoPhieuNhapMoiCommand = new RelayCommand<object>(p => true, p => TaoPhieuNhapMoi());
             LocPhieuNhapCommand = new RelayCommand<object>(p => true, p => LocPhieuNhap());
             InPhieuNhapCommand = new RelayCommand<object>(p => PhieuNhapChon != null, p => InPhieuNhap());
+            LuuPhieuNhapCommand = new RelayCommand<object>(p => PhieuNhapChon != null, p => LuuPhieuNhapExcel());
             XoaPhieuNhapCommand = new RelayCommand<object>(p => PhieuNhapChon != null, p => XoaPhieuNhap());
         }
 
@@ -160,7 +161,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                     NgayNhap = pn.ngaynhap.HasValue ? pn.ngaynhap.Value.ToDateTime(TimeOnly.MinValue) : null,
                     TenNhaCungCap = pn.tennsx ?? "Chưa có dữ liệu",
                     SoDienThoaiNCC = pn.sdtnsx ?? "Chưa có dữ liệu",
-                    TongSoLuong = pn.tongsoluong ?? 0,
+                    TongSoLuong = pn.tongsoluong,
                     TongTien = pn.tongtien ?? 0
                 }).ToList();
 
@@ -281,35 +282,42 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         private void InPhieuNhap()
         {
             if (PhieuNhapChon == null) return;
-
-            var content = new StringBuilder();
-            content.AppendLine("PHIẾU NHẬP KHO");
-            content.AppendLine($"Mã PN: {PhieuNhapChon.MaPN}");
-            content.AppendLine($"Ngày nhập: {PhieuNhapChon.NgayNhap:dd/MM/yyyy}");
-            content.AppendLine($"Nhân viên: {PhieuNhapChon.TenNhanVien}");
-            content.AppendLine($"Nhà sản xuất: {PhieuNhapChon.TenNhaCungCap}");
-            content.AppendLine("------------------------------------------");
-            content.AppendLine("Linh kiện\tSL\tĐơn giá\tThành tiền");
-
-            foreach (var item in ChiTietLinhKienNhap)
+            try
             {
-                content.AppendLine($"{item.TenLinhKien}\t{item.SoLuongNhap}\t{item.DonGiaNhap:N0}\t{item.ThanhTien:N0}");
+                var baoCao = new BaoCaoViewModel();
+                var document = baoCao.TaoBaoCaoPhieuNhap(PhieuNhapChon, ChiTietLinhKienNhap);
+                var preview = new BaoCaoPreviewWindow(document)
+                {
+                    Owner = Application.Current.MainWindow
+                };
+                preview.ShowDialog();
             }
-
-            content.AppendLine("------------------------------------------");
-            content.AppendLine($"Tổng số lượng: {PhieuNhapChon.TongSoLuong}");
-            content.AppendLine($"Tổng chi phí: {PhieuNhapChon.TongTien:N0} VNĐ");
-
-            var sfd = new Microsoft.Win32.SaveFileDialog
+            catch (Exception ex)
             {
-                FileName = $"PhieuNhap_{PhieuNhapChon.MaPN}.txt",
-                Filter = "Text File (*.txt)|*.txt"
-            };
+                MessageBox.Show("Lỗi xuất báo cáo phiếu nhập: " + LayThongDiepLoi(ex), "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
-            if (sfd.ShowDialog() == true)
+        private void LuuPhieuNhapExcel()
+        {
+            if (PhieuNhapChon == null) return;
+            try
             {
-                File.WriteAllText(sfd.FileName, content.ToString());
-                MessageBox.Show("Đã xuất phiếu nhập thành công!", "In phiếu nhập");
+                var sfd = new Microsoft.Win32.SaveFileDialog
+                {
+                    FileName = $"PhieuNhap_{PhieuNhapChon.MaPN}.xls",
+                    Filter = "Excel 97-2003 Workbook (*.xls)|*.xls"
+                };
+
+                if (sfd.ShowDialog() == true)
+                {
+                    ExcelExportHelper.XuatPhieuNhap(sfd.FileName, PhieuNhapChon, ChiTietLinhKienNhap);
+                    MessageBox.Show("Đã lưu phiếu nhập thành file Excel!", "Lưu Excel", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi lưu Excel phiếu nhập: " + LayThongDiepLoi(ex), "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

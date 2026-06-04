@@ -1,5 +1,6 @@
 ﻿using LiveCharts.Wpf;
 using Microsoft.EntityFrameworkCore;
+using QuanLyLinhKienMayTinh.Helpers;
 using QuanLyLinhKienMayTinh.Models;
 using QuanLyLinhKienMayTinh.Views;
 using System;
@@ -126,6 +127,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         public ICommand TaoHoaDonCommand { get; private set; }
         public ICommand SuaHoaDonCommand { get; private set; }
         public ICommand InHoaDonCommand { get; private set; }
+        public ICommand LuuHoaDonCommand { get; private set; }
         public ICommand XoaHoaDonCommand { get; private set; }
         public ICommand LocHoaDonCommand { get; private set; }
         public ICommand ThanhToanHoaDonCommand { get; private set; }
@@ -147,6 +149,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             TaoHoaDonCommand = new RelayCommand<object>(p => true, p => ThucHienTaoHoaDon());
             SuaHoaDonCommand = new RelayCommand<object>(p => HoaDonChon != null, p => ThucHienSuaHoaDon());
             InHoaDonCommand = new RelayCommand<object>(p => HoaDonChon != null, p => ThucHienInHoaDon());
+            LuuHoaDonCommand = new RelayCommand<object>(p => HoaDonChon != null, p => ThucHienLuuHoaDonExcel());
             XoaHoaDonCommand = new RelayCommand<object>(p => HoaDonChon != null, p => ThucHienXoaHoaDon());
             LocHoaDonCommand = new RelayCommand<object>(p => true, p => ThucHienLocHoaDon());
             ThanhToanHoaDonCommand = new RelayCommand<object>(p => HoaDonChon != null, p => ThucHienThanhToan());
@@ -192,20 +195,43 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
         private void ThucHienInHoaDon()
         {
-            var hd = HoaDonChon;
-            string content = $"HÓA ĐƠN BÁN HÀNG\nMã HD: {hd.MaHoaDon}\nNgày: {hd.NgayTao:dd/MM/yyyy}\nKhách hàng: {hd.TenKhachHang}\nSĐT: {hd.SoDienThoai}\n------------------------------------------\nSản phẩm\tSL\tĐơn giá\n";
-
-            foreach (var item in ChiTietSanPham)
+            if (HoaDonChon == null) return;
+            try
             {
-                content += $"{item.TenSanPham}\t{item.SoLuong}\t{item.DonGia:N0}\n";
+                var baoCao = new BaoCaoViewModel();
+                var document = baoCao.TaoBaoCaoHoaDon(HoaDonChon, ChiTietSanPham);
+                var preview = new BaoCaoPreviewWindow(document)
+                {
+                    Owner = Application.Current.MainWindow
+                };
+                preview.ShowDialog();
             }
-            content += $"------------------------------------------\nTỔNG TIỀN: {hd.TongTien:N0} VNĐ";
-
-            var sfd = new Microsoft.Win32.SaveFileDialog { FileName = $"HoaDon_{hd.MaHoaDon}.txt", Filter = "Text File (*.txt)|*.txt" };
-            if (sfd.ShowDialog() == true)
+            catch (Exception ex)
             {
-                System.IO.File.WriteAllText(sfd.FileName, content);
-                MessageBox.Show("Đã xuất hóa đơn thành công!", "In hóa đơn");
+                MessageBox.Show("Lỗi xuất báo cáo hóa đơn: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ThucHienLuuHoaDonExcel()
+        {
+            if (HoaDonChon == null) return;
+            try
+            {
+                var sfd = new Microsoft.Win32.SaveFileDialog
+                {
+                    FileName = $"HoaDon_{HoaDonChon.MaHoaDon}.xls",
+                    Filter = "Excel 97-2003 Workbook (*.xls)|*.xls"
+                };
+
+                if (sfd.ShowDialog() == true)
+                {
+                    ExcelExportHelper.XuatHoaDon(sfd.FileName, HoaDonChon, ChiTietSanPham);
+                    MessageBox.Show("Đã lưu hóa đơn thành file Excel!", "Lưu Excel", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi lưu Excel hóa đơn: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

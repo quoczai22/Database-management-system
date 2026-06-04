@@ -380,6 +380,8 @@
                                     Command="{Binding SuaHoaDonCommand}" Margin="4" Padding="12,8"/>
                             <Button Content="🖨️ In" Style="{StaticResource PrimaryBtnStyle}"
                                     Command="{Binding InHoaDonCommand}" Margin="4" Padding="12,8"/>
+                            <Button Content="💾 Lưu Excel" Style="{StaticResource SuccessBtnStyle}"
+                                    Command="{Binding LuuHoaDonCommand}" Margin="4" Padding="12,8"/>
                             <Button Content="🗑️ Xóa" Style="{StaticResource DangerBtnStyle}"
                                     Command="{Binding XoaHoaDonCommand}" Margin="4" Padding="12,8"/>
                             <Button Content="💳  Thanh toán" Style="{StaticResource PrimaryBtnStyle}"

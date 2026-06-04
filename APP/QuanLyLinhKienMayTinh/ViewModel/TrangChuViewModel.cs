@@ -118,13 +118,84 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             }
         }
 
+        private ObservableCollection<LoaiLk> _danhSachLoaiLinhKien;
+        public ObservableCollection<LoaiLk> DanhSachLoaiLinhKien
+        {
+            get { return _danhSachLoaiLinhKien; }
+            set
+            {
+                _danhSachLoaiLinhKien = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ObservableCollection<LinhKien> _danhSachLinhKien;
+        public ObservableCollection<LinhKien> DanhSachLinhKien
+        {
+            get { return _danhSachLinhKien; }
+            set
+            {
+                _danhSachLinhKien = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private LoaiLk _loaiLinhKienDangChon;
+        public LoaiLk LoaiLinhKienDangChon
+        {
+            get { return _loaiLinhKienDangChon; }
+            set
+            {
+                _loaiLinhKienDangChon = value;
+                OnPropertyChanged();
+                TaiGiaTriTonKhoTheoLoai();
+            }
+        }
+
+        private LinhKien _linhKienDangChon;
+        public LinhKien LinhKienDangChon
+        {
+            get { return _linhKienDangChon; }
+            set
+            {
+                _linhKienDangChon = value;
+                OnPropertyChanged();
+                TaiTongSoLuongNhapTheoLinhKien();
+            }
+        }
+
+        private decimal _giaTriTonKhoTheoLoai;
+        public decimal GiaTriTonKhoTheoLoai
+        {
+            get { return _giaTriTonKhoTheoLoai; }
+            set
+            {
+                _giaTriTonKhoTheoLoai = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _tongSoLuongNhapTheoLinhKien;
+        public int TongSoLuongNhapTheoLinhKien
+        {
+            get { return _tongSoLuongNhapTheoLinhKien; }
+            set
+            {
+                _tongSoLuongNhapTheoLinhKien = value;
+                OnPropertyChanged();
+            }
+        }
+
         public TrangChuViewModel()
         {
             DoanhThu = new SeriesCollection();
             Labels = new List<string>();
             ChucVu = new SeriesCollection();
+            DanhSachLoaiLinhKien = new ObservableCollection<LoaiLk>();
+            DanhSachLinhKien = new ObservableCollection<LinhKien>();
 
             TaiDuLieu();
+            TaiDuLieuFunctionBoSung();
             LoadPieChart();
         }
         public void TaiDuLieu()
@@ -148,7 +219,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 {
                     foreach (int y in year)
                     {
-                        for (int m = 1; m <= 12; m +=3)
+                        for (int m = 1; m <= 12; m +=1)
                         {
                             // Truyền lệnh SQL gọi trực tiếp Function của bạn
                             command.CommandText = $"SELECT dbo.fn_DoanhThuTheoThang({m}, {y})";
@@ -196,6 +267,71 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 .ToList();
 
                 DanhSachTopKhachHang = top5KhachHang;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void TaiDuLieuFunctionBoSung()
+        {
+            try
+            {
+                var db = DataProvider.Ins.GetContext();
+
+                DanhSachLoaiLinhKien = new ObservableCollection<LoaiLk>(
+                    db.LoaiLks.OrderBy(l => l.TenLoai).ToList());
+
+                DanhSachLinhKien = new ObservableCollection<LinhKien>(
+                    db.LinhKiens.OrderBy(lk => lk.TenLk).ToList());
+
+                LoaiLinhKienDangChon = DanhSachLoaiLinhKien.FirstOrDefault();
+                LinhKienDangChon = DanhSachLinhKien.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void TaiGiaTriTonKhoTheoLoai()
+        {
+            try
+            {
+                if (LoaiLinhKienDangChon == null)
+                {
+                    GiaTriTonKhoTheoLoai = 0;
+                    return;
+                }
+
+                var db = DataProvider.Ins.GetContext();
+                GiaTriTonKhoTheoLoai = db.LoaiLks
+                    .Where(l => l.MaLoai == LoaiLinhKienDangChon.MaLoai)
+                    .Select(l => QL_LinhKien_PC_Context.fn_GiaTriTonKhoTheoLoai(l.MaLoai) ?? 0)
+                    .FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void TaiTongSoLuongNhapTheoLinhKien()
+        {
+            try
+            {
+                if (LinhKienDangChon == null)
+                {
+                    TongSoLuongNhapTheoLinhKien = 0;
+                    return;
+                }
+
+                var db = DataProvider.Ins.GetContext();
+                TongSoLuongNhapTheoLinhKien = db.LinhKiens
+                    .Where(lk => lk.MaLk == LinhKienDangChon.MaLk)
+                    .Select(lk => QL_LinhKien_PC_Context.fn_TongSoLuongNhapTheoLinhKien(lk.MaLk) ?? 0)
+                    .FirstOrDefault();
             }
             catch (Exception ex)
             {

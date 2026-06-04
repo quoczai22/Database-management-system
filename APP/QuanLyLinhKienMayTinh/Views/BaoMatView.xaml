@@ -110,7 +110,7 @@
                 <ComboBox ItemsSource="{Binding DanhSachKichBan}"
                   SelectedItem="{Binding KichBanChon, Mode=TwoWay}"
                   DisplayMemberPath="TenKichBan"
-                  Width="450" Padding="10,8" FontSize="13" 
+                  Width="520" Padding="10,8" FontSize="13" 
                   VerticalContentAlignment="Center"/>
 
                 <CheckBox Content="Chạy chế độ Đã Fix Lỗi"

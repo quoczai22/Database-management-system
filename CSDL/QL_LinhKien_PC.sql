@@ -1141,6 +1141,7 @@ go
 -- giao tác a:
 
 --Trịnh Hữu Kiến Quốc--
+-- Xử lý giao tác đồng thời có rollback: sp_kichban6_giaotaca_rollback và sp_kichban6_giaotacb_docsaorollback
 create procedure sp_kichban1_giaotaca
     @isfixmode bit
 as
@@ -1326,6 +1327,72 @@ begin
 end
 go
 
+-- Trịnh Hữu Kiến Quốc - kịch bản 6: xử lý giao tác đồng thời có rollback
+-- giao tác a: cập nhật tạm thời, giữ khóa, gặp lỗi và rollback toàn bộ thay đổi
+create procedure sp_kichban6_giaotaca_rollback
+as
+begin
+    set xact_abort on;
+
+    declare @tonkho_bandau int;
+    declare @tonkho_tam int;
+
+    begin try
+        begin tran;
+
+        select @tonkho_bandau = soluongton
+        from linhkien with (updlock, holdlock)
+        where malk = 'MOU001';
+
+        update linhkien
+        set soluongton = @tonkho_bandau - 15
+        where malk = 'MOU001';
+
+        select @tonkho_tam = soluongton
+        from linhkien
+        where malk = 'MOU001';
+
+        waitfor delay '00:00:10';
+
+        -- cố tình phát sinh lỗi nghiệp vụ để chứng minh rollback
+        if (@tonkho_tam < @tonkho_bandau)
+            throw 50106, N'Lỗi mô phỏng: giao tác T1 bị hủy nên phải rollback về tồn kho ban đầu.', 1;
+
+        commit tran;
+    end try
+    begin catch
+        if @@trancount > 0
+            rollback tran;
+
+        select @tonkho_tam = soluongton
+        from linhkien
+        where malk = 'MOU001';
+
+        select
+            N'T1 đã rollback, dữ liệu trở về trạng thái trước khi giao tác chạy' as ThongBao,
+            @tonkho_bandau as TonKhoBanDau,
+            @tonkho_tam as TonKhoTamThoi;
+    end catch
+end
+go
+
+-- giao tác b: chạy đồng thời để chứng minh không đọc dữ liệu tạm khi T1 đang rollback
+create procedure sp_kichban6_giaotacb_docsaorollback
+as
+begin
+    set transaction isolation level read committed;
+    begin tran;
+
+    select
+        N'T2 đọc sau khi T1 rollback hoặc nhả khóa' as ThongBao,
+        soluongton as TonKhoDocDuoc
+    from linhkien
+    where malk = 'MOU001';
+
+    commit tran;
+end
+go
+
 -- Hàm tính tổng giá trị tồn kho theo loại linh kiện
 create function fn_GiaTriTonKhoTheoLoai(@MaLoai char(3))
 returns money
@@ -1487,4 +1554,63 @@ go
 --    waitfor delay '00:00:05';
 --    -- Sau khi A commit và nhả khóa, B mới được đi tiếp xuống đây để khóa MOU002
 --    update linhkien with (xlock) set dongiaban = 888888 where malk = 'MOU002';
+--commit tran;
+
+--6. Kịch bản 6: xử lý giao tác đồng thời có rollback
+--Mục tiêu demo: T1 cập nhật tạm thời và giữ khóa, sau đó gặp lỗi nên rollback.
+--T2 chạy đồng thời ở READ COMMITTED nên không đọc dữ liệu tạm, phải chờ T1 rollback/nhả khóa.
+
+---- Giao tác A - chạy ở cửa sổ query thứ nhất
+--set xact_abort on;
+--begin try
+--    begin tran;
+--
+--    declare @tonkho_bandau int;
+--    declare @tonkho_tam int;
+--
+--    select @tonkho_bandau = soluongton
+--    from linhkien with (updlock, holdlock)
+--    where malk = 'MOU001';
+--
+--    update linhkien
+--    set soluongton = @tonkho_bandau - 15
+--    where malk = 'MOU001';
+--
+--    select @tonkho_tam = soluongton
+--    from linhkien
+--    where malk = 'MOU001';
+--
+--    select
+--        N'T1 đã cập nhật tạm thời, đang giữ khóa 10 giây' as ThongBao,
+--        @tonkho_bandau as TonKhoBanDau,
+--        @tonkho_tam as TonKhoTamThoi;
+--
+--    waitfor delay '00:00:10';
+--
+--    throw 50106, N'Lỗi mô phỏng: T1 bị hủy nên rollback toàn bộ thay đổi.', 1;
+--
+--    commit tran;
+--end try
+--begin catch
+--    if @@trancount > 0
+--        rollback tran;
+--
+--    select
+--        N'T1 đã rollback, tồn kho trở về như trước giao tác' as ThongBao,
+--        error_message() as LyDoRollback,
+--        soluongton as TonKhoSauRollback
+--    from linhkien
+--    where malk = 'MOU001';
+--end catch;
+
+---- Giao tác B - chạy ở cửa sổ query thứ hai trong lúc T1 đang waitfor
+--set transaction isolation level read committed;
+--begin tran;
+--
+--select
+--    N'T2 đọc sau khi T1 rollback hoặc nhả khóa' as ThongBao,
+--    soluongton as TonKhoDocDuoc
+--from linhkien
+--where malk = 'MOU001';
+--
 --commit tran;

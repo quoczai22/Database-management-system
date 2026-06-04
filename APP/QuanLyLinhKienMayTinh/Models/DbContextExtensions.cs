@@ -55,14 +55,7 @@ namespace QuanLyLinhKienMayTinh.Models
         {
             _valueSet = true;
 
-            if (null == value || Convert.IsDBNull(value))
-            {
-                _value = default(TValue);
-                return;
-            }
-
-            var targetType = Nullable.GetUnderlyingType(typeof(TValue)) ?? typeof(TValue);
-            _value = (TValue)Convert.ChangeType(value, targetType);
+            _value = null == value || Convert.IsDBNull(value) ? default(TValue) : (TValue)value;
         }
     }
 }

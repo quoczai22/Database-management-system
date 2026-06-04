@@ -307,6 +307,8 @@
                         <WrapPanel HorizontalAlignment="Center">
                             <Button Content="🖨️ In phiếu" Style="{StaticResource PrimaryBtnStyle}"
                                     Command="{Binding InPhieuNhapCommand}" Margin="4" Padding="12,8"/>
+                            <Button Content="💾 Lưu Excel" Style="{StaticResource SuccessBtnStyle}"
+                                    Command="{Binding LuuPhieuNhapCommand}" Margin="4" Padding="12,8"/>
                             <Button Content="🗑️ Xóa phiếu" Style="{StaticResource DangerBtnStyle}"
                                     Command="{Binding XoaPhieuNhapCommand}" Margin="4" Padding="12,8"/>
                         </WrapPanel>

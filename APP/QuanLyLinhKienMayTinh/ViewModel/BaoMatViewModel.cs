@@ -174,7 +174,8 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 new KichBanModel { Id = 1, TenKichBan = "Kịch bản 2: Đọc dữ liệu rác (Dirty Read)", MoTa = "Tác động: MOU001" },
                 new KichBanModel { Id = 2, TenKichBan = "Kịch bản 3: Không thể đọc lại (Unrepeatable Read)", MoTa = "Tác động: MOU001" },
                 new KichBanModel { Id = 3, TenKichBan = "Kịch bản 4: Bóng ma dữ liệu (Phantom Read)", MoTa = "Tác động: Nhóm loại MOU" },
-                new KichBanModel { Id = 4, TenKichBan = "Kịch bản 5: Tắc nghẽn giao dịch (Deadlock)", MoTa = "Tác động: MOU001 & MOU002" }
+                new KichBanModel { Id = 4, TenKichBan = "Kịch bản 5: Tắc nghẽn giao dịch (Deadlock)", MoTa = "Tác động: MOU001 & MOU002" },
+                new KichBanModel { Id = 5, TenKichBan = "Kịch bản 6: Giao tác đồng thời có rollback", MoTa = "Tác động: MOU001" }
             };
             KichBanChon = DanhSachKichBan[0];
         }
@@ -196,6 +197,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                     case 0:
                     case 1:
                     case 2:
+                    case 5:
                         filtered = allData.Where(x => x.MaLk == "MOU001").ToList();
                         break;
                     case 3:
@@ -337,6 +339,20 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         App.Current.Dispatcher.Invoke(() =>
                             DataUserA = new ObservableCollection<LinhKien>(lk4));
                         break;
+
+                    case 5: // Concurrent transaction with rollback
+                        WriteLog("A cập nhật tạm MOU001, giữ khóa 10 giây rồi phát sinh lỗi để rollback", "USER A");
+                        var kq6a = await context.Procedures.sp_kichban6_giaotaca_rollbackAsync();
+                        foreach (var row in kq6a)
+                        {
+                            WriteLog($"{row.ThongBao} | Tồn ban đầu: {row.TonKhoBanDau} | Tồn sau rollback: {row.TonKhoTamThoi}", "USER A");
+                        }
+
+                        var lk6a = await context.LinhKiens.AsNoTracking()
+                                               .FirstOrDefaultAsync(x => x.MaLk == "MOU001");
+                        App.Current.Dispatcher.Invoke(() =>
+                            DataUserA = new ObservableCollection<LinhKien>(new[] { lk6a }));
+                        break;
                 }
 
                 WriteLog("GIAO TÁC A HOÀN THÀNH!", "USER A");
@@ -413,6 +429,20 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                                                .ToListAsync();
                         App.Current.Dispatcher.Invoke(() =>
                             DataUserB = new ObservableCollection<LinhKien>(lk4));
+                        break;
+
+                    case 5: // Concurrent transaction with rollback
+                        WriteLog("B đọc MOU001 ở READ COMMITTED, nếu A còn giữ khóa thì B phải chờ", "USER B");
+                        var kq6b = await context.Procedures.sp_kichban6_giaotacb_docsaorollbackAsync();
+                        foreach (var row in kq6b)
+                        {
+                            WriteLog($"{row.ThongBao} | Tồn kho đọc được: {row.TonKhoDocDuoc}", "USER B");
+                        }
+
+                        var lk6b = await context.LinhKiens.AsNoTracking()
+                                               .FirstOrDefaultAsync(x => x.MaLk == "MOU001");
+                        App.Current.Dispatcher.Invoke(() =>
+                            DataUserB = new ObservableCollection<LinhKien>(new[] { lk6b }));
                         break;
                 }
 
