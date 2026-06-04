@@ -139,7 +139,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 TongHD = db.HoaDons.Count();
                 var year = Enumerable.Range(2023, 4).ToList();
 
-                // 1. Khởi tạo dữ liệu
+                //Khởi tạo dữ liệu
                 var giaTriDoanhThu = new ChartValues<double>(); // Dữ liệu doanh thu theo tháng
                 var danhSachThang = new List<string>(); // danh sách tháng theo trục hoành
 
@@ -164,7 +164,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 }
                 db.Database.CloseConnection();
 
-                // 4. Cập nhật UI
+                //Cập nhật UI
                 Labels = danhSachThang; // cập nhật danh sách tháng cho trục hoành
                 Formatter = value => value.ToString("N0") + " đ"; // định dạng giá trị doanh thu hiển thị trên biểu đồ 
 

@@ -38,7 +38,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
     public class HoaDonViewModel : BaseViewModel, ISearchable
     {
-        // ── CÁC BIẾN ───────────────────────────────────
+        // các biến
         private ObservableCollection<HoaDonDisplay> _all;
         private ObservableCollection<HoaDonDisplay> _danhSachHoaDon;
         public ObservableCollection<HoaDonDisplay> DanhSachHoaDon { get => _danhSachHoaDon; set { _danhSachHoaDon = value; OnPropertyChanged(); } }
@@ -122,7 +122,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         private Visibility _thanhToanButtonVisibility = Visibility.Collapsed;
         public Visibility ThanhToanButtonVisibility { get => _thanhToanButtonVisibility; set { _thanhToanButtonVisibility = value; OnPropertyChanged(); } }
 
-        // ── COMMANDS ─────────────────────────────────────────────────────────
+        // commands
         public ICommand TaoHoaDonCommand { get; private set; }
         public ICommand SuaHoaDonCommand { get; private set; }
         public ICommand InHoaDonCommand { get; private set; }
@@ -256,7 +256,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             DenNgay = null;
             LocHoaDon();
         }
-        // ── LOAD DỮ LIỆU & ÉP KIỂU DECIMAL ──────────────────────
+        // load dữ liệu và ép kiểu decimal
         public void TaiDuLieu()
         {
             LocHoaDon();
