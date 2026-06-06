@@ -1,0 +1,392 @@
+<Project>
+  <PropertyGroup>
+    <AssemblyName>QuanLyLinhKienMayTinh</AssemblyName>
+    <IntermediateOutputPath>obj\Debug\</IntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\</MSBuildProjectExtensionsPath>
+    <_TargetAssemblyProjectName>QuanLyLinhKienMayTinh</_TargetAssemblyProjectName>
+    <RootNamespace>QuanLyLinhKienMayTinh</RootNamespace>
+  </PropertyGroup>
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Noto\NotoSans-Bold.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Noto\NotoSans-BoldItalic.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Noto\NotoSans-Italic.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Noto\NotoSans-Regular.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\Roboto-Black.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\Roboto-BlackItalic.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\Roboto-Bold.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\Roboto-BoldItalic.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\Roboto-Italic.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\Roboto-Light.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\Roboto-LightItalic.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\Roboto-Medium.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\Roboto-MediumItalic.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\Roboto-Regular.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\Roboto-Thin.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\Roboto-ThinItalic.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\RobotoCondensed-Bold.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\RobotoCondensed-BoldItalic.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\RobotoCondensed-Italic.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\RobotoCondensed-Light.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\RobotoCondensed-LightItalic.ttf" />
+    <Content Remove="C:\Users\kienq\.nuget\packages\materialdesignthemes\5.3.0\contentFiles\any\net8.0-windows7.0\Resources\Roboto\RobotoCondensed-Regular.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Images\avatar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="LiveCharts.Wpf.NetCore3" Version="0.9.8" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="6.2.1" />
+    <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="6.2.1" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.3.0" />
+    <PackageReference Include="MaterialDesignThemes.MahApps" Version="5.3.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.14">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.14">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Themes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\Accessibility.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\azure.core\1.50.0\lib\net8.0\Azure.Core.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\azure.identity\1.17.1\lib\net8.0\Azure.Identity.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\controlzex\4.4.0\lib\netcoreapp3.1\ControlzEx.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\livecharts.wpf.netcore3\0.9.8\lib\net8.0-windows7.0\LiveCharts.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\livecharts.wpf.netcore3\0.9.8\lib\net8.0-windows7.0\LiveCharts.Wpf.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro\2.4.10\lib\netcoreapp3.1\MahApps.Metro.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.bootstrapicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.BootstrapIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.boxicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.BoxIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.boxicons2\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.BoxIcons2.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.circumicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.CircumIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.codicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Codicons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.coolicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Coolicons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.core\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Core.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.entypo\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Entypo.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.evaicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.EvaIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.feathericons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.FeatherIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.fileicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.FileIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.fontaudio\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Fontaudio.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.fontawesome\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.FontAwesome.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.fontawesome5\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.FontAwesome5.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.fontawesome6\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.FontAwesome6.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.fontisto\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Fontisto.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.forkawesome\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.ForkAwesome.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.gameicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.GameIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.ionicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Ionicons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.jamicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.JamIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.keyruneicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.KeyruneIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.lucide\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Lucide.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.material\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Material.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.materialdesign\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.MaterialDesign.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.materiallight\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.MaterialLight.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.memoryicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.MemoryIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.microns\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Microns.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.mingcuteicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.MingCuteIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.modern\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Modern.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.mynauiicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.MynaUIIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.octicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Octicons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.phosphoricons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.PhosphorIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.picolicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.PicolIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.pixelarticons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.PixelartIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.radixicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.RadixIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.remixicon\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.RemixIcon.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.rpgawesome\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.RPGAwesome.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.simpleicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.SimpleIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.typicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Typicons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.unicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Unicons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.vaadinicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.VaadinIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.weathericons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.WeatherIcons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\mahapps.metro.iconpacks.zondicons\6.2.1\lib\net8.0-windows7.0\MahApps.Metro.IconPacks.Zondicons.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\materialdesigncolors\5.3.0\lib\net8.0-windows7.0\MaterialDesignColors.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\materialdesignthemes.mahapps\5.3.0\lib\net8.0-windows7.0\MaterialDesignThemes.MahApps.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\materialdesignthemes\5.3.0\lib\net8.0-windows7.0\MaterialDesignThemes.Wpf.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.bcl.asyncinterfaces\8.0.0\lib\netstandard2.1\Microsoft.Bcl.AsyncInterfaces.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\Microsoft.CSharp.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.data.sqlclient\6.1.4\ref\net8.0\Microsoft.Data.SqlClient.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.entityframeworkcore.abstractions\8.0.14\lib\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.entityframeworkcore\8.0.14\lib\net8.0\Microsoft.EntityFrameworkCore.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.entityframeworkcore.relational\8.0.14\lib\net8.0\Microsoft.EntityFrameworkCore.Relational.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.entityframeworkcore.sqlserver\8.0.14\lib\net8.0\Microsoft.EntityFrameworkCore.SqlServer.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.extensions.caching.abstractions\8.0.0\lib\net8.0\Microsoft.Extensions.Caching.Abstractions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.extensions.caching.memory\8.0.1\lib\net8.0\Microsoft.Extensions.Caching.Memory.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.extensions.configuration.abstractions\8.0.0\lib\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.extensions.dependencyinjection.abstractions\8.0.2\lib\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.extensions.dependencyinjection\8.0.1\lib\net8.0\Microsoft.Extensions.DependencyInjection.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.extensions.logging.abstractions\8.0.3\lib\net8.0\Microsoft.Extensions.Logging.Abstractions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.extensions.logging\8.0.1\lib\net8.0\Microsoft.Extensions.Logging.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.extensions.options\8.0.2\lib\net8.0\Microsoft.Extensions.Options.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.extensions.primitives\8.0.0\lib\net8.0\Microsoft.Extensions.Primitives.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.identity.client\4.80.0\lib\net8.0\Microsoft.Identity.Client.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.identity.client.extensions.msal\4.78.0\lib\net8.0\Microsoft.Identity.Client.Extensions.Msal.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.identitymodel.abstractions\8.14.0\lib\net8.0\Microsoft.IdentityModel.Abstractions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.identitymodel.jsonwebtokens\7.7.1\lib\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.identitymodel.logging\7.7.1\lib\net8.0\Microsoft.IdentityModel.Logging.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.identitymodel.protocols\7.7.1\lib\net8.0\Microsoft.IdentityModel.Protocols.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.identitymodel.protocols.openidconnect\7.7.1\lib\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.identitymodel.tokens\7.7.1\lib\net8.0\Microsoft.IdentityModel.Tokens.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.sqlserver.server\1.0.0\lib\netstandard2.0\Microsoft.SqlServer.Server.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\Microsoft.VisualBasic.Core.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\Microsoft.VisualBasic.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\Microsoft.Win32.Primitives.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\Microsoft.Win32.Registry.AccessControl.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\Microsoft.Win32.Registry.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\Microsoft.Win32.SystemEvents.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.xaml.behaviors.wpf\1.1.77\lib\net6.0-windows7.0\Microsoft.Xaml.Behaviors.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\mscorlib.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\netstandard.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\PresentationCore.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\PresentationFramework.Aero.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\PresentationFramework.Aero2.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\PresentationFramework.AeroLite.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\PresentationFramework.Classic.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\PresentationFramework.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\PresentationFramework.Luna.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\PresentationFramework.Royale.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\PresentationUI.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\ReachFramework.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.AppContext.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Buffers.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\system.clientmodel\1.8.0\lib\net8.0\System.ClientModel.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.CodeDom.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Collections.Concurrent.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Collections.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Collections.Immutable.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Collections.NonGeneric.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Collections.Specialized.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.ComponentModel.Annotations.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.ComponentModel.DataAnnotations.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.ComponentModel.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.ComponentModel.EventBasedAsync.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.ComponentModel.Primitives.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.ComponentModel.TypeConverter.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Configuration.ConfigurationManager.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Configuration.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Console.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Core.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Data.Common.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Data.DataSetExtensions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Data.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Diagnostics.Contracts.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Diagnostics.Debug.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Diagnostics.DiagnosticSource.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Diagnostics.EventLog.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Diagnostics.FileVersionInfo.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Diagnostics.PerformanceCounter.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Diagnostics.Process.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Diagnostics.StackTrace.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Diagnostics.TextWriterTraceListener.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Diagnostics.Tools.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Diagnostics.TraceSource.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Diagnostics.Tracing.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.DirectoryServices.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Drawing.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Drawing.Primitives.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Dynamic.Runtime.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Formats.Asn1.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Formats.Tar.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Globalization.Calendars.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Globalization.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Globalization.Extensions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\system.identitymodel.tokens.jwt\7.7.1\lib\net8.0\System.IdentityModel.Tokens.Jwt.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.Compression.Brotli.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.Compression.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.Compression.FileSystem.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.Compression.ZipFile.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.FileSystem.AccessControl.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.FileSystem.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.FileSystem.DriveInfo.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.FileSystem.Primitives.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.FileSystem.Watcher.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.IsolatedStorage.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.MemoryMappedFiles.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.IO.Packaging.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.Pipes.AccessControl.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.Pipes.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.IO.UnmanagedMemoryStream.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Linq.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Linq.Expressions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Linq.Parallel.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Linq.Queryable.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\system.memory.data\8.0.1\lib\net8.0\System.Memory.Data.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Memory.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.Http.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.Http.Json.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.HttpListener.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.Mail.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.NameResolution.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.NetworkInformation.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.Ping.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.Primitives.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.Quic.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.Requests.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.Security.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.ServicePoint.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.Sockets.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.WebClient.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.WebHeaderCollection.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.WebProxy.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.WebSockets.Client.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Net.WebSockets.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Numerics.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Numerics.Vectors.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.ObjectModel.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Printing.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Reflection.DispatchProxy.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Reflection.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Reflection.Emit.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Reflection.Emit.ILGeneration.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Reflection.Emit.Lightweight.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Reflection.Extensions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Reflection.Metadata.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Reflection.Primitives.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Reflection.TypeExtensions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Resources.Extensions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Resources.Reader.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Resources.ResourceManager.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Resources.Writer.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.CompilerServices.Unsafe.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.CompilerServices.VisualC.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.Extensions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.Handles.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.InteropServices.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.InteropServices.JavaScript.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.InteropServices.RuntimeInformation.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.Intrinsics.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.Loader.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.Numerics.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.Serialization.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.Serialization.Formatters.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.Serialization.Json.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.Serialization.Primitives.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Runtime.Serialization.Xml.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.AccessControl.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.Claims.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.Cryptography.Algorithms.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.Cryptography.Cng.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.Cryptography.Csp.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.Cryptography.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.Cryptography.Encoding.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.Cryptography.OpenSsl.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Security.Cryptography.Pkcs.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.Cryptography.Primitives.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Security.Cryptography.ProtectedData.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.Cryptography.X509Certificates.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Security.Cryptography.Xml.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Security.Permissions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.Principal.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.Principal.Windows.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Security.SecureString.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.ServiceModel.Web.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.ServiceProcess.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Text.Encoding.CodePages.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Text.Encoding.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Text.Encoding.Extensions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Text.Encodings.Web.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Text.Json.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Text.RegularExpressions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Threading.AccessControl.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Threading.Channels.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Threading.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Threading.Overlapped.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Threading.Tasks.Dataflow.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Threading.Tasks.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Threading.Tasks.Extensions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Threading.Tasks.Parallel.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Threading.Thread.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Threading.ThreadPool.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Threading.Timer.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Transactions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Transactions.Local.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.ValueTuple.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Web.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Web.HttpUtility.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Windows.Controls.Ribbon.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Windows.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Windows.Extensions.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Windows.Input.Manipulations.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Windows.Presentation.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\System.Xaml.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Xml.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Xml.Linq.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Xml.ReaderWriter.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Xml.Serialization.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Xml.XDocument.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Xml.XmlDocument.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Xml.XmlSerializer.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Xml.XPath.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\ref\net8.0\System.Xml.XPath.XDocument.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\UIAutomationClient.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\UIAutomationClientSideProviders.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\UIAutomationProvider.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\UIAutomationTypes.dll" />
+    <ReferencePath Include="C:\Users\Minh Quan\.nuget\packages\microsoft.windowsdesktop.app.ref\8.0.25\ref\net8.0\WindowsBase.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\BaoCaoPreviewWindow.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\BaoMatView.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\HoaDonView.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\KhachHangView.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\LinhKienView.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\LoaiLinhKienView.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\LoginView.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\MainWindow.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\NhanVienView.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\PhieuNhapView.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\SuaHoaDonDialog.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\TaiKhoanView.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\ThemHoaDonDialog.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\ThemPhieuNhapDialog.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\ThemSuaKhachHangDialog.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\ThemSuaLinhKienDialog.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\ThemSuaLoaiLinhKienDialog.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\ThemSuaNhanVienDialog.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\ThongBaoKhachHangWindow.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\ThongBaoTonKhoWindow.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\Views\TrangChuView.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\App.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\QuanLyLinhKienMayTinh_Content.g.cs" />
+    <Compile Include="D:\BaiTap\HQTCSDL\DoAn\Database-management-system\APP\QuanLyLinhKienMayTinh\obj\Debug\net8.0-windows8.0\GeneratedInternalTypeHelper.g.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="C:\Program Files\dotnet\sdk\10.0.201\Sdks\Microsoft.NET.Sdk\targets\..\analyzers\Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll" />
+    <Analyzer Include="C:\Program Files\dotnet\sdk\10.0.201\Sdks\Microsoft.NET.Sdk\targets\..\analyzers\Microsoft.CodeAnalysis.NetAnalyzers.dll" />
+    <Analyzer Include="C:\Users\Minh Quan\.nuget\packages\microsoft.codeanalysis.analyzers\3.3.3\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
+    <Analyzer Include="C:\Users\Minh Quan\.nuget\packages\microsoft.codeanalysis.analyzers\3.3.3\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
+    <Analyzer Include="C:\Users\Minh Quan\.nuget\packages\microsoft.entityframeworkcore.analyzers\8.0.14\analyzers\dotnet\cs\Microsoft.EntityFrameworkCore.Analyzers.dll" />
+    <Analyzer Include="C:\Users\Minh Quan\.nuget\packages\microsoft.extensions.logging.abstractions\8.0.3\analyzers\dotnet\roslyn4.4\cs\Microsoft.Extensions.Logging.Generators.dll" />
+    <Analyzer Include="C:\Users\Minh Quan\.nuget\packages\microsoft.extensions.options\8.0.2\analyzers\dotnet\roslyn4.4\cs\Microsoft.Extensions.Options.SourceGeneration.dll" />
+    <Analyzer Include="C:\Users\Minh Quan\.nuget\packages\system.clientmodel\1.8.0\analyzers\dotnet\cs\System.ClientModel.SourceGeneration.dll" />
+    <Analyzer Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\analyzers/dotnet/cs/Microsoft.Interop.ComInterfaceGenerator.dll" />
+    <Analyzer Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\analyzers/dotnet/cs/Microsoft.Interop.JavaScript.JSImportGenerator.dll" />
+    <Analyzer Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\analyzers/dotnet/cs/Microsoft.Interop.LibraryImportGenerator.dll" />
+    <Analyzer Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\analyzers/dotnet/cs/Microsoft.Interop.SourceGeneration.dll" />
+    <Analyzer Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\analyzers/dotnet/cs/System.Text.Json.SourceGeneration.dll" />
+    <Analyzer Include="C:\Users\Minh Quan\.nuget\packages\microsoft.netcore.app.ref\8.0.25\analyzers/dotnet/cs/System.Text.RegularExpressions.Generator.dll" />
+  </ItemGroup>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+</Project>

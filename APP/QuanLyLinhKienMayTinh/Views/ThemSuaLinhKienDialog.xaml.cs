@@ -20,10 +20,12 @@ namespace QuanLyLinhKienMayTinh.Views
         public DateOnly? NgayNhap { get; private set; }
 
         private readonly bool _laMoiThem;
+        private readonly string _maLk;
         public ThemSuaLinhKienDialog()
         {
             InitializeComponent();
             _laMoiThem = true;
+            _maLk = string.Empty;
             TitleText.Text = "Thêm Linh Kiện";
             DpNgayNhap.SelectedDate = DateTime.Now;
             TaiDanhSachComboBox();
@@ -32,6 +34,7 @@ namespace QuanLyLinhKienMayTinh.Views
         {
             InitializeComponent();
             _laMoiThem = false;
+            _maLk = lk.MaLk;
             TitleText.Text = "Sửa Linh Kiện";
             BtnLuu.Content = "Cập nhật";
             TxtTenLk.Text = lk.TenLk;
@@ -72,7 +75,7 @@ namespace QuanLyLinhKienMayTinh.Views
 
         private void BtnLuu_Click(object sender, RoutedEventArgs e)
         {
-            string maLk = null;
+            string maLk = _maLk;
             if (string.IsNullOrWhiteSpace(TxtTenLk.Text))
             {
                 MessageBox.Show("Vui lòng nhập tên linh kiện!", "Thiếu thông tin",

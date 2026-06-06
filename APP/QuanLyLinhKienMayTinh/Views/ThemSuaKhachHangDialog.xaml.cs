@@ -6,7 +6,7 @@ namespace QuanLyLinhKienMayTinh.Views
     public partial class ThemSuaKhachHangDialog : Window
     {
         public KhachHangDisplay KetQua { get; private set; }
-        private readonly bool _laSua;
+        private readonly string _maKh;
 
         /// <summary>
         /// Mở dialog ở chế độ THÊM
@@ -14,7 +14,7 @@ namespace QuanLyLinhKienMayTinh.Views
         public ThemSuaKhachHangDialog()
         {
             InitializeComponent();
-            _laSua = false;
+            _maKh = string.Empty;
             TitleText.Text = "Thêm Khách Hàng";
         }
 
@@ -24,7 +24,7 @@ namespace QuanLyLinhKienMayTinh.Views
         public ThemSuaKhachHangDialog(KhachHangDisplay kh)
         {
             InitializeComponent();
-            _laSua = true;
+            _maKh = kh.MaKh;
             TitleText.Text = "Sửa Khách Hàng";
             BtnLuu.Content = "Cập nhật";
             TxtHoTen.Text = kh.HoTen;
@@ -45,7 +45,7 @@ namespace QuanLyLinhKienMayTinh.Views
 
             KetQua = new KhachHangDisplay
             {
-                MaKh = null,
+                MaKh = _maKh,
                 HoTen = TxtHoTen.Text.Trim(),
                 Sdt = TxtSdt.Text.Trim(),
                 Email = TxtEmail.Text.Trim(),

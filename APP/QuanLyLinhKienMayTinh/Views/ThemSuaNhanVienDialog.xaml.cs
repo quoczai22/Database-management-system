@@ -19,10 +19,12 @@ namespace QuanLyLinhKienMayTinh.Views
         public string Email { get; private set; }
         public DateOnly? NgaySinh { get; private set; }
         public DateOnly? NgayVaoLam { get; private set; }
+        private readonly string _maNv;
 
         public ThemSuaNhanVienDialog()
         {
             InitializeComponent();
+            _maNv = string.Empty;
             TitleText.Text = "Thêm Nhân Viên";
             DpNgayVaoLam.SelectedDate = DateTime.Now;
             TaiDanhSachChucVu();
@@ -30,6 +32,7 @@ namespace QuanLyLinhKienMayTinh.Views
         public ThemSuaNhanVienDialog(NhanVienDisplay nv)
         {
             InitializeComponent();
+            _maNv = nv.MaNv;
             TitleText.Text = "Sửa Nhân Viên";
             BtnLuu.Content = "Cập nhật";
             TxtHoTen.Text = nv.HoTen;
@@ -108,7 +111,7 @@ namespace QuanLyLinhKienMayTinh.Views
                 return;
             }
 
-            MaNv = null;
+            MaNv = _maNv;
             HoTen = TxtHoTen.Text.Trim();
             ChucVu = ((ChucVuItem)CboChucVu.SelectedItem).TenChucVu;
             Sdt = TxtSdt.Text.Trim();

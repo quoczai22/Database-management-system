@@ -527,7 +527,8 @@ begin
     return @MaMoi;
 end;
 go
-
+--Nguyễn Nhật Minh Quân--
+--Thực hiện 2 function fn_TaoMaLinhKienMoi và fn_TaoMaPhieuNhapMoi
 create function fn_TaoMaLinhKienMoi(@MaLoai varchar(3))
 returns varchar(6) 
 as
@@ -938,6 +939,8 @@ begin
    where SoLuongTon<10;
    end;
 go
+--Nguyễn Nhật Minh Quân--
+--Phân quyền và backup, restore
 
 -- quản trị người dùng
 -- dọn dẹp trước khi tạo để không bị lỗi khi chạy lại script
@@ -1035,6 +1038,19 @@ go
 grant control
 to role_quanLy;
 go
+
+alter role db_backupoperator add member quanLyUser;
+go
+
+use master;
+go
+
+alter server role dbcreator add member quanLyLogin;
+go
+
+use QL_LinhKien_PC;
+go
+
 -- phân quyền cho nhân viên thu ngân
 grant all on KhachHang to role_thuNgan;
 grant all on HoaDon to role_thuNgan;
