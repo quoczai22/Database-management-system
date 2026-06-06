@@ -445,6 +445,8 @@ end;
 go
 
 -- tạo hàm và thủ tục
+--Lương Văn Quan
+--Tạo 2 Function fn_DoanhThuTheoThang và  fn_TaoMaHoaDonMoi
 create function fn_DoanhThuTheoThang (@Thang int, @Nam int)
 returns int 
 as
