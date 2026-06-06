@@ -159,12 +159,12 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
         public BaoMatViewModel()
         {
-            RunUserACommand = new RelayCommand<object>(p => IsUserAIdle, p => RunUserAAsync());
-            RunUserBCommand = new RelayCommand<object>(p => IsUserBIdle, p => RunUserBAsync());
-            ResetDataCommand = new RelayCommand<object>(p => true, p => ResetDataAsync());
-            BackupDatabaseCommand = new RelayCommand<object>(p => IsBackupRestoreIdle, p => BackupDatabaseAsync(p?.ToString() ?? "FULL"));
-            RestoreDatabaseCommand = new RelayCommand<object>(p => IsBackupRestoreIdle, p => RestoreDatabaseAsync());
-            RestoreBackupChainCommand = new RelayCommand<object>(p => IsBackupRestoreIdle, p => RestoreBackupChainAsync());
+            RunUserACommand = new RelayCommand<object>(p => IsUserAIdle, async p => await RunUserAAsync());
+            RunUserBCommand = new RelayCommand<object>(p => IsUserBIdle, async p => await RunUserBAsync());
+            ResetDataCommand = new RelayCommand<object>(p => true, async p => await ResetDataAsync());
+            BackupDatabaseCommand = new RelayCommand<object>(p => IsBackupRestoreIdle, async p => await BackupDatabaseAsync(p?.ToString() ?? "FULL"));
+            RestoreDatabaseCommand = new RelayCommand<object>(p => IsBackupRestoreIdle, async p => await RestoreDatabaseAsync());
+            RestoreBackupChainCommand = new RelayCommand<object>(p => IsBackupRestoreIdle, async p => await RestoreBackupChainAsync());
 
             KhoiTaoDanhSachKichBan();
             _ = LoadDataAsync();
@@ -186,42 +186,102 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 || LuuTrangThai.QuyenDangNhap == "Bảo mật";
         }
 
-        private static string GetCurrentConnectionString()
+        private static string LayConnectionStringHienTai()
         {
             using var context = DataProvider.Ins.GetContext();
             return context.Database.GetConnectionString();
         }
 
-        private static string QuoteSqlIdentifier(string value)
+        private static string LayTenDatabase()
         {
-            return "[" + value.Replace("]", "]]") + "]";
+            var connString = LayConnectionStringHienTai();
+            return new SqlConnectionStringBuilder(connString).InitialCatalog;
         }
 
-        private static string GetMasterConnectionString(string connString)
+        private static string BocTenSql(string ten)
         {
-            var builder = new SqlConnectionStringBuilder(connString)
+            return "[" + ten.Replace("]", "]]") + "]";
+        }
+
+        private static string LayConnectionStringMaster()
+        {
+            var builder = new SqlConnectionStringBuilder(LayConnectionStringHienTai())
             {
                 InitialCatalog = "master"
             };
+
             return builder.ConnectionString;
         }
 
-        private static async Task ExecuteMasterCommandAsync(string sql, string? backupPath = null)
+        private static async Task ChaySqlTrenMasterAsync(string sql, string? duongDanFile = null)
         {
-            var connString = GetCurrentConnectionString();
-            await using var connection = new SqlConnection(GetMasterConnectionString(connString));
+            await using var connection = new SqlConnection(LayConnectionStringMaster());
             await connection.OpenAsync();
 
             await using var command = connection.CreateCommand();
             command.CommandText = sql;
             command.CommandTimeout = 0;
 
-            if (!string.IsNullOrWhiteSpace(backupPath))
+            if (!string.IsNullOrWhiteSpace(duongDanFile))
             {
-                command.Parameters.Add(new SqlParameter("@BackupPath", backupPath));
+                command.Parameters.Add(new SqlParameter("@BackupPath", duongDanFile));
             }
 
             await command.ExecuteNonQueryAsync();
+        }
+
+        private static string ChuanHoaLoaiBackup(string backupType)
+        {
+            backupType = (backupType ?? "FULL").ToUpperInvariant();
+
+            if (backupType == "DIFFERENTIAL") return "DIFFERENTIAL";
+            if (backupType == "LOG") return "LOG";
+            return "FULL";
+        }
+
+        private static string LayTenLoaiBackup(string backupType)
+        {
+            if (backupType == "DIFFERENTIAL") return "Differential";
+            if (backupType == "LOG") return "Log";
+            return "Full";
+        }
+
+        private static string TaoLenhBackup(string backupType, string tenDatabase)
+        {
+            var db = BocTenSql(tenDatabase);
+
+            if (backupType == "DIFFERENTIAL")
+            {
+                return $"BACKUP DATABASE {db} TO DISK = @BackupPath WITH DIFFERENTIAL, INIT, STATS = 10;";
+            }
+
+            if (backupType == "LOG")
+            {
+                return $"BACKUP LOG {db} TO DISK = @BackupPath WITH INIT, STATS = 10;";
+            }
+
+            return $"ALTER DATABASE {db} SET RECOVERY FULL;" + Environment.NewLine +
+                   $"BACKUP DATABASE {db} TO DISK = @BackupPath WITH INIT, STATS = 10;";
+        }
+
+        private static string? ChonNoiLuuBackup(string backupType)
+        {
+            var tenLoai = LayTenLoaiBackup(backupType);
+            var duoiFile = backupType == "LOG" ? ".trn" : ".bak";
+
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = "Chọn nơi lưu file backup",
+                FileName = $"QL_LinhKien_PC_{tenLoai}_{DateTime.Now:yyyyMMdd_HHmmss}{duoiFile}",
+                Filter = backupType == "LOG"
+                    ? "SQL Server Transaction Log (*.trn)|*.trn|SQL Server Backup (*.bak)|*.bak|All files (*.*)|*.*"
+                    : "SQL Server Backup (*.bak)|*.bak|All files (*.*)|*.*",
+                AddExtension = true,
+                DefaultExt = duoiFile
+            };
+
+            if (dialog.ShowDialog() != true) return null;
+            return dialog.FileName;
         }
 
         private async Task BackupDatabaseAsync(string backupType)
@@ -232,118 +292,26 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 return;
             }
 
-            var normalizedType = (backupType ?? "FULL").ToUpperInvariant();
-            var backupLabel = normalizedType switch
-            {
-                "DIFFERENTIAL" => "Differential",
-                "LOG" => "Log",
-                _ => "Full"
-            };
-            var extension = normalizedType == "LOG" ? ".trn" : ".bak";
-
-            var dialog = new Microsoft.Win32.SaveFileDialog
-            {
-                Title = "Chọn nơi lưu file backup",
-                FileName = $"QL_LinhKien_PC_{backupLabel}_{DateTime.Now:yyyyMMdd_HHmmss}{extension}",
-                Filter = normalizedType == "LOG"
-                    ? "SQL Server Transaction Log (*.trn)|*.trn|SQL Server Backup (*.bak)|*.bak|All files (*.*)|*.*"
-                    : "SQL Server Backup (*.bak)|*.bak|All files (*.*)|*.*",
-                AddExtension = true,
-                DefaultExt = extension
-            };
-
-            if (dialog.ShowDialog() != true) return;
+            var loaiBackup = ChuanHoaLoaiBackup(backupType);
+            var tenLoai = LayTenLoaiBackup(loaiBackup);
+            var duongDanFile = ChonNoiLuuBackup(loaiBackup);
+            if (duongDanFile == null) return;
 
             try
             {
                 IsBackupRestoreBusy = true;
-                var connString = GetCurrentConnectionString();
-                var dbName = new SqlConnectionStringBuilder(connString).InitialCatalog;
-                var db = QuoteSqlIdentifier(dbName);
-                var sql = normalizedType switch
-                {
-                    "DIFFERENTIAL" => $"BACKUP DATABASE {db} TO DISK = @BackupPath WITH DIFFERENTIAL, INIT, STATS = 10;",
-                    "LOG" => $"BACKUP LOG {db} TO DISK = @BackupPath WITH INIT, STATS = 10;",
-                    _ => $"ALTER DATABASE {db} SET RECOVERY FULL;" + Environment.NewLine +
-                         $"BACKUP DATABASE {db} TO DISK = @BackupPath WITH INIT, STATS = 10;"
-                };
 
-                await ExecuteMasterCommandAsync(sql, dialog.FileName);
+                var tenDatabase = LayTenDatabase();
+                var sql = TaoLenhBackup(loaiBackup, tenDatabase);
+                await ChaySqlTrenMasterAsync(sql, duongDanFile);
 
-                WriteLog($"Đã backup {backupLabel} CSDL thành công: {dialog.FileName}", "HỆ THỐNG");
-                MessageBox.Show($"Backup {backupLabel} cơ sở dữ liệu thành công!", "Backup", MessageBoxButton.OK, MessageBoxImage.Information);
+                WriteLog($"Đã backup {tenLoai} CSDL thành công: {duongDanFile}", "HỆ THỐNG");
+                MessageBox.Show($"Backup {tenLoai} cơ sở dữ liệu thành công!", "Backup", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                WriteLog($"Lỗi backup {backupLabel} CSDL: {ex.Message}", "HỆ THỐNG");
-                MessageBox.Show($"Lỗi backup {backupLabel} cơ sở dữ liệu: " + ex.Message, "Backup", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                IsBackupRestoreBusy = false;
-            }
-        }
-
-        private async Task RestoreDatabaseAsync()
-        {
-            if (!CoQuyenBackupRestore())
-            {
-                MessageBox.Show("Chỉ tài khoản quản lý mới được phục hồi cơ sở dữ liệu.", "Từ chối truy cập", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            var dialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Title = "Chọn file backup để restore",
-                Filter = "SQL Server Backup (*.bak)|*.bak|All files (*.*)|*.*"
-            };
-
-            if (dialog.ShowDialog() != true) return;
-
-            if (!File.Exists(dialog.FileName))
-            {
-                MessageBox.Show("File backup không tồn tại.", "Restore", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            var confirm = MessageBox.Show(
-                "Restore sẽ ghi đè cơ sở dữ liệu hiện tại bằng file backup đã chọn. Bạn có chắc muốn tiếp tục?",
-                "Xác nhận restore",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (confirm != MessageBoxResult.Yes) return;
-
-            var connString = GetCurrentConnectionString();
-            var dbName = new SqlConnectionStringBuilder(connString).InitialCatalog;
-            var db = QuoteSqlIdentifier(dbName);
-
-            try
-            {
-                IsBackupRestoreBusy = true;
-                var sql =
-                    $"ALTER DATABASE {db} SET SINGLE_USER WITH ROLLBACK IMMEDIATE;" + Environment.NewLine +
-                    $"RESTORE DATABASE {db} FROM DISK = @BackupPath WITH REPLACE, RECOVERY, STATS = 10;" + Environment.NewLine +
-                    $"ALTER DATABASE {db} SET MULTI_USER;";
-
-                await ExecuteMasterCommandAsync(sql, dialog.FileName);
-                await LoadDataAsync();
-
-                WriteLog($"Đã restore CSDL từ file: {dialog.FileName}", "HỆ THỐNG");
-                MessageBox.Show("Restore cơ sở dữ liệu thành công!", "Restore", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                try
-                {
-                    await ExecuteMasterCommandAsync($"ALTER DATABASE {db} SET MULTI_USER;");
-                }
-                catch
-                {
-                }
-
-                WriteLog($"Lỗi restore CSDL: {ex.Message}", "HỆ THỐNG");
-                MessageBox.Show("Lỗi restore cơ sở dữ liệu: " + ex.Message, "Restore", MessageBoxButton.OK, MessageBoxImage.Error);
+                WriteLog($"Lỗi backup {tenLoai} CSDL: {ex.Message}", "HỆ THỐNG");
+                MessageBox.Show($"Lỗi backup {tenLoai} cơ sở dữ liệu: " + ex.Message, "Backup", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -368,6 +336,87 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             }
 
             return dialog.FileName;
+        }
+
+        private static bool XacNhanRestore(string noiDung)
+        {
+            return MessageBox.Show(
+                noiDung,
+                "Xác nhận restore",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning) == MessageBoxResult.Yes;
+        }
+
+        private static string TaoLenhRestoreFull(string tenDatabase)
+        {
+            var db = BocTenSql(tenDatabase);
+
+            return $"ALTER DATABASE {db} SET SINGLE_USER WITH ROLLBACK IMMEDIATE;" + Environment.NewLine +
+                   $"RESTORE DATABASE {db} FROM DISK = @BackupPath WITH REPLACE, RECOVERY, STATS = 10;" + Environment.NewLine +
+                   $"ALTER DATABASE {db} SET MULTI_USER;";
+        }
+
+        private static async Task CoGangMoLaiDatabaseAsync(string tenDatabase)
+        {
+            var db = BocTenSql(tenDatabase);
+
+            try
+            {
+                await ChaySqlTrenMasterAsync($"RESTORE DATABASE {db} WITH RECOVERY;");
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                await ChaySqlTrenMasterAsync($"ALTER DATABASE {db} SET MULTI_USER;");
+            }
+            catch
+            {
+            }
+        }
+
+        private async Task RestoreDatabaseAsync()
+        {
+            if (!CoQuyenBackupRestore())
+            {
+                MessageBox.Show("Chỉ tài khoản quản lý mới được phục hồi cơ sở dữ liệu.", "Từ chối truy cập", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var duongDanFile = ChonFileRestore("Chọn file backup để restore", "SQL Server Backup (*.bak)|*.bak|All files (*.*)|*.*");
+            if (duongDanFile == null) return;
+
+            if (!XacNhanRestore("Restore sẽ ghi đè cơ sở dữ liệu hiện tại bằng file backup đã chọn. Bạn có chắc muốn tiếp tục?"))
+            {
+                return;
+            }
+
+            var tenDatabase = LayTenDatabase();
+
+            try
+            {
+                IsBackupRestoreBusy = true;
+
+                var sql = TaoLenhRestoreFull(tenDatabase);
+                await ChaySqlTrenMasterAsync(sql, duongDanFile);
+                await LoadDataAsync();
+
+                WriteLog($"Đã restore CSDL từ file: {duongDanFile}", "HỆ THỐNG");
+                MessageBox.Show("Restore cơ sở dữ liệu thành công!", "Restore", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                await CoGangMoLaiDatabaseAsync(tenDatabase);
+
+                WriteLog($"Lỗi restore CSDL: {ex.Message}", "HỆ THỐNG");
+                MessageBox.Show("Lỗi restore cơ sở dữ liệu: " + ex.Message, "Restore", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsBackupRestoreBusy = false;
+            }
         }
 
         private async Task RestoreBackupChainAsync()
@@ -395,40 +444,36 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 if (logPath == null) return;
             }
 
-            var confirm = MessageBox.Show(
-                "Restore chuỗi backup sẽ ghi đè cơ sở dữ liệu hiện tại. Bạn có chắc muốn tiếp tục?",
-                "Xác nhận restore",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+            if (!XacNhanRestore("Restore chuỗi backup sẽ ghi đè cơ sở dữ liệu hiện tại. Bạn có chắc muốn tiếp tục?"))
+            {
+                return;
+            }
 
-            if (confirm != MessageBoxResult.Yes) return;
-
-            var connString = GetCurrentConnectionString();
-            var dbName = new SqlConnectionStringBuilder(connString).InitialCatalog;
-            var db = QuoteSqlIdentifier(dbName);
+            var tenDatabase = LayTenDatabase();
+            var db = BocTenSql(tenDatabase);
 
             try
             {
                 IsBackupRestoreBusy = true;
 
-                await ExecuteMasterCommandAsync($"ALTER DATABASE {db} SET SINGLE_USER WITH ROLLBACK IMMEDIATE;");
-                await ExecuteMasterCommandAsync($"RESTORE DATABASE {db} FROM DISK = @BackupPath WITH REPLACE, NORECOVERY, STATS = 10;", fullPath);
+                await ChaySqlTrenMasterAsync($"ALTER DATABASE {db} SET SINGLE_USER WITH ROLLBACK IMMEDIATE;");
+                await ChaySqlTrenMasterAsync($"RESTORE DATABASE {db} FROM DISK = @BackupPath WITH REPLACE, NORECOVERY, STATS = 10;", fullPath);
 
                 if (diffPath != null)
                 {
-                    await ExecuteMasterCommandAsync($"RESTORE DATABASE {db} FROM DISK = @BackupPath WITH NORECOVERY, STATS = 10;", diffPath);
+                    await ChaySqlTrenMasterAsync($"RESTORE DATABASE {db} FROM DISK = @BackupPath WITH NORECOVERY, STATS = 10;", diffPath);
                 }
 
                 if (logPath != null)
                 {
-                    await ExecuteMasterCommandAsync($"RESTORE LOG {db} FROM DISK = @BackupPath WITH RECOVERY, STATS = 10;", logPath);
+                    await ChaySqlTrenMasterAsync($"RESTORE LOG {db} FROM DISK = @BackupPath WITH RECOVERY, STATS = 10;", logPath);
                 }
                 else
                 {
-                    await ExecuteMasterCommandAsync($"RESTORE DATABASE {db} WITH RECOVERY;");
+                    await ChaySqlTrenMasterAsync($"RESTORE DATABASE {db} WITH RECOVERY;");
                 }
 
-                await ExecuteMasterCommandAsync($"ALTER DATABASE {db} SET MULTI_USER;");
+                await ChaySqlTrenMasterAsync($"ALTER DATABASE {db} SET MULTI_USER;");
                 await LoadDataAsync();
 
                 WriteLog($"Đã restore chuỗi backup. Full: {fullPath}; Diff: {diffPath ?? "không dùng"}; Log: {logPath ?? "không dùng"}", "HỆ THỐNG");
@@ -436,14 +481,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             }
             catch (Exception ex)
             {
-                try
-                {
-                    await ExecuteMasterCommandAsync($"RESTORE DATABASE {db} WITH RECOVERY;");
-                    await ExecuteMasterCommandAsync($"ALTER DATABASE {db} SET MULTI_USER;");
-                }
-                catch
-                {
-                }
+                await CoGangMoLaiDatabaseAsync(tenDatabase);
 
                 WriteLog($"Lỗi restore chuỗi backup: {ex.Message}", "HỆ THỐNG");
                 MessageBox.Show("Lỗi restore chuỗi backup: " + ex.Message, "Restore", MessageBoxButton.OK, MessageBoxImage.Error);
