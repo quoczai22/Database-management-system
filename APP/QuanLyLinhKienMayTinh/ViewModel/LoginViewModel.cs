@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using QuanLyLinhKienMayTinh;
 using QuanLyLinhKienMayTinh.Models;
 using System;
@@ -132,7 +132,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             {
                 using var db = DataProvider.Ins.GetContext();
 
-                var query = from t in db.TaiKhoans.Include("MaNvNavigation")
+                var query = from t in db.TaiKhoans.Include(t => t.MaNvNavigation)
                             where t.TenDn == LoginUsername && t.MatKhau == LoginPassword
                             select t;// Truy vấn tài khoản với điều kiện tên đăng nhập và mật khẩu khớp, đồng thời include thông tin nhân viên liên quan để lấy quyền
 
@@ -164,9 +164,12 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             }
             catch (Exception ex)
             {
-                // Ghi log lỗi nội bộ, không hiển thị thông tin kỹ thuật ra cho người dùng
+                // Ghi log lỗi nội bộ
                 System.Diagnostics.Debug.WriteLine(string.Format("[LoginError] {0}", ex));
-                MessageBox.Show("Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau.");
+                string errorMsg = ex.Message;
+                if (ex.InnerException != null)
+                    errorMsg += "\n\nLỗi gốc: " + ex.InnerException.Message;
+                MessageBox.Show(string.Format("Đã xảy ra lỗi khi đăng nhập.\n\nChi tiết: {0}", errorMsg));
             }
         }
         void ExecuteToggleTheme(object p)

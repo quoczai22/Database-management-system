@@ -73,13 +73,13 @@ namespace QuanLyLinhKienMayTinh.Views
             // Kiểm tra tồn kho
             int tonKho = lk.SoLuongTon ?? 0;
             var existItem = _gioHang.FirstOrDefault(g => g.MaLk == lk.MaLk);
-            //int soLuongDaChon = existItem?.SoLuong ?? 0;
-            //if (soLuongDaChon + soLuong > tonKho)
-            //{
-            //    MessageBox.Show($"Linh kiện '{lk.TenLk}' chỉ còn {tonKho} cái trong kho (đã chọn {soLuongDaChon})!",
-            //        "Không đủ hàng", MessageBoxButton.OK, MessageBoxImage.Warning);
-            //    return;
-            //}
+            int soLuongDaChon = existItem?.SoLuong ?? 0;
+            if (soLuongDaChon + soLuong > tonKho)
+            {
+                MessageBox.Show($"Linh kiện '{lk.TenLk}' chỉ còn {tonKho} cái trong kho (đã chọn {soLuongDaChon})!",
+                    "Không đủ hàng", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             if (existItem != null)
             {
@@ -141,6 +141,24 @@ namespace QuanLyLinhKienMayTinh.Views
             }
 
             int tongTien = (int)_gioHang.Sum(g => g.ThanhTien);
+
+            // Kiểm tra lại tồn kho realtime từ DB trước khi lưu
+            using (var db = DataProvider.Ins.GetContext())
+            {
+                foreach (var item in _gioHang)
+                {
+                    var lkHienTai = db.LinhKiens.AsNoTracking()
+                        .FirstOrDefault(l => l.MaLk == item.MaLk);
+                    int tonKhoHienTai = lkHienTai?.SoLuongTon ?? 0;
+                    if (item.SoLuong > tonKhoHienTai)
+                    {
+                        MessageBox.Show(
+                            $"Linh kiện '{item.TenLk}' chỉ còn {tonKhoHienTai} trong kho, không đủ để bán {item.SoLuong}!\n\nVui lòng cập nhật lại số lượng.",
+                            "Tồn kho không đủ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                }
+            }
 
             string phuongThuc = "Tiền mặt";
             if (CboPhuongThuc.SelectedItem is System.Windows.Controls.ComboBoxItem selectedItem)

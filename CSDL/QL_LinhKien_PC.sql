@@ -581,6 +581,40 @@ begin
 end;
 go
 
+--Ngụy Hạo Nhiên--
+--Thực hiện 2 function fn_KiemTraTonKho và fn_TinhTongTienHoaDon
+-- Hàm kiểm tra tồn kho có đủ để bán không (trả về 1 nếu đủ, 0 nếu không đủ)
+create function fn_KiemTraTonKho(@MaLK char(6), @SoLuongBan int)
+returns bit
+as
+begin
+    declare @TonKho int;
+    select @TonKho = isnull(SoLuongTon, 0)
+    from LinhKien
+    where MaLK = @MaLK;
+
+    if @TonKho >= @SoLuongBan
+        return 1;
+    return 0;
+end;
+go
+
+-- Hàm tính tổng tiền của một hóa đơn dựa trên chi tiết
+create function fn_TinhTongTienHoaDon(@MaHD char(5))
+returns int
+as
+begin
+    declare @TongTien int;
+    select @TongTien = sum(isnull(SoLuong, 0) * isnull(DonGia, 0))
+    from ChiTietHD
+    where MaHD = @MaHD;
+
+    return isnull(@TongTien, 0);
+end;
+go
+
+--Ngụy Hạo Nhiên--
+--Thực hiện/ hỗ trợ 4 procedure sp_ThanhToanHoaDon, sp_XoaHoaDon và sp_XoaPhieuNhap
 create procedure sp_ThanhToanHoaDon
     @MaHD varchar(10)
 as
@@ -1073,6 +1107,8 @@ grant execute on fn_TaoMaHoaDonMoi to role_thuNgan;
 grant execute on fn_TaoMaKhachHangMoi to role_thuNgan;
 grant execute on fn_DoanhThuTheoThang to role_thuNgan;
 grant execute on sp_baocaotonkho to role_thuNgan;
+grant execute on fn_KiemTraTonKho to role_thuNgan;
+grant execute on fn_TinhTongTienHoaDon to role_thuNgan;
 go
 
 -- phân quyền cho nhân viên chăm sóc khách hàng
@@ -1440,6 +1476,8 @@ begin
     return isnull(@TongSoLuongNhap, 0);
 end;
 go
+
+
 
 
 --/* 1.Kịch bản 1 mức cô lập READ UNCOMMITED( lỗi mất dữ liệu cập nhật)

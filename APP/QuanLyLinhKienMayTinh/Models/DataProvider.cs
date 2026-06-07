@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 namespace QuanLyLinhKienMayTinh.Models
 
 {
@@ -12,7 +12,7 @@ namespace QuanLyLinhKienMayTinh.Models
         //khi chạy phải đổi data source thành tên server của máy
         private DataProvider()
         {
-            _currentConnStr = "Data Source=localhost;Initial Catalog=QL_LinhKien_PC;Integrated Security=True;TrustServerCertificate=True;Encrypt=False";
+            _currentConnStr = "Data Source=localhost\\SQLEXPRESS;Initial Catalog=QL_LinhKien_PC;Integrated Security=True;TrustServerCertificate=True;Encrypt=False";
         }
 
         public QL_LinhKien_PC_Context GetContext()
@@ -31,15 +31,15 @@ namespace QuanLyLinhKienMayTinh.Models
 
             switch (quyen)
             {
-                case "Quản lý toàn bộ": dbUser = "quanlylogin"; break;
-                case "Thu ngân": dbUser = "nhanvienthunganlogin"; break;
-                case "Chăm sóc khách hàng": dbUser = "nhanviencskhlogin"; break;
-                case "Kho": dbUser = "nhanvienkhologin"; break;
-                case "Bảo mật": dbUser = "quanlylogin"; break; 
-                default: dbUser = "nhanviencskhlogin"; break;
+                case "Quản lý toàn bộ": dbUser = "quanLyLogin"; break;
+                case "Thu ngân": dbUser = "nhanVienThuNganLogin"; break;
+                case "Chăm sóc khách hàng": dbUser = "nhanVienCskhLogin"; break;
+                case "Kho": dbUser = "nhanVienKhoLogin"; break;
+                case "Bảo mật": dbUser = "quanLyLogin"; break; 
+                default: dbUser = "nhanVienCskhLogin"; break;
             }
 
-            _currentConnStr = $"Data Source=localhost;Initial Catalog=QL_LinhKien_PC;User Id={dbUser};Password={dbPass};TrustServerCertificate=True;Encrypt=False";
+            _currentConnStr = $"Data Source=localhost\\SQLEXPRESS;Initial Catalog=QL_LinhKien_PC;User Id={dbUser};Password={dbPass};TrustServerCertificate=True;Encrypt=False";
         }
     }
 }

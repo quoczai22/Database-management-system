@@ -170,6 +170,7 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Tên linh kiện" Binding="{Binding TenLk}" Width="*"/>
                         <DataGridTextColumn Header="SL" Binding="{Binding SoLuong}" Width="50"/>
+                        <DataGridTextColumn Header="Tồn kho" Binding="{Binding TonKho}" Width="70"/>
                         <DataGridTextColumn Header="Đơn giá" Binding="{Binding DonGia, StringFormat={}{0:N0}}" Width="100"/>
                         <DataGridTextColumn Header="Thành tiền" Binding="{Binding ThanhTien, StringFormat={}{0:N0}}" Width="110"/>
                         <DataGridTemplateColumn Width="50">
