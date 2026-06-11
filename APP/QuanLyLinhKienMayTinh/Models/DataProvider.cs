@@ -8,11 +8,13 @@ namespace QuanLyLinhKienMayTinh.Models
         private static DataProvider _ins;
         public static DataProvider Ins => _ins ??= new DataProvider();
 
+        private const string ServerName = @"localhost\SQLEXPRESS";
+        private const string DatabaseName = "QL_LinhKien_PC";
         private string _currentConnStr;
         //khi chạy phải đổi data source thành tên server của máy
         private DataProvider()
         {
-            _currentConnStr = "Data Source=(localdb)\\MSSQLLocalDB\\SQLEXPRESS;Initial Catalog=QL_LinhKien_PC;Integrated Security=True;TrustServerCertificate=True;Encrypt=False";
+            _currentConnStr = $"Data Source={ServerName};Initial Catalog={DatabaseName};Integrated Security=True;TrustServerCertificate=True;Encrypt=False";
         }
 
         public QL_LinhKien_PC_Context GetContext()
@@ -39,7 +41,7 @@ namespace QuanLyLinhKienMayTinh.Models
                 default: dbUser = "nhanVienCskhLogin"; break;
             }
 
-            _currentConnStr = $"Data Source=(localdb)\\MSSQLLocalDB\\SQLEXPRESS;Initial Catalog=QL_LinhKien_PC;User Id={dbUser};Password={dbPass};TrustServerCertificate=True;Encrypt=False";
+            _currentConnStr = $"Data Source={ServerName};Initial Catalog={DatabaseName};User Id={dbUser};Password={dbPass};TrustServerCertificate=True;Encrypt=False";
         }
     }
 }
