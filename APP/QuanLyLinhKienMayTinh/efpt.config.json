@@ -167,6 +167,10 @@
          "ObjectType": 2
       },
       {
+         "Name": "[dbo].[fn_KiemTraTonKho]",
+         "ObjectType": 2
+      },
+      {
          "Name": "[dbo].[fn_TaoMaHoaDonMoi]",
          "ObjectType": 2
       },
@@ -184,6 +188,10 @@
       },
       {
          "Name": "[dbo].[fn_TaoMaPhieuNhapMoi]",
+         "ObjectType": 2
+      },
+      {
+         "Name": "[dbo].[fn_TinhTongTienHoaDon]",
          "ObjectType": 2
       },
       {

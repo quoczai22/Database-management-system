@@ -8,7 +8,7 @@ namespace QuanLyLinhKienMayTinh.Models
 {
     public partial class sp_kichban6_giaotaca_rollbackResult
     {
-        [StringLength(48)]
+        [StringLength(65)]
         public string ThongBao { get; set; }
         public int? TonKhoBanDau { get; set; }
         public int? TonKhoTamThoi { get; set; }

@@ -1089,9 +1089,9 @@ use QL_LinhKien_PC;
 go
 
 -- phân quyền cho nhân viên thu ngân
-grant all on KhachHang to role_thuNgan;
-grant all on HoaDon to role_thuNgan;
-grant all on ChiTietHD to role_thuNgan;
+grant control on KhachHang to role_thuNgan;
+grant control on HoaDon to role_thuNgan;
+grant control on ChiTietHD to role_thuNgan;
 
 grant select on NhanVien to role_thuNgan;
 grant select on TaiKhoan to role_thuNgan;
@@ -1113,7 +1113,7 @@ grant execute on fn_TinhTongTienHoaDon to role_thuNgan;
 go
 
 -- phân quyền cho nhân viên chăm sóc khách hàng
-grant all on KhachHang to role_Cskh;
+grant control on KhachHang to role_Cskh;
 
 grant select on LoaiLK to role_Cskh;
 grant select on LinhKien to role_Cskh;
@@ -1128,10 +1128,10 @@ grant execute on sp_DanhSacKhachHangChuaTT to role_Cskh;
 go
 
 --phân quyền cho nhân viên kho
-grant all on LoaiLK to role_kho;
-grant all on LinhKien to role_kho;
-grant all on PhieuNhap to role_kho;
-grant all on ChiTietPN to role_kho;
+grant control on LoaiLK to role_kho;
+grant control  on LinhKien to role_kho;
+grant control on PhieuNhap to role_kho;
+grant control  on ChiTietPN to role_kho;
 
 grant select on HoaDon to role_kho;
 grant select on KhachHang to role_kho;
