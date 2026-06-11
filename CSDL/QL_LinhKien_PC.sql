@@ -1,3 +1,4 @@
+--Hồ Đại Phong--
 -- trước khi chạy phải tạo folder SQLData trong ổ C nếu ko có sẽ lỗi
 use master;
 go
