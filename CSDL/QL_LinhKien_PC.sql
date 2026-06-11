@@ -1383,11 +1383,10 @@ end
 go
 
 -- Trịnh Hữu Kiến Quốc - giao tác cụ thể: bán linh kiện có rollback
--- giao tác a: bán 15 MOU001, trừ tồn kho tạm, gặp lỗi thanh toán nên rollback toàn bộ thay đổi
-create procedure sp_kichban6_giaotaca_rollback
+-- giao tác a: bán linh kiện; đủ tồn kho thì commit, vượt tồn kho thì rollback toàn bộ thay đổi
+create or alter procedure sp_kichban6_giaotaca_rollback
     @MaLK char(6),
-    @SoLuongBan int,
-    @GiaLapLoi bit
+    @SoLuongBan int
 as
 begin
     set xact_abort on;
@@ -1422,10 +1421,6 @@ begin
         select @tonkho_tam = soluongton
         from linhkien
         where malk = @MaLK;
-
-        -- bước nghiệp vụ 2: giả lập lỗi thanh toán/ghi hóa đơn để chứng minh rollback
-        if @GiaLapLoi = 1
-            throw 50106, N'Lỗi nghiệp vụ: thanh toán không hợp lệ nên rollback giao tác bán hàng.', 1;
 
         commit tran;
 
@@ -1642,19 +1637,17 @@ go
 --commit tran;
 
 --6. Giao tác cụ thể: bán linh kiện có rollback
---Mục tiêu demo: người dùng chọn linh kiện, nhập số lượng bán và chọn có giả lập lỗi hay không.
---Nếu @GiaLapLoi = 1 thì rollback; nếu @GiaLapLoi = 0 thì commit thật.
+--Mục tiêu demo: người dùng chọn linh kiện và nhập số lượng bán.
+--Nếu số lượng bán <= tồn kho thì commit; nếu số lượng bán > tồn kho thì rollback.
 
 ---- Chạy proc giống thao tác trên View
 --exec sp_kichban6_giaotaca_rollback
 --    @MaLK = 'MOU001',
---    @SoLuongBan = 15,
---    @GiaLapLoi = 1; -- 1: rollback, 0: commit
+--    @SoLuongBan = 15; -- nhập nhỏ hơn hoặc bằng tồn kho để commit, nhập lớn hơn tồn kho để rollback
 
 ---- Bản không lồng proc để giải thích giao tác cụ thể
 --declare @MaLK char(6) = 'MOU001';
 --declare @SoLuongBan int = 15;
---declare @GiaLapLoi bit = 1;
 --declare @tonkho_bandau int;
 --declare @tonkho_tam int;
 --
@@ -1688,10 +1681,6 @@ go
 --        N'Giao tác bán hàng đã trừ tồn kho tạm thời' as ThongBao,
 --        @tonkho_bandau as TonKhoBanDau,
 --        @tonkho_tam as TonKhoTamThoi;
---
---    -- bước nghiệp vụ 2: giả lập lỗi thanh toán/ghi hóa đơn
---    if @GiaLapLoi = 1
---        throw 50106, N'Lỗi nghiệp vụ: thanh toán không hợp lệ nên rollback giao tác bán hàng.', 1;
 --
 --    commit tran;
 --

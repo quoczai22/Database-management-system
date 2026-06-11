@@ -135,6 +135,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         public bool IsUserBIdle => !_isUserBBusy;
         public Visibility UserBVisibility => SelectedScenarioIndex == 5 ? Visibility.Collapsed : Visibility.Visible;
         public Visibility GiaoTacCuTheVisibility => SelectedScenarioIndex == 5 ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility CommonResetVisibility => SelectedScenarioIndex == 5 ? Visibility.Collapsed : Visibility.Visible;
         public int UserAColumnSpan => SelectedScenarioIndex == 5 ? 3 : 1;
         public string UserALabel => SelectedScenarioIndex == 5 ? "Thực hiện giao tác trên View" : "Giao tác T1  —  User A";
         public string RunUserAButtonText => SelectedScenarioIndex == 5 ? "▶  Thực hiện giao tác" : "▶  Kích hoạt Tiến trình A";
@@ -171,13 +172,6 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         {
             get => _soLuongBanGiaoTac;
             set { _soLuongBanGiaoTac = value; OnPropertyChanged(nameof(SoLuongBanGiaoTac)); }
-        }
-
-        private bool _giaLapLoiRollback = true;
-        public bool GiaLapLoiRollback
-        {
-            get => _giaLapLoiRollback;
-            set { _giaLapLoiRollback = value; OnPropertyChanged(nameof(GiaLapLoiRollback)); }
         }
 
         private bool _isBackupRestoreBusy;
@@ -224,6 +218,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         {
             OnPropertyChanged(nameof(UserBVisibility));
             OnPropertyChanged(nameof(GiaoTacCuTheVisibility));
+            OnPropertyChanged(nameof(CommonResetVisibility));
             OnPropertyChanged(nameof(UserAColumnSpan));
             OnPropertyChanged(nameof(UserALabel));
             OnPropertyChanged(nameof(RunUserAButtonText));
@@ -758,8 +753,8 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         }
 
                         var maLkGiaoTac = MaLinhKienGiaoTac;
-                        WriteLog($"Thực hiện giao tác bán {SoLuongBanGiaoTac} {maLkGiaoTac}. Chế độ lỗi: {(GiaLapLoiRollback ? "ROLLBACK" : "COMMIT")}", "GIAO TÁC");
-                        var kq6a = await context.Procedures.sp_kichban6_giaotaca_rollbackAsync(maLkGiaoTac, SoLuongBanGiaoTac, GiaLapLoiRollback);
+                        WriteLog($"Thực hiện giao tác bán {SoLuongBanGiaoTac} {maLkGiaoTac}. SQL sẽ COMMIT nếu đủ tồn kho, ROLLBACK nếu vượt tồn kho.", "GIAO TÁC");
+                        var kq6a = await context.Procedures.sp_kichban6_giaotaca_rollbackAsync(maLkGiaoTac, SoLuongBanGiaoTac);
                         foreach (var row in kq6a)
                         {
                             WriteLog($"{row.ThongBao} | Mã LK: {row.MaLK} | SL bán: {row.SoLuongBan} | Tồn đầu: {row.TonKhoBanDau} | Tồn tạm: {row.TonKhoTamThoi} | Tồn cuối: {row.TonKhoKetThuc} | {row.TrangThai}", "GIAO TÁC");
