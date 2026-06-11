@@ -1196,7 +1196,7 @@ go
 -- giao tác a:
 
 --Trịnh Hữu Kiến Quốc--
--- Xử lý giao tác đồng thời có rollback: sp_kichban6_giaotaca_rollback và sp_kichban6_giaotacb_docsaorollback
+-- Giao tác cụ thể có rollback: bán linh kiện MOU001, lỗi thì hoàn tác tồn kho
 create procedure sp_kichban1_giaotaca
     @isfixmode bit
 as
@@ -1382,8 +1382,8 @@ begin
 end
 go
 
--- Trịnh Hữu Kiến Quốc - kịch bản 6: xử lý giao tác đồng thời có rollback
--- giao tác a: cập nhật tạm thời, giữ khóa, gặp lỗi và rollback toàn bộ thay đổi
+-- Trịnh Hữu Kiến Quốc - giao tác cụ thể: bán linh kiện có rollback
+-- giao tác a: bán 15 MOU001, trừ tồn kho tạm, gặp lỗi thanh toán nên rollback toàn bộ thay đổi
 create procedure sp_kichban6_giaotaca_rollback
 as
 begin
@@ -1399,6 +1399,7 @@ begin
         from linhkien with (updlock, holdlock)
         where malk = 'MOU001';
 
+        -- bước nghiệp vụ 1: trừ tồn kho như một giao tác bán hàng
         update linhkien
         set soluongton = @tonkho_bandau - 15
         where malk = 'MOU001';
@@ -1409,9 +1410,9 @@ begin
 
         waitfor delay '00:00:10';
 
-        -- cố tình phát sinh lỗi nghiệp vụ để chứng minh rollback
+        -- bước nghiệp vụ 2: giả lập lỗi thanh toán/ghi hóa đơn để chứng minh rollback
         if (@tonkho_tam < @tonkho_bandau)
-            throw 50106, N'Lỗi mô phỏng: giao tác T1 bị hủy nên phải rollback về tồn kho ban đầu.', 1;
+            throw 50106, N'Lỗi nghiệp vụ: thanh toán không hợp lệ nên rollback giao tác bán hàng.', 1;
 
         commit tran;
     end try
@@ -1424,14 +1425,14 @@ begin
         where malk = 'MOU001';
 
         select
-            N'T1 đã rollback, dữ liệu trở về trạng thái trước khi giao tác chạy' as ThongBao,
+            N'Giao tác bán hàng đã rollback, tồn kho trở về ban đầu' as ThongBao,
             @tonkho_bandau as TonKhoBanDau,
             @tonkho_tam as TonKhoTamThoi;
     end catch
 end
 go
 
--- giao tác b: chạy đồng thời để chứng minh không đọc dữ liệu tạm khi T1 đang rollback
+-- giao tác b: kiểm tra tồn kho sau khi giao tác bán hàng rollback
 create procedure sp_kichban6_giaotacb_docsaorollback
 as
 begin
@@ -1439,7 +1440,7 @@ begin
     begin tran;
 
     select
-        N'T2 đọc sau khi T1 rollback hoặc nhả khóa' as ThongBao,
+        N'Kiểm tra tồn kho sau rollback' as ThongBao,
         soluongton as TonKhoDocDuoc
     from linhkien
     where malk = 'MOU001';
@@ -1613,11 +1614,11 @@ go
 --    update linhkien with (xlock) set dongiaban = 888888 where malk = 'MOU002';
 --commit tran;
 
---6. Kịch bản 6: xử lý giao tác đồng thời có rollback
---Mục tiêu demo: T1 cập nhật tạm thời và giữ khóa, sau đó gặp lỗi nên rollback.
---T2 chạy đồng thời ở READ COMMITTED nên không đọc dữ liệu tạm, phải chờ T1 rollback/nhả khóa.
+--6. Giao tác cụ thể: bán linh kiện có rollback
+--Mục tiêu demo: giao tác bán 15 MOU001 trừ tồn kho tạm, sau đó lỗi thanh toán nên rollback.
+--T2 chỉ kiểm tra lại tồn kho sau rollback để chứng minh dữ liệu trở về trạng thái ban đầu.
 
----- Giao tác A - chạy ở cửa sổ query thứ nhất
+---- Giao tác A - giao tác nghiệp vụ bán hàng, chạy ở cửa sổ query thứ nhất
 --set xact_abort on;
 --begin try
 --    begin tran;
@@ -1629,6 +1630,7 @@ go
 --    from linhkien with (updlock, holdlock)
 --    where malk = 'MOU001';
 --
+--    -- bước nghiệp vụ 1: trừ tồn kho như đang bán 15 MOU001
 --    update linhkien
 --    set soluongton = @tonkho_bandau - 15
 --    where malk = 'MOU001';
@@ -1638,13 +1640,14 @@ go
 --    where malk = 'MOU001';
 --
 --    select
---        N'T1 đã cập nhật tạm thời, đang giữ khóa 10 giây' as ThongBao,
+--        N'Giao tác bán hàng đã trừ tồn kho tạm thời' as ThongBao,
 --        @tonkho_bandau as TonKhoBanDau,
 --        @tonkho_tam as TonKhoTamThoi;
 --
 --    waitfor delay '00:00:10';
 --
---    throw 50106, N'Lỗi mô phỏng: T1 bị hủy nên rollback toàn bộ thay đổi.', 1;
+--    -- bước nghiệp vụ 2: giả lập lỗi thanh toán/ghi hóa đơn
+--    throw 50106, N'Lỗi nghiệp vụ: thanh toán không hợp lệ nên rollback giao tác bán hàng.', 1;
 --
 --    commit tran;
 --end try
@@ -1653,19 +1656,19 @@ go
 --        rollback tran;
 --
 --    select
---        N'T1 đã rollback, tồn kho trở về như trước giao tác' as ThongBao,
+--        N'Giao tác bán hàng đã rollback, tồn kho trở về như trước giao tác' as ThongBao,
 --        error_message() as LyDoRollback,
 --        soluongton as TonKhoSauRollback
 --    from linhkien
 --    where malk = 'MOU001';
 --end catch;
 
----- Giao tác B - chạy ở cửa sổ query thứ hai trong lúc T1 đang waitfor
+---- Giao tác B - kiểm tra tồn kho sau rollback
 --set transaction isolation level read committed;
 --begin tran;
 --
 --select
---    N'T2 đọc sau khi T1 rollback hoặc nhả khóa' as ThongBao,
+--    N'Kiểm tra tồn kho sau rollback' as ThongBao,
 --    soluongton as TonKhoDocDuoc
 --from linhkien
 --where malk = 'MOU001';

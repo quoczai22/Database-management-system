@@ -199,6 +199,7 @@
 
          
             <Border Grid.Column="0"
+                    Grid.ColumnSpan="{Binding UserAColumnSpan}"
                     BorderBrush="#1e88e5" BorderThickness="1"
                     CornerRadius="8" Padding="15"
                     Background="#0a000000">
@@ -212,7 +213,7 @@
                     <!-- Header User A -->
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
                         <Ellipse Width="10" Height="10" Fill="#1e88e5" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Giao tác T1  —  User A"
+                        <TextBlock Text="{Binding UserALabel}"
                                    FontWeight="Bold" FontSize="14"
                                    Foreground="#1e88e5"/>
                     </StackPanel>
@@ -239,7 +240,7 @@
 
                     <!-- Nút User A — Command binding, IsEnabled theo IsUserAIdle -->
                     <Button Grid.Row="2"
-                            Content="▶  Kích hoạt Tiến trình A"
+                            Content="{Binding RunUserAButtonText}"
                             Command="{Binding RunUserACommand}"
                             IsEnabled="{Binding IsUserAIdle}"
                             Style="{StaticResource PrimaryBtnStyle}"
@@ -251,6 +252,7 @@
             </Border>
 
             <Border Grid.Column="2"
+                    Visibility="{Binding UserBVisibility}"
                     BorderBrush="#e53935" BorderThickness="1"
                     CornerRadius="8" Padding="15"
                     Background="#0a000000">

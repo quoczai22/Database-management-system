@@ -70,6 +70,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             {
                 _selectedScenarioIndex = value;
                 OnPropertyChanged(nameof(SelectedScenarioIndex));
+                NotifyScenarioUiChanged();
                 _ = LoadDataAsync(); // Reload từ DB thực tế mỗi khi đổi kịch bản
             }
         }
@@ -93,6 +94,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 {
                     _selectedScenarioIndex = _kichBanChon.Id;
                     OnPropertyChanged(nameof(SelectedScenarioIndex));
+                    NotifyScenarioUiChanged();
                     _ = LoadDataAsync(); // Reload từ DB thực tế mỗi khi đổi kịch bản
                 }
             }
@@ -131,6 +133,10 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
         public bool IsUserAIdle => !_isUserABusy;
         public bool IsUserBIdle => !_isUserBBusy;
+        public Visibility UserBVisibility => SelectedScenarioIndex == 5 ? Visibility.Collapsed : Visibility.Visible;
+        public int UserAColumnSpan => SelectedScenarioIndex == 5 ? 3 : 1;
+        public string UserALabel => SelectedScenarioIndex == 5 ? "Thực hiện giao tác trên View" : "Giao tác T1  —  User A";
+        public string RunUserAButtonText => SelectedScenarioIndex == 5 ? "▶  Thực hiện giao tác" : "▶  Kích hoạt Tiến trình A";
 
         private bool _isBackupRestoreBusy;
         public bool IsBackupRestoreBusy
@@ -171,6 +177,14 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         }
 
         // logic hỗ trợ
+
+        private void NotifyScenarioUiChanged()
+        {
+            OnPropertyChanged(nameof(UserBVisibility));
+            OnPropertyChanged(nameof(UserAColumnSpan));
+            OnPropertyChanged(nameof(UserALabel));
+            OnPropertyChanged(nameof(RunUserAButtonText));
+        }
 
         private QL_LinhKien_PC_Context CreateNewContext()
         {
@@ -510,7 +524,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                 new KichBanModel { Id = 2, TenKichBan = "Kịch bản 3: Không thể đọc lại (Unrepeatable Read)", MoTa = "Tác động: MOU001" },
                 new KichBanModel { Id = 3, TenKichBan = "Kịch bản 4: Bóng ma dữ liệu (Phantom Read)", MoTa = "Tác động: Nhóm loại MOU" },
                 new KichBanModel { Id = 4, TenKichBan = "Kịch bản 5: Tắc nghẽn giao dịch (Deadlock)", MoTa = "Tác động: MOU001 & MOU002" },
-                new KichBanModel { Id = 5, TenKichBan = "Kịch bản 6: Giao tác đồng thời có rollback", MoTa = "Tác động: MOU001" }
+                new KichBanModel { Id = 5, TenKichBan = "Giao tác cụ thể: Bán linh kiện có rollback", MoTa = "Bán 15 MOU001, lỗi thì hoàn tác tồn kho" }
             };
             KichBanChon = DanhSachKichBan[0];
         }
@@ -675,8 +689,8 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                             DataUserA = new ObservableCollection<LinhKien>(lk4));
                         break;
 
-                    case 5: // Concurrent transaction with rollback
-                        WriteLog("A cập nhật tạm MOU001, giữ khóa 10 giây rồi phát sinh lỗi để rollback", "USER A");
+                    case 5: // Business transaction with rollback
+                        WriteLog("A bắt đầu giao tác bán 15 MOU001: trừ tồn kho tạm, sau đó lỗi thanh toán nên rollback", "USER A");
                         var kq6a = await context.Procedures.sp_kichban6_giaotaca_rollbackAsync();
                         foreach (var row in kq6a)
                         {
@@ -766,8 +780,8 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                             DataUserB = new ObservableCollection<LinhKien>(lk4));
                         break;
 
-                    case 5: // Concurrent transaction with rollback
-                        WriteLog("B đọc MOU001 ở READ COMMITTED, nếu A còn giữ khóa thì B phải chờ", "USER B");
+                    case 5: // Business transaction with rollback
+                        WriteLog("B kiểm tra tồn kho MOU001 sau giao tác bán hàng bị rollback", "USER B");
                         var kq6b = await context.Procedures.sp_kichban6_giaotacb_docsaorollbackAsync();
                         foreach (var row in kq6b)
                         {
