@@ -660,7 +660,11 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             try
             {
                 using var context = CreateNewContext();
-                WriteLog($"Bắt đầu {KichBanChon.TenKichBan}...", "USER A");
+                var logNguCanh = SelectedScenarioIndex == 5 ? "GIAO TÁC" : "USER A";
+                var thongBaoBatDau = SelectedScenarioIndex == 5
+                    ? $"Bắt đầu thực hiện {KichBanChon.TenKichBan}..."
+                    : $"Bắt đầu {KichBanChon.TenKichBan}...";
+                WriteLog(thongBaoBatDau, logNguCanh);
 
                 switch (SelectedScenarioIndex)
                 {
@@ -749,7 +753,8 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         if (SoLuongBanGiaoTac <= 0)
                         {
                             MessageBox.Show("Số lượng bán phải lớn hơn 0.", "Giao tác", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            break;
+                            WriteLog("Dừng giao tác: số lượng bán không hợp lệ.", "GIAO TÁC");
+                            return;
                         }
 
                         var maLkGiaoTac = MaLinhKienGiaoTac;
@@ -767,12 +772,13 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         break;
                 }
 
-                WriteLog(SelectedScenarioIndex == 5 ? "THỰC HIỆN GIAO TÁC HOÀN THÀNH!" : "GIAO TÁC A HOÀN THÀNH!",
+                WriteLog(SelectedScenarioIndex == 5 ? "KẾT THÚC GIAO TÁC!" : "GIAO TÁC A HOÀN THÀNH!",
                          SelectedScenarioIndex == 5 ? "GIAO TÁC" : "USER A");
             }
             catch (Exception ex)
             {
-                WriteLog($"Lỗi Giao tác A: {ex.Message}", "USER A");
+                WriteLog(SelectedScenarioIndex == 5 ? $"Lỗi khi thực hiện giao tác: {ex.Message}" : $"Lỗi Giao tác A: {ex.Message}",
+                         SelectedScenarioIndex == 5 ? "GIAO TÁC" : "USER A");
             }
             finally
             {
