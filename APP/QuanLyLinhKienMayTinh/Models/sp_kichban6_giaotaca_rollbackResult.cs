@@ -10,7 +10,13 @@ namespace QuanLyLinhKienMayTinh.Models
     {
         [StringLength(65)]
         public string ThongBao { get; set; }
+        [StringLength(6)]
+        public string MaLK { get; set; }
+        public int? SoLuongBan { get; set; }
         public int? TonKhoBanDau { get; set; }
         public int? TonKhoTamThoi { get; set; }
+        public int? TonKhoKetThuc { get; set; }
+        [StringLength(20)]
+        public string TrangThai { get; set; }
     }
 }

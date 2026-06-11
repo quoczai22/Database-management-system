@@ -1385,50 +1385,77 @@ go
 -- Trịnh Hữu Kiến Quốc - giao tác cụ thể: bán linh kiện có rollback
 -- giao tác a: bán 15 MOU001, trừ tồn kho tạm, gặp lỗi thanh toán nên rollback toàn bộ thay đổi
 create procedure sp_kichban6_giaotaca_rollback
+    @MaLK char(6),
+    @SoLuongBan int,
+    @GiaLapLoi bit
 as
 begin
     set xact_abort on;
 
     declare @tonkho_bandau int;
     declare @tonkho_tam int;
+    declare @tonkho_ketthuc int;
+    declare @thongbao nvarchar(100);
+    declare @trangthai nvarchar(20);
 
     begin try
         begin tran;
 
         select @tonkho_bandau = soluongton
         from linhkien with (updlock, holdlock)
-        where malk = 'MOU001';
+        where malk = @MaLK;
+
+        if @tonkho_bandau is null
+            throw 50106, N'Lỗi nghiệp vụ: linh kiện không tồn tại.', 1;
+
+        if @SoLuongBan <= 0
+            throw 50107, N'Lỗi nghiệp vụ: số lượng bán phải lớn hơn 0.', 1;
+
+        if @tonkho_bandau < @SoLuongBan
+            throw 50108, N'Lỗi nghiệp vụ: tồn kho không đủ để bán.', 1;
 
         -- bước nghiệp vụ 1: trừ tồn kho như một giao tác bán hàng
         update linhkien
-        set soluongton = @tonkho_bandau - 15
-        where malk = 'MOU001';
+        set soluongton = @tonkho_bandau - @SoLuongBan
+        where malk = @MaLK;
 
         select @tonkho_tam = soluongton
         from linhkien
-        where malk = 'MOU001';
-
-        waitfor delay '00:00:10';
+        where malk = @MaLK;
 
         -- bước nghiệp vụ 2: giả lập lỗi thanh toán/ghi hóa đơn để chứng minh rollback
-        if (@tonkho_tam < @tonkho_bandau)
+        if @GiaLapLoi = 1
             throw 50106, N'Lỗi nghiệp vụ: thanh toán không hợp lệ nên rollback giao tác bán hàng.', 1;
 
         commit tran;
+
+        select @tonkho_ketthuc = soluongton
+        from linhkien
+        where malk = @MaLK;
+
+        set @thongbao = N'Giao tác bán hàng commit thành công, tồn kho đã được cập nhật';
+        set @trangthai = N'COMMIT';
     end try
     begin catch
         if @@trancount > 0
             rollback tran;
 
-        select @tonkho_tam = soluongton
+        select @tonkho_ketthuc = soluongton
         from linhkien
-        where malk = 'MOU001';
+        where malk = @MaLK;
 
-        select
-            N'Giao tác bán hàng đã rollback, tồn kho trở về ban đầu' as ThongBao,
-            @tonkho_bandau as TonKhoBanDau,
-            @tonkho_tam as TonKhoTamThoi;
+        set @thongbao = N'Giao tác bán hàng rollback: ' + error_message();
+        set @trangthai = N'ROLLBACK';
     end catch
+
+    select
+        @thongbao as ThongBao,
+        @MaLK as MaLK,
+        @SoLuongBan as SoLuongBan,
+        @tonkho_bandau as TonKhoBanDau,
+        @tonkho_tam as TonKhoTamThoi,
+        @tonkho_ketthuc as TonKhoKetThuc,
+        @trangthai as TrangThai;
 end
 go
 
@@ -1615,41 +1642,62 @@ go
 --commit tran;
 
 --6. Giao tác cụ thể: bán linh kiện có rollback
---Mục tiêu demo: giao tác bán 15 MOU001 trừ tồn kho tạm, sau đó lỗi thanh toán nên rollback.
---T2 chỉ kiểm tra lại tồn kho sau rollback để chứng minh dữ liệu trở về trạng thái ban đầu.
+--Mục tiêu demo: người dùng chọn linh kiện, nhập số lượng bán và chọn có giả lập lỗi hay không.
+--Nếu @GiaLapLoi = 1 thì rollback; nếu @GiaLapLoi = 0 thì commit thật.
 
----- Giao tác A - giao tác nghiệp vụ bán hàng, chạy ở cửa sổ query thứ nhất
+---- Chạy proc giống thao tác trên View
+--exec sp_kichban6_giaotaca_rollback
+--    @MaLK = 'MOU001',
+--    @SoLuongBan = 15,
+--    @GiaLapLoi = 1; -- 1: rollback, 0: commit
+
+---- Bản không lồng proc để giải thích giao tác cụ thể
+--declare @MaLK char(6) = 'MOU001';
+--declare @SoLuongBan int = 15;
+--declare @GiaLapLoi bit = 1;
+--declare @tonkho_bandau int;
+--declare @tonkho_tam int;
+--
 --set xact_abort on;
 --begin try
 --    begin tran;
 --
---    declare @tonkho_bandau int;
---    declare @tonkho_tam int;
---
 --    select @tonkho_bandau = soluongton
 --    from linhkien with (updlock, holdlock)
---    where malk = 'MOU001';
+--    where malk = @MaLK;
 --
---    -- bước nghiệp vụ 1: trừ tồn kho như đang bán 15 MOU001
+--    if @tonkho_bandau is null
+--        throw 50106, N'Lỗi nghiệp vụ: linh kiện không tồn tại.', 1;
+--
+--    if @SoLuongBan <= 0
+--        throw 50107, N'Lỗi nghiệp vụ: số lượng bán phải lớn hơn 0.', 1;
+--
+--    if @tonkho_bandau < @SoLuongBan
+--        throw 50108, N'Lỗi nghiệp vụ: tồn kho không đủ để bán.', 1;
+--
+--    -- bước nghiệp vụ 1: trừ tồn kho theo lựa chọn trên View
 --    update linhkien
---    set soluongton = @tonkho_bandau - 15
---    where malk = 'MOU001';
+--    set soluongton = @tonkho_bandau - @SoLuongBan
+--    where malk = @MaLK;
 --
 --    select @tonkho_tam = soluongton
 --    from linhkien
---    where malk = 'MOU001';
+--    where malk = @MaLK;
 --
 --    select
 --        N'Giao tác bán hàng đã trừ tồn kho tạm thời' as ThongBao,
 --        @tonkho_bandau as TonKhoBanDau,
 --        @tonkho_tam as TonKhoTamThoi;
 --
---    waitfor delay '00:00:10';
---
 --    -- bước nghiệp vụ 2: giả lập lỗi thanh toán/ghi hóa đơn
---    throw 50106, N'Lỗi nghiệp vụ: thanh toán không hợp lệ nên rollback giao tác bán hàng.', 1;
+--    if @GiaLapLoi = 1
+--        throw 50106, N'Lỗi nghiệp vụ: thanh toán không hợp lệ nên rollback giao tác bán hàng.', 1;
 --
 --    commit tran;
+--
+--    select N'COMMIT thành công' as TrangThai, soluongton as TonKhoKetThuc
+--    from linhkien
+--    where malk = @MaLK;
 --end try
 --begin catch
 --    if @@trancount > 0
@@ -1660,17 +1708,5 @@ go
 --        error_message() as LyDoRollback,
 --        soluongton as TonKhoSauRollback
 --    from linhkien
---    where malk = 'MOU001';
+--    where malk = @MaLK;
 --end catch;
-
----- Giao tác B - kiểm tra tồn kho sau rollback
---set transaction isolation level read committed;
---begin tran;
---
---select
---    N'Kiểm tra tồn kho sau rollback' as ThongBao,
---    soluongton as TonKhoDocDuoc
---from linhkien
---where malk = 'MOU001';
---
---commit tran;

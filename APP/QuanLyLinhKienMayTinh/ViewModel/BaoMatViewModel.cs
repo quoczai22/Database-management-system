@@ -134,9 +134,47 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         public bool IsUserAIdle => !_isUserABusy;
         public bool IsUserBIdle => !_isUserBBusy;
         public Visibility UserBVisibility => SelectedScenarioIndex == 5 ? Visibility.Collapsed : Visibility.Visible;
+        public Visibility GiaoTacCuTheVisibility => SelectedScenarioIndex == 5 ? Visibility.Visible : Visibility.Collapsed;
         public int UserAColumnSpan => SelectedScenarioIndex == 5 ? 3 : 1;
         public string UserALabel => SelectedScenarioIndex == 5 ? "Thực hiện giao tác trên View" : "Giao tác T1  —  User A";
         public string RunUserAButtonText => SelectedScenarioIndex == 5 ? "▶  Thực hiện giao tác" : "▶  Kích hoạt Tiến trình A";
+
+        private ObservableCollection<LinhKien> _danhSachLinhKienGiaoTac = new ObservableCollection<LinhKien>();
+        public ObservableCollection<LinhKien> DanhSachLinhKienGiaoTac
+        {
+            get => _danhSachLinhKienGiaoTac;
+            set { _danhSachLinhKienGiaoTac = value; OnPropertyChanged(nameof(DanhSachLinhKienGiaoTac)); }
+        }
+
+        private LinhKien _linhKienGiaoTacChon;
+        public LinhKien LinhKienGiaoTacChon
+        {
+            get => _linhKienGiaoTacChon;
+            set
+            {
+                _linhKienGiaoTacChon = value;
+                OnPropertyChanged(nameof(LinhKienGiaoTacChon));
+                OnPropertyChanged(nameof(MaLinhKienGiaoTac));
+                if (SelectedScenarioIndex == 5)
+                    _ = LoadDataAsync();
+            }
+        }
+
+        public string MaLinhKienGiaoTac => LinhKienGiaoTacChon?.MaLk ?? "MOU001";
+
+        private int _soLuongBanGiaoTac = 15;
+        public int SoLuongBanGiaoTac
+        {
+            get => _soLuongBanGiaoTac;
+            set { _soLuongBanGiaoTac = value; OnPropertyChanged(nameof(SoLuongBanGiaoTac)); }
+        }
+
+        private bool _giaLapLoiRollback = true;
+        public bool GiaLapLoiRollback
+        {
+            get => _giaLapLoiRollback;
+            set { _giaLapLoiRollback = value; OnPropertyChanged(nameof(GiaLapLoiRollback)); }
+        }
 
         private bool _isBackupRestoreBusy;
         public bool IsBackupRestoreBusy
@@ -181,6 +219,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         private void NotifyScenarioUiChanged()
         {
             OnPropertyChanged(nameof(UserBVisibility));
+            OnPropertyChanged(nameof(GiaoTacCuTheVisibility));
             OnPropertyChanged(nameof(UserAColumnSpan));
             OnPropertyChanged(nameof(UserALabel));
             OnPropertyChanged(nameof(RunUserAButtonText));
@@ -539,6 +578,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             {
                 using var context = CreateNewContext();
                 var allData = await context.LinhKiens.AsNoTracking().ToListAsync();
+                var selectedMaLk = MaLinhKienGiaoTac;
 
                 List<LinhKien> filtered;
                 switch (SelectedScenarioIndex)
@@ -546,8 +586,10 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                     case 0:
                     case 1:
                     case 2:
-                    case 5:
                         filtered = allData.Where(x => x.MaLk == "MOU001").ToList();
+                        break;
+                    case 5:
+                        filtered = allData.Where(x => x.MaLk == selectedMaLk).ToList();
                         break;
                     case 3:
                         filtered = allData.Where(x => x.MaLoai == "MOU").ToList();
@@ -562,6 +604,13 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
                 App.Current.Dispatcher.Invoke(() =>
                 {
+                    DanhSachLinhKienGiaoTac = new ObservableCollection<LinhKien>(allData.OrderBy(x => x.MaLk));
+                    if (LinhKienGiaoTacChon == null || !DanhSachLinhKienGiaoTac.Any(x => x.MaLk == LinhKienGiaoTacChon.MaLk))
+                    {
+                        LinhKienGiaoTacChon = DanhSachLinhKienGiaoTac.FirstOrDefault(x => x.MaLk == "MOU001")
+                                             ?? DanhSachLinhKienGiaoTac.FirstOrDefault();
+                    }
+
                     DataUserA = new ObservableCollection<LinhKien>(filtered);
                     DataUserB = new ObservableCollection<LinhKien>(filtered);
                 });
@@ -690,21 +739,29 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         break;
 
                     case 5: // Business transaction with rollback
-                        WriteLog("A bắt đầu giao tác bán 15 MOU001: trừ tồn kho tạm, sau đó lỗi thanh toán nên rollback", "USER A");
-                        var kq6a = await context.Procedures.sp_kichban6_giaotaca_rollbackAsync();
+                        if (SoLuongBanGiaoTac <= 0)
+                        {
+                            MessageBox.Show("Số lượng bán phải lớn hơn 0.", "Giao tác", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            break;
+                        }
+
+                        var maLkGiaoTac = MaLinhKienGiaoTac;
+                        WriteLog($"Thực hiện giao tác bán {SoLuongBanGiaoTac} {maLkGiaoTac}. Chế độ lỗi: {(GiaLapLoiRollback ? "ROLLBACK" : "COMMIT")}", "GIAO TÁC");
+                        var kq6a = await context.Procedures.sp_kichban6_giaotaca_rollbackAsync(maLkGiaoTac, SoLuongBanGiaoTac, GiaLapLoiRollback);
                         foreach (var row in kq6a)
                         {
-                            WriteLog($"{row.ThongBao} | Tồn ban đầu: {row.TonKhoBanDau} | Tồn sau rollback: {row.TonKhoTamThoi}", "USER A");
+                            WriteLog($"{row.ThongBao} | Mã LK: {row.MaLK} | SL bán: {row.SoLuongBan} | Tồn đầu: {row.TonKhoBanDau} | Tồn tạm: {row.TonKhoTamThoi} | Tồn cuối: {row.TonKhoKetThuc} | {row.TrangThai}", "GIAO TÁC");
                         }
 
                         var lk6a = await context.LinhKiens.AsNoTracking()
-                                               .FirstOrDefaultAsync(x => x.MaLk == "MOU001");
+                                               .FirstOrDefaultAsync(x => x.MaLk == maLkGiaoTac);
                         App.Current.Dispatcher.Invoke(() =>
                             DataUserA = new ObservableCollection<LinhKien>(new[] { lk6a }));
                         break;
                 }
 
-                WriteLog("GIAO TÁC A HOÀN THÀNH!", "USER A");
+                WriteLog(SelectedScenarioIndex == 5 ? "THỰC HIỆN GIAO TÁC HOÀN THÀNH!" : "GIAO TÁC A HOÀN THÀNH!",
+                         SelectedScenarioIndex == 5 ? "GIAO TÁC" : "USER A");
             }
             catch (Exception ex)
             {

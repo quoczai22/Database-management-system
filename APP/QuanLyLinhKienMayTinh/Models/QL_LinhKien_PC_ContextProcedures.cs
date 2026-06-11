@@ -382,7 +382,7 @@ namespace QuanLyLinhKienMayTinh.Models
             return _;
         }
 
-        public virtual async Task<List<sp_kichban6_giaotaca_rollbackResult>> sp_kichban6_giaotaca_rollbackAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        public virtual async Task<List<sp_kichban6_giaotaca_rollbackResult>> sp_kichban6_giaotaca_rollbackAsync(string maLK, int? soLuongBan, bool? giaLapLoi, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -393,9 +393,28 @@ namespace QuanLyLinhKienMayTinh.Models
 
             var sqlParameters = new []
             {
+                new SqlParameter
+                {
+                    ParameterName = "MaLK",
+                    Size = 6,
+                    Value = maLK ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Char,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "SoLuongBan",
+                    Value = soLuongBan ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Int,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "GiaLapLoi",
+                    Value = giaLapLoi ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Bit,
+                },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryAsync<sp_kichban6_giaotaca_rollbackResult>("EXEC @returnValue = [dbo].[sp_kichban6_giaotaca_rollback]", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<sp_kichban6_giaotaca_rollbackResult>("EXEC @returnValue = [dbo].[sp_kichban6_giaotaca_rollback] @MaLK = @MaLK, @SoLuongBan = @SoLuongBan, @GiaLapLoi = @GiaLapLoi", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 

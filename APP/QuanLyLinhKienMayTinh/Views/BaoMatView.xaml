@@ -174,6 +174,38 @@
                   Width="520" Padding="10,8" FontSize="13" 
                   VerticalContentAlignment="Center"/>
 
+                <StackPanel Orientation="Horizontal"
+                            Visibility="{Binding GiaoTacCuTheVisibility}"
+                            VerticalAlignment="Center"
+                            Margin="16,0,0,0">
+                    <TextBlock Text="Linh kiện:"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource MainTextColor}"
+                               FontWeight="SemiBold"
+                               Margin="0,0,6,0"/>
+                    <ComboBox ItemsSource="{Binding DanhSachLinhKienGiaoTac}"
+                              SelectedItem="{Binding LinhKienGiaoTacChon, Mode=TwoWay}"
+                              DisplayMemberPath="TenLk"
+                              Width="190"
+                              Padding="8,6"
+                              VerticalContentAlignment="Center"/>
+                    <TextBlock Text="SL:"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource MainTextColor}"
+                               FontWeight="SemiBold"
+                               Margin="10,0,6,0"/>
+                    <TextBox Text="{Binding SoLuongBanGiaoTac, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Width="54"
+                             Padding="8,6"
+                             VerticalContentAlignment="Center"/>
+                    <CheckBox Content="Giả lập lỗi rollback"
+                              IsChecked="{Binding GiaLapLoiRollback, Mode=TwoWay}"
+                              VerticalAlignment="Center"
+                              Margin="12,0,0,0"
+                              Foreground="{DynamicResource MainTextColor}"
+                              FontWeight="SemiBold"/>
+                </StackPanel>
+
                 <CheckBox Content="Chạy chế độ Đã Fix Lỗi"
                   IsChecked="{Binding IsFixMode, Mode=TwoWay}"
                   VerticalAlignment="Center"
