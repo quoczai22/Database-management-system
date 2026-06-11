@@ -139,6 +139,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
         public string UserALabel => SelectedScenarioIndex == 5 ? "Thực hiện giao tác trên View" : "Giao tác T1  —  User A";
         public string RunUserAButtonText => SelectedScenarioIndex == 5 ? "▶  Thực hiện giao tác" : "▶  Kích hoạt Tiến trình A";
 
+        private bool _dangCapNhatLuaChonGiaoTac;
         private ObservableCollection<LinhKien> _danhSachLinhKienGiaoTac = new ObservableCollection<LinhKien>();
         public ObservableCollection<LinhKien> DanhSachLinhKienGiaoTac
         {
@@ -152,10 +153,13 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             get => _linhKienGiaoTacChon;
             set
             {
+                if (_linhKienGiaoTacChon?.MaLk == value?.MaLk)
+                    return;
+
                 _linhKienGiaoTacChon = value;
                 OnPropertyChanged(nameof(LinhKienGiaoTacChon));
                 OnPropertyChanged(nameof(MaLinhKienGiaoTac));
-                if (SelectedScenarioIndex == 5)
+                if (!_dangCapNhatLuaChonGiaoTac && SelectedScenarioIndex == 5)
                     _ = LoadDataAsync();
             }
         }
@@ -604,11 +608,19 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    DanhSachLinhKienGiaoTac = new ObservableCollection<LinhKien>(allData.OrderBy(x => x.MaLk));
-                    if (LinhKienGiaoTacChon == null || !DanhSachLinhKienGiaoTac.Any(x => x.MaLk == LinhKienGiaoTacChon.MaLk))
+                    _dangCapNhatLuaChonGiaoTac = true;
+                    try
                     {
-                        LinhKienGiaoTacChon = DanhSachLinhKienGiaoTac.FirstOrDefault(x => x.MaLk == "MOU001")
-                                             ?? DanhSachLinhKienGiaoTac.FirstOrDefault();
+                        DanhSachLinhKienGiaoTac = new ObservableCollection<LinhKien>(allData.OrderBy(x => x.MaLk));
+                        if (LinhKienGiaoTacChon == null || !DanhSachLinhKienGiaoTac.Any(x => x.MaLk == LinhKienGiaoTacChon.MaLk))
+                        {
+                            LinhKienGiaoTacChon = DanhSachLinhKienGiaoTac.FirstOrDefault(x => x.MaLk == "MOU001")
+                                                 ?? DanhSachLinhKienGiaoTac.FirstOrDefault();
+                        }
+                    }
+                    finally
+                    {
+                        _dangCapNhatLuaChonGiaoTac = false;
                     }
 
                     DataUserA = new ObservableCollection<LinhKien>(filtered);
