@@ -1384,13 +1384,11 @@ go
 
 -- Trịnh Hữu Kiến Quốc - giao tác cụ thể: bán linh kiện có rollback
 -- giao tác a: bán linh kiện; đủ tồn kho thì commit, vượt tồn kho thì rollback toàn bộ thay đổi
-create or alter procedure sp_kichban6_giaotaca_rollback
+create procedure sp_kichban6_giaotaca_rollback
     @MaLK char(6),
     @SoLuongBan int
 as
 begin
-    set xact_abort on;
-
     declare @tonkho_bandau int;
     declare @tonkho_tam int;
     declare @tonkho_ketthuc int;
@@ -1651,7 +1649,6 @@ go
 --declare @tonkho_bandau int;
 --declare @tonkho_tam int;
 --
---set xact_abort on;
 --begin try
 --    begin tran;
 --
