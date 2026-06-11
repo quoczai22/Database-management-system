@@ -1383,8 +1383,8 @@ end
 go
 
 -- Trịnh Hữu Kiến Quốc - giao tác cụ thể: bán linh kiện có rollback
--- giao tác a: bán linh kiện; đủ tồn kho thì commit, vượt tồn kho thì rollback toàn bộ thay đổi
-create procedure sp_kichban6_giaotaca_rollback
+-- giao tác bán linh kiện: đủ tồn kho thì commit, vượt tồn kho thì rollback toàn bộ thay đổi
+create procedure sp_kichban6_giaotac_rollback
     @MaLK char(6),
     @SoLuongBan int
 as
@@ -1449,23 +1449,6 @@ begin
         @tonkho_tam as TonKhoTamThoi,
         @tonkho_ketthuc as TonKhoKetThuc,
         @trangthai as TrangThai;
-end
-go
-
--- giao tác b: kiểm tra tồn kho sau khi giao tác bán hàng rollback
-create procedure sp_kichban6_giaotacb_docsaorollback
-as
-begin
-    set transaction isolation level read committed;
-    begin tran;
-
-    select
-        N'Kiểm tra tồn kho sau rollback' as ThongBao,
-        soluongton as TonKhoDocDuoc
-    from linhkien
-    where malk = 'MOU001';
-
-    commit tran;
 end
 go
 
@@ -1639,7 +1622,7 @@ go
 --Nếu số lượng bán <= tồn kho thì commit; nếu số lượng bán > tồn kho thì rollback.
 
 ---- Chạy proc giống thao tác trên View
---exec sp_kichban6_giaotaca_rollback
+--exec sp_kichban6_giaotac_rollback
 --    @MaLK = 'MOU001',
 --    @SoLuongBan = 15; -- nhập nhỏ hơn hoặc bằng tồn kho để commit, nhập lớn hơn tồn kho để rollback
 

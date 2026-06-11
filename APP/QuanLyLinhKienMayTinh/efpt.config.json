@@ -111,11 +111,7 @@
          "ObjectType": 1
       },
       {
-         "Name": "[dbo].[sp_kichban6_giaotaca_rollback]",
-         "ObjectType": 1
-      },
-      {
-         "Name": "[dbo].[sp_kichban6_giaotacb_docsaorollback]",
+         "Name": "[dbo].[sp_kichban6_giaotac_rollback]",
          "ObjectType": 1
       },
       {

@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyLinhKienMayTinh.Models
 {
-    public partial class sp_kichban6_giaotaca_rollbackResult
+    public partial class sp_kichban6_giaotac_rollbackResult
     {
         [StringLength(65)]
         public string ThongBao { get; set; }

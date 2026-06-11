@@ -26,8 +26,7 @@ namespace QuanLyLinhKienMayTinh.Models
         Task<int> sp_kichban4_giaotacbAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_kichban5_giaotacaAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_kichban5_giaotacbAsync(bool? isfixmode, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
-        Task<List<sp_kichban6_giaotaca_rollbackResult>> sp_kichban6_giaotaca_rollbackAsync(string maLK, int? soLuongBan, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
-        Task<List<sp_kichban6_giaotacb_docsaorollbackResult>> sp_kichban6_giaotacb_docsaorollbackAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<List<sp_kichban6_giaotac_rollbackResult>> sp_kichban6_giaotac_rollbackAsync(string maLK, int? soLuongBan, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<sp_locdanhsachhoadonResult>> sp_locdanhsachhoadonAsync(string tukhoan, string trangthai, DateOnly? tungay, DateOnly? denngay, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<sp_locdanhsachphieunhapResult>> sp_locdanhsachphieunhapAsync(string tukhoan, DateOnly? tungay, DateOnly? denngay, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_NhapLinhKienAsync(DateOnly? ngayNhap, string maNV, string maNSX, string maLK, int? soLuongNhap, int? donGiaNhap, OutputParameter<string> maPN, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);

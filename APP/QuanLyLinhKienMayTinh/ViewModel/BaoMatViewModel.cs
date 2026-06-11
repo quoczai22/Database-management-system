@@ -660,7 +660,11 @@ namespace QuanLyLinhKienMayTinh.ViewModels
             try
             {
                 using var context = CreateNewContext();
-                WriteLog($"Bắt đầu {KichBanChon.TenKichBan}...", "USER A");
+                var logNguCanh = SelectedScenarioIndex == 5 ? "GIAO TÁC" : "USER A";
+                var thongBaoBatDau = SelectedScenarioIndex == 5
+                    ? $"Bắt đầu thực hiện {KichBanChon.TenKichBan}..."
+                    : $"Bắt đầu {KichBanChon.TenKichBan}...";
+                WriteLog(thongBaoBatDau, logNguCanh);
 
                 switch (SelectedScenarioIndex)
                 {
@@ -749,12 +753,13 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         if (SoLuongBanGiaoTac <= 0)
                         {
                             MessageBox.Show("Số lượng bán phải lớn hơn 0.", "Giao tác", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            break;
+                            WriteLog("Dừng giao tác: số lượng bán không hợp lệ.", "GIAO TÁC");
+                            return;
                         }
 
                         var maLkGiaoTac = MaLinhKienGiaoTac;
                         WriteLog($"Thực hiện giao tác bán {SoLuongBanGiaoTac} {maLkGiaoTac}. SQL sẽ COMMIT nếu đủ tồn kho, ROLLBACK nếu vượt tồn kho.", "GIAO TÁC");
-                        var kq6a = await context.Procedures.sp_kichban6_giaotaca_rollbackAsync(maLkGiaoTac, SoLuongBanGiaoTac);
+                        var kq6a = await context.Procedures.sp_kichban6_giaotac_rollbackAsync(maLkGiaoTac, SoLuongBanGiaoTac);
                         foreach (var row in kq6a)
                         {
                             WriteLog($"{row.ThongBao} | Mã LK: {row.MaLK} | SL bán: {row.SoLuongBan} | Tồn đầu: {row.TonKhoBanDau} | Tồn tạm: {row.TonKhoTamThoi} | Tồn cuối: {row.TonKhoKetThuc} | {row.TrangThai}", "GIAO TÁC");
@@ -767,12 +772,13 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         break;
                 }
 
-                WriteLog(SelectedScenarioIndex == 5 ? "THỰC HIỆN GIAO TÁC HOÀN THÀNH!" : "GIAO TÁC A HOÀN THÀNH!",
+                WriteLog(SelectedScenarioIndex == 5 ? "KẾT THÚC GIAO TÁC!" : "GIAO TÁC A HOÀN THÀNH!",
                          SelectedScenarioIndex == 5 ? "GIAO TÁC" : "USER A");
             }
             catch (Exception ex)
             {
-                WriteLog($"Lỗi Giao tác A: {ex.Message}", "USER A");
+                WriteLog(SelectedScenarioIndex == 5 ? $"Lỗi khi thực hiện giao tác: {ex.Message}" : $"Lỗi Giao tác A: {ex.Message}",
+                         SelectedScenarioIndex == 5 ? "GIAO TÁC" : "USER A");
             }
             finally
             {
@@ -845,18 +851,8 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         break;
 
                     case 5: // Business transaction with rollback
-                        WriteLog("B kiểm tra tồn kho MOU001 sau giao tác bán hàng bị rollback", "USER B");
-                        var kq6b = await context.Procedures.sp_kichban6_giaotacb_docsaorollbackAsync();
-                        foreach (var row in kq6b)
-                        {
-                            WriteLog($"{row.ThongBao} | Tồn kho đọc được: {row.TonKhoDocDuoc}", "USER B");
-                        }
-
-                        var lk6b = await context.LinhKiens.AsNoTracking()
-                                               .FirstOrDefaultAsync(x => x.MaLk == "MOU001");
-                        App.Current.Dispatcher.Invoke(() =>
-                            DataUserB = new ObservableCollection<LinhKien>(new[] { lk6b }));
-                        break;
+                        WriteLog("Mục giao tác rollback cụ thể chỉ sử dụng một tiến trình trên View, không có giao tác B.", "GIAO TÁC");
+                        return;
                 }
 
                 WriteLog("GIAO TÁC B HOÀN THÀNH!", "USER B");

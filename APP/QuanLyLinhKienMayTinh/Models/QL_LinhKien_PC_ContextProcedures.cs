@@ -382,7 +382,7 @@ namespace QuanLyLinhKienMayTinh.Models
             return _;
         }
 
-        public virtual async Task<List<sp_kichban6_giaotaca_rollbackResult>> sp_kichban6_giaotaca_rollbackAsync(string maLK, int? soLuongBan, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        public virtual async Task<List<sp_kichban6_giaotac_rollbackResult>> sp_kichban6_giaotac_rollbackAsync(string maLK, int? soLuongBan, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -408,27 +408,7 @@ namespace QuanLyLinhKienMayTinh.Models
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryAsync<sp_kichban6_giaotaca_rollbackResult>("EXEC @returnValue = [dbo].[sp_kichban6_giaotaca_rollback] @MaLK = @MaLK, @SoLuongBan = @SoLuongBan", sqlParameters, cancellationToken);
-
-            returnValue?.SetValue(parameterreturnValue.Value);
-
-            return _;
-        }
-
-        public virtual async Task<List<sp_kichban6_giaotacb_docsaorollbackResult>> sp_kichban6_giaotacb_docsaorollbackAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
-        {
-            var parameterreturnValue = new SqlParameter
-            {
-                ParameterName = "returnValue",
-                Direction = System.Data.ParameterDirection.Output,
-                SqlDbType = System.Data.SqlDbType.Int,
-            };
-
-            var sqlParameters = new []
-            {
-                parameterreturnValue,
-            };
-            var _ = await _context.SqlQueryAsync<sp_kichban6_giaotacb_docsaorollbackResult>("EXEC @returnValue = [dbo].[sp_kichban6_giaotacb_docsaorollback]", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<sp_kichban6_giaotac_rollbackResult>("EXEC @returnValue = [dbo].[sp_kichban6_giaotac_rollback] @MaLK = @MaLK, @SoLuongBan = @SoLuongBan", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
