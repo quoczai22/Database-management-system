@@ -759,7 +759,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
 
                         var maLkGiaoTac = MaLinhKienGiaoTac;
                         WriteLog($"Thực hiện giao tác bán {SoLuongBanGiaoTac} {maLkGiaoTac}. SQL sẽ COMMIT nếu đủ tồn kho, ROLLBACK nếu vượt tồn kho.", "GIAO TÁC");
-                        var kq6a = await context.Procedures.sp_kichban6_giaotaca_rollbackAsync(maLkGiaoTac, SoLuongBanGiaoTac);
+                        var kq6a = await context.Procedures.sp_kichban6_giaotac_rollbackAsync(maLkGiaoTac, SoLuongBanGiaoTac);
                         foreach (var row in kq6a)
                         {
                             WriteLog($"{row.ThongBao} | Mã LK: {row.MaLK} | SL bán: {row.SoLuongBan} | Tồn đầu: {row.TonKhoBanDau} | Tồn tạm: {row.TonKhoTamThoi} | Tồn cuối: {row.TonKhoKetThuc} | {row.TrangThai}", "GIAO TÁC");
@@ -851,18 +851,8 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                         break;
 
                     case 5: // Business transaction with rollback
-                        WriteLog("B kiểm tra tồn kho MOU001 sau giao tác bán hàng bị rollback", "USER B");
-                        var kq6b = await context.Procedures.sp_kichban6_giaotacb_docsaorollbackAsync();
-                        foreach (var row in kq6b)
-                        {
-                            WriteLog($"{row.ThongBao} | Tồn kho đọc được: {row.TonKhoDocDuoc}", "USER B");
-                        }
-
-                        var lk6b = await context.LinhKiens.AsNoTracking()
-                                               .FirstOrDefaultAsync(x => x.MaLk == "MOU001");
-                        App.Current.Dispatcher.Invoke(() =>
-                            DataUserB = new ObservableCollection<LinhKien>(new[] { lk6b }));
-                        break;
+                        WriteLog("Mục giao tác rollback cụ thể chỉ sử dụng một tiến trình trên View, không có giao tác B.", "GIAO TÁC");
+                        return;
                 }
 
                 WriteLog("GIAO TÁC B HOÀN THÀNH!", "USER B");
