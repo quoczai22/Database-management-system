@@ -749,7 +749,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                             DataUserA = new ObservableCollection<LinhKien>(lk4));
                         break;
 
-                    case 5: // Business transaction with rollback
+                    case 5: // Giao tác cụ thể: bán linh kiện có rollback nếu lỗi tồn kho
                         if (SoLuongBanGiaoTac <= 0)
                         {
                             MessageBox.Show("Số lượng bán phải lớn hơn 0.", "Giao tác", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -850,7 +850,7 @@ namespace QuanLyLinhKienMayTinh.ViewModels
                             DataUserB = new ObservableCollection<LinhKien>(lk4));
                         break;
 
-                    case 5: // Business transaction with rollback
+                    case 5: //B chỉ đọc, không có giao tác nào khác
                         WriteLog("Mục giao tác rollback cụ thể chỉ sử dụng một tiến trình trên View, không có giao tác B.", "GIAO TÁC");
                         return;
                 }

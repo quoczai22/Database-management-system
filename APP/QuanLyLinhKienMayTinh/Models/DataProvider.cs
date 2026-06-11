@@ -8,7 +8,7 @@ namespace QuanLyLinhKienMayTinh.Models
         private static DataProvider _ins;
         public static DataProvider Ins => _ins ??= new DataProvider();
 
-        private const string ServerName = @"localhost\SQLEXPRESS";
+        private const string ServerName = @"(localdb)\MSSQLLocalDB";
         private const string DatabaseName = "QL_LinhKien_PC";
         private string _currentConnStr;
         //khi chạy phải đổi data source thành tên server của máy
